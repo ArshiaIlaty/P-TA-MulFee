@@ -96,7 +96,7 @@ def train_classifier(dataloader, classifier, optimizer, loss_fn, epochs=3):
 
 
 
-def classifier_train(csv_pth="heloc.csv", N = 2, model_path="./gpt2_finetuned", model_name="gpt2", classifier_save_pth="./classifier.pth"):
+def classifier_train(csv_pth="heloc.csv", N = 2, model_path="./gpt2_finetuned", model_name="gpt2", classifier_save_pth="./classifier.pth", write_csv=False):
     df = pd.read_csv(csv_pth)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     if not tokenizer.pad_token:
@@ -126,6 +126,19 @@ def classifier_train(csv_pth="heloc.csv", N = 2, model_path="./gpt2_finetuned", 
     
     df["corrupted_text"] = df["formatted_text"].apply(lambda x: remove_random_values(x, num_remove=N))
     df["repaired_text"] = df["corrupted_text"].apply(lambda x: fill_missing_values(x[0], x[1]))
+    if write_csv:
+        dict={}
+        for sample in df["repaired_text"]:
+            key_list=sample.split(", ") #["xx is xx", ...]
+            for key in key_list:
+                key, key_value=key.split(" is ")
+                if key not in dict:
+                    dict[key]=[key_value]
+                else:
+                    dict[key].append(key_value)
+        df = pd.DataFrame(dict)
+        df.to_csv('output.csv', index=False)
+        return
     
     real_texts = df["formatted_text"].tolist()
     generated_texts = df["repaired_text"].tolist()  
@@ -142,3 +155,4 @@ def classifier_train(csv_pth="heloc.csv", N = 2, model_path="./gpt2_finetuned", 
     
     train_classifier(dataloader, classifier, optimizer, loss_fn)
     torch.save(classifier.state_dict(), classifier_save_pth)
+    return df
