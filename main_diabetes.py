@@ -1,6 +1,6 @@
-from great import *
-from classifier import *
-from gan import *
+from great_diabetes import *
+from classifier_diabetes import *
+from gan_diabetes import *
 import torch
 import random
 import pandas as pd
@@ -13,16 +13,30 @@ from transformers import (
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from utils import format_row
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import numpy as np
 
 
 def main():
-    csv_path = "heloc.csv"
+    # Set specific GPU - use GPU 1 if available, otherwise use CPU
+    if torch.cuda.is_available():
+        if torch.cuda.device_count() > 1:
+            torch.cuda.set_device(1)  # Use GPU 1
+            device = torch.device("cuda:1")
+        else:
+            device = torch.device("cuda:0")
+    else:
+        device = torch.device("cpu")
+
+    print(f"Using device: {device}")
+
+    csv_path = "diabetes.csv"
     model_name = "gpt2"
-    save_path = "./gpt2_finetuned"
-    classifier_save_path = "./classifier.pth"
+    save_path = "./gpt2_finetuned_diabetes"
+    classifier_save_path = "./classifier_diabetes.pth"
     N = 2
     total_epoch_num = 1
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     df = pd.read_csv(csv_path)
     for epoch in range(total_epoch_num):
@@ -37,12 +51,12 @@ def main():
             csv_pth=csv_path,
             N=N,
             model_path=save_path,
-            model_name=model_name,
+            model_name="distilbert-base-uncased",
             classifier_save_pth=classifier_save_path,
         )
 
-        classifier = TextClassifier(model_name=model_name).cuda()
-        classifier.load_state_dict(torch.load("./classifier.pth"))
+        classifier = TextClassifier(model_name="distilbert-base-uncased").to(device)
+        classifier.load_state_dict(torch.load(classifier_save_path))
         classifier.eval()
 
         model = AutoModelForCausalLM.from_pretrained(save_path).to(device)

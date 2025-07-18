@@ -5,19 +5,29 @@ from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
     AutoModelForSequenceClassification,
+    AdamW,
 )
-from torch.optim import AdamW
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from utils import format_row
 import logging
 import sys
+import warnings
 
-# Set up logging
+# Suppress the specific warning about uninitialized weights
+warnings.filterwarnings(
+    "ignore",
+    message="Some weights of GPT2ForSequenceClassification were not initialized",
+)
+
+# Set up logging to both file and console
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
+    handlers=[
+        logging.FileHandler("classifier_diabetes_training.log"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 
 
@@ -45,10 +55,11 @@ def remove_random_values(input_text, num_remove=2):
 
 
 class TextClassifier(nn.Module):
-    def __init__(self, model_name):
+    def __init__(self, model_name="distilbert-base-uncased"):
         super(TextClassifier, self).__init__()
+        # Use DistilBERT for better classification performance and smaller size
         self.bert = AutoModelForSequenceClassification.from_pretrained(
-            model_name, num_labels=2
+            model_name, num_labels=2, ignore_mismatched_sizes=True
         )
 
     def forward(self, input_ids, attention_mask):
@@ -129,11 +140,11 @@ def train_classifier(dataloader, classifier, optimizer, loss_fn, epochs=3):
 
 
 def classifier_train(
-    csv_pth="heloc.csv",
+    csv_pth="diabetes.csv",
     N=2,
-    model_path="./gpt2_finetuned",
-    model_name="gpt2",
-    classifier_save_pth="./classifier.pth",
+    model_path="./gpt2_finetuned_diabetes",
+    model_name="distilbert-base-uncased",
+    classifier_save_pth="./classifier_diabetes.pth",
     write_csv=False,
 ):
     try:
@@ -211,7 +222,7 @@ def classifier_train(
         dataset = TextDataset(texts, labels, tokenizer)
         dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
-        logging.info("Initializing classifier")
+        logging.info(f"Initializing classifier with {model_name}")
         classifier = TextClassifier(model_name=model_name).cuda()
         optimizer = AdamW(classifier.parameters(), lr=5e-5)
         loss_fn = nn.CrossEntropyLoss()

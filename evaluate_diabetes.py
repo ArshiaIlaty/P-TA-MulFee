@@ -51,4 +51,5 @@ def train_and_evaluate(train_file, test_file, label_column):
     print(f"Accuracy: {acc:.4f}")
 
 
-train_and_evaluate("output_heloc_clean.csv", "heloc.csv", "RiskPerformance")
+# Use the cleaned synthetic data
+train_and_evaluate("output_diabetes_clean.csv", "diabetes.csv", "diabetes")
