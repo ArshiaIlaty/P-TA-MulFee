@@ -87,13 +87,13 @@ def load_hierarchical_discriminators(
             logger.info("Creating new hierarchical discriminators...")
 
             device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-            discriminators = HierarchicalDiscriminatorSystem(device=device)
+            discriminators = HierarchicalDiscriminatorSystem(device=device, dataset_type="diabetes")
             logger.info("New hierarchical discriminators created (untrained)")
             return discriminators, False  # False indicates not trained
 
         # Load existing discriminators
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        discriminators = HierarchicalDiscriminatorSystem(device=device)
+        discriminators = HierarchicalDiscriminatorSystem(device=device, dataset_type="diabetes")
         discriminators.load_discriminators(discriminator_path)
         logger.info("Hierarchical discriminators loaded successfully")
         return discriminators, True  # True indicates trained
@@ -103,7 +103,7 @@ def load_hierarchical_discriminators(
         logger.info("Creating new hierarchical discriminators as fallback...")
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        discriminators = HierarchicalDiscriminatorSystem(device=device)
+        discriminators = HierarchicalDiscriminatorSystem(device=device, dataset_type="diabetes")
         return discriminators, False
 
 
