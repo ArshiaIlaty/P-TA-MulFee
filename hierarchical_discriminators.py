@@ -12,6 +12,17 @@ from utils import format_row
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def _sanity_check_ids(ids, embedding):
+    """Sanity check for token IDs to prevent out-of-range errors"""
+    vocab = embedding.num_embeddings
+    if ids.dtype != torch.long:
+        raise RuntimeError(f"input_ids dtype {ids.dtype}, expected torch.long")
+    bad = (ids < 0) | (ids >= vocab)
+    if bad.any():
+        bad_vals = ids[bad]
+        raise RuntimeError(f"Out-of-range token ids detected. min={int(bad_vals.min())}, "
+                           f"max={int(bad_vals.max())}, vocab={vocab}")
+
 
 class FeatureWiseDiscriminator(nn.Module):
     """
@@ -120,8 +131,9 @@ class HierarchicalDiscriminatorSystem:
     Complete hierarchical discriminator system with multi-level feedback
     """
 
-    def __init__(self, model_name="gpt2", device="cuda"):
+    def __init__(self, model_name="gpt2", device="cuda", dataset_type="generic"):
         self.device = device
+        self.dataset_type = dataset_type
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         if not self.tokenizer.pad_token:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -137,44 +149,65 @@ class HierarchicalDiscriminatorSystem:
 
         self.row_discriminator = RowLevelDiscriminator(model_name=model_name).to(device)
 
-        # Feature-wise discriminators for diabetes dataset
-        self.feature_discriminators = {
-            "age_bmi": FeatureWiseDiscriminator("age_bmi").to(device),
-            "glucose_hba1c": FeatureWiseDiscriminator("glucose_hba1c").to(device),
-            "hypertension_heart": FeatureWiseDiscriminator("hypertension_heart").to(
-                device
-            ),
-            "smoking_diabetes": FeatureWiseDiscriminator("smoking_diabetes").to(device),
-        }
+        # Initialize a shared embedding model for feature extraction (only once)
+        self.embedding_model = AutoModelForSequenceClassification.from_pretrained(
+            model_name, output_hidden_states=True
+        ).to(device)
+        self.embedding_model.eval()  # Set to evaluation mode
 
-        # Optimizers for each discriminator
+        # Feature-wise discriminators - now dataset-agnostic
+        self.feature_discriminators = {}
+        
+        # Initialize feature discriminators based on dataset type
+        if dataset_type == "diabetes":
+            self.feature_discriminators = {
+                "age_bmi": FeatureWiseDiscriminator("age_bmi").to(device),
+                "glucose_hba1c": FeatureWiseDiscriminator("glucose_hba1c").to(device),
+                "hypertension_heart": FeatureWiseDiscriminator("hypertension_heart").to(device),
+                "smoking_diabetes": FeatureWiseDiscriminator("smoking_diabetes").to(device),
+            }
+        elif dataset_type == "heloc":
+            self.feature_discriminators = {
+                "risk_estimate": FeatureWiseDiscriminator("risk_estimate").to(device),
+                "trade_history": FeatureWiseDiscriminator("trade_history").to(device),
+                "delinquency": FeatureWiseDiscriminator("delinquency").to(device),
+                "credit_utilization": FeatureWiseDiscriminator("credit_utilization").to(device),
+            }
+        else:
+            # Generic discriminators for any dataset
+            self.feature_discriminators = {
+                "feature_group_1": FeatureWiseDiscriminator("feature_group_1").to(device),
+                "feature_group_2": FeatureWiseDiscriminator("feature_group_2").to(device),
+                "feature_group_3": FeatureWiseDiscriminator("feature_group_3").to(device),
+                "feature_group_4": FeatureWiseDiscriminator("feature_group_4").to(device),
+            }
+
+        # Optimizers for each discriminator with improved learning rates
+        discriminator_lr = 5e-4  # Increased learning rate for better training
         self.optimizers = {
-            "token": torch.optim.AdamW(self.token_discriminator.parameters(), lr=1e-4),
+            "token": torch.optim.AdamW(self.token_discriminator.parameters(), lr=discriminator_lr),
             "sentence": torch.optim.AdamW(
-                self.sentence_discriminator.parameters(), lr=1e-4
+                self.sentence_discriminator.parameters(), lr=discriminator_lr
             ),
-            "row": torch.optim.AdamW(self.row_discriminator.parameters(), lr=1e-4),
+            "row": torch.optim.AdamW(self.row_discriminator.parameters(), lr=discriminator_lr),
             "features": {
-                name: torch.optim.AdamW(disc.parameters(), lr=1e-4)
+                name: torch.optim.AdamW(disc.parameters(), lr=discriminator_lr)
                 for name, disc in self.feature_discriminators.items()
             },
         }
 
     def extract_feature_embeddings(self, text, feature_name):
         """
-        Extract embeddings for specific feature combinations
+        Extract embeddings for specific feature combinations using shared model
         """
         # Tokenize the text
         encoding = self.tokenizer(
             text, return_tensors="pt", padding=True, truncation=True, max_length=128
         ).to(self.device)
 
-        # Use a simple BERT model to get embeddings
+        # Use the shared embedding model
         with torch.no_grad():
-            model = AutoModelForSequenceClassification.from_pretrained("gpt2").to(
-                self.device
-            )
-            outputs = model(**encoding, output_hidden_states=True)
+            outputs = self.embedding_model(**encoding, output_hidden_states=True)
             # Use last hidden state
             embeddings = outputs.hidden_states[-1].mean(dim=1)  # Average pooling
 
@@ -198,16 +231,42 @@ class HierarchicalDiscriminatorSystem:
         sentence_feedbacks = []
         for sentence in sentences:
             if " is " in sentence:
-                encoding = self.tokenizer(
+                # Use sentence_tokenizer if available, otherwise fall back to main tokenizer
+                tokenizer_to_use = getattr(self, 'sentence_tokenizer', self.tokenizer)
+                encoding = tokenizer_to_use(
                     sentence,
                     return_tensors="pt",
                     padding=True,
                     truncation=True,
                     max_length=64,
                 ).to(self.device)
-                sentence_feedback = self.sentence_discriminator(
-                    encoding["input_ids"], encoding["attention_mask"]
-                )
+                
+                # Sanity check for token IDs
+                if hasattr(self.sentence_discriminator, 'get_input_embeddings'):
+                    try:
+                        _sanity_check_ids(encoding["input_ids"], self.sentence_discriminator.get_input_embeddings())
+                    except RuntimeError as e:
+                        logger.warning(f"Sentence discriminator sanity check failed: {e}")
+                        continue
+                
+                with torch.no_grad():
+                    if hasattr(self.sentence_discriminator, 'classifier'):
+                        # Fixed sentence discriminator (returns probabilities)
+                        sentence_feedback = self.sentence_discriminator(
+                            encoding["input_ids"], encoding["attention_mask"]
+                        )
+                    elif hasattr(self.sentence_discriminator, 'logits'):
+                        # DistilBERT style
+                        out = self.sentence_discriminator(**encoding)
+                        sentence_feedback = out.logits.squeeze()
+                    else:
+                        # GPT-2 style
+                        sentence_feedback = self.sentence_discriminator(
+                            encoding["input_ids"], encoding["attention_mask"]
+                        )
+                        # Handle case where it returns a SequenceClassifierOutput
+                        if hasattr(sentence_feedback, 'logits'):
+                            sentence_feedback = sentence_feedback.logits.squeeze()
                 sentence_feedbacks.append(sentence_feedback.item())
 
         feedback["sentence"] = (
@@ -285,7 +344,9 @@ class HierarchicalDiscriminatorSystem:
                 sentences = text.split(", ")
                 for sentence in sentences:
                     if " is " in sentence:
-                        encoding = self.tokenizer(
+                        # Use sentence_tokenizer if available, otherwise fall back to main tokenizer
+                        tokenizer_to_use = getattr(self, 'sentence_tokenizer', self.tokenizer)
+                        encoding = tokenizer_to_use(
                             sentence,
                             return_tensors="pt",
                             padding=True,
@@ -294,16 +355,48 @@ class HierarchicalDiscriminatorSystem:
                         ).to(self.device)
                         label = all_labels[i].unsqueeze(0).float()  # Ensure float type
 
+                        # Sanity check for token IDs
+                        if hasattr(self.sentence_discriminator, 'get_input_embeddings'):
+                            try:
+                                _sanity_check_ids(encoding["input_ids"], self.sentence_discriminator.get_input_embeddings())
+                            except RuntimeError as e:
+                                logger.warning(f"Sentence discriminator training sanity check failed: {e}")
+                                continue
+
                         self.optimizers["sentence"].zero_grad()
-                        prediction = self.sentence_discriminator(
-                            encoding["input_ids"], encoding["attention_mask"]
-                        )
+                        
+                        # Handle different model types
+                        if hasattr(self.sentence_discriminator, 'classifier'):
+                            # Fixed sentence discriminator (returns probabilities)
+                            prediction = self.sentence_discriminator(
+                                encoding["input_ids"], encoding["attention_mask"]
+                            )
+                        elif hasattr(self.sentence_discriminator, 'logits'):
+                            # DistilBERT style
+                            out = self.sentence_discriminator(**encoding)
+                            prediction = out.logits.squeeze()
+                        else:
+                            # GPT-2 style
+                            prediction = self.sentence_discriminator(
+                                encoding["input_ids"], encoding["attention_mask"]
+                            )
+                            # Handle case where it returns a SequenceClassifierOutput
+                            if hasattr(prediction, 'logits'):
+                                prediction = prediction.logits.squeeze()
+                        
                         # Ensure prediction has the same shape as label
                         if prediction.shape != label.shape:
                             prediction = prediction.squeeze()
                             if prediction.dim() == 0:
                                 prediction = prediction.unsqueeze(0)
-                        loss = F.binary_cross_entropy(prediction, label)
+                        
+                        # Use appropriate loss function based on discriminator type
+                        if hasattr(self.sentence_discriminator, 'classifier'):
+                            # Fixed discriminator outputs probabilities, use BCE
+                            loss = F.binary_cross_entropy(prediction, label)
+                        else:
+                            # Original discriminator outputs logits, use BCE with logits
+                            loss = F.binary_cross_entropy_with_logits(prediction, label)
                         loss.backward()
                         self.optimizers["sentence"].step()
                         total_loss += loss.item()

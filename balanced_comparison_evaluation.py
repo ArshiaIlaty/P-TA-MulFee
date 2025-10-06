@@ -83,7 +83,7 @@ class ThreeWayComparisonEvaluation:
             
         # 3. Synthetic - Hierarchical GPT Fine-Tuned
         try:
-            self.datasets['hierarchical_gpt'] = pd.read_csv('output_hierarchical_clean.csv')
+            self.datasets['hierarchical_gpt'] = pd.read_csv('output_hierarchical_diabetes_clean.csv')
             logger.info(f"✓ Synthetic - Hierarchical GPT Fine-Tuned loaded: {len(self.datasets['hierarchical_gpt'])} samples")
             
             class_dist = self.datasets['hierarchical_gpt']['diabetes'].value_counts()

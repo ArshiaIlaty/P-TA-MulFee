@@ -30,6 +30,10 @@ env.bak/
 venv.bak/
 pers/
 
+history/
+.specstory/
+.qodo/
+
 # IDE
 .idea/
 .vscode/
@@ -40,112 +44,168 @@ pers/
 .settings/
 
 # Jupyter Notebook
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
 .virtual_documents/
 
-# Data and Models
-data/raw/*
-data/processed/*
-data/interim/*
-data/external/*
-models/*.pkl
-models/*.h5
-models/*.pt
-models/*.pth
-models/*.onnx
-*.csv
-*.parquet
-*.json
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/interim/.gitkeep
-!data/external/.gitkeep
-!models/.gitkeep
+# Machine Learning Models and Checkpoints
+*.pth
+*.pt
+*.bin
+*.safetensors
+*.onnx
+*.h5
 *.pkl
-*.tex
-*.pdf
-*.docx
-*.doc
-*.txt
-*.csv
-*.json
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.bmp
-*.tiff
-*.ico
-*.txt
-
-# Logs and Results
-logs/
-*.log
-runs/
+checkpoints/
+models/
 wandb/
 mlruns/
 tensorboard_logs/
+runs/
 
-# OS
+# Training Logs and Results
+*.log
+logs/
+dpo_training_logs/
+ppo_training_logs/
+reports/
+comparison_results/
+figures/
+
+# Generated Data Files (keep original datasets)
+output_*.csv
+*_clean.csv
+*_generated.csv
+*_synthetic.csv
+*_hierarchical.csv
+*_ppo.csv
+*_dpo.csv
+grid_search_results.json
+*.txt
+*.csv
+*.pdf
+*.ppo_training_logs
+*.tex
+*.json
+*.png
+*.md
+*.sh
+*.py
+*.ipynb
+*.log
+*.out
+*.aux
+*.toc
+*.blg
+*.bbl
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+*.log
+*.out
+*.aux
+*.toc
+*.blg
+*.bbl
+*.zip
+*.cls
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Data files and directories
+# It's good practice to not commit large datasets to the repository.
+datasets/
+datasets_pipeline/
+*.csv
+*.json
+*.parquet
+
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*~
+
+# Build and distribution
+/dist
+/build
+*.egg-info
+
+datasets/
+# Temporary and Cache Files
+*.tmp
+*.temp
+*.cache
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+
+# OS Files
 .DS_Store
 Thumbs.db
+*.tmp
+
+# LaTeX Build Files
+*.aux
+*.log
+*.out
+*.toc
+*.blg
+*.bbl
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
 
 # API Keys and Secrets
 *.env
 credentials.json
 client_secrets.json
 service_account.json
-
-# Google Analytics
 ga_credentials/
 analytics_data/
 
-# Documentation
+# Documentation Build
 docs/_build/
 site/
-*.docx
-*.png
-*.txt
-*.aux
-*.log
-*.toc
-*.out
-*.blg
-*.bbl
-*.fls
-*.fdb_latexmk
 
-*.cfg
+# Model Training Directories (exclude all GPT2 fine-tuned models)
+gpt2_*/
+gpt2_finetuned*/
+gpt2_ppo*/
+gpt2_dpo*/
 
-*.lprof
+# Hierarchical Discriminator Checkpoints
+hierarchical_discriminators_*.pth
 
-# Testing
-.coverage
-.pytest_cache/
-htmlcov/
-coverage.xml
-.tox/
-
-# Distribution
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-*.pt
-*.bin
-*.pth
-*.safetensors
+# Keep important files
+!README.md
+!requirements.txt
+!environment.yml

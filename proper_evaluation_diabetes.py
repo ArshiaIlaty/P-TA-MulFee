@@ -409,7 +409,7 @@ if __name__ == "__main__":
 
     # Run comprehensive evaluation
     results = evaluate_synthetic_vs_real(
-        "output_hierarchical_clean.csv", "diabetes.csv"
+        "output_hierarchical_diabetes_clean.csv", "diabetes.csv"
     )
 
     # Create summary
