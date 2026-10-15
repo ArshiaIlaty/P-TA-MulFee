@@ -1,0 +1,136 @@
+\UseRawInputEncoding
+\documentclass[journal,twoside,web]{ieeecolor}
+\usepackage{generic}
+\usepackage{times}
+\usepackage{soul}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{caption}
+\captionsetup[table]{font={small},labelfont={small}}
+\usepackage{graphicx}
+\usepackage{amsmath}
+% \usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+% \usepackage{algpseudocode}
+\usepackage{multirow}
+\usepackage[switch]{lineno}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{hidelinks=true}
+\usepackage{textcomp}
+\usepackage{arydshln}
+\usepackage{ntheorem}
+\usepackage{longtable}
+\usepackage[figuresleft]{rotating}
+% \usepackage{rotating}   % for \rotatebox
+\usepackage{array}
+\usepackage{pdflscape} 
+\usepackage{siunitx}
+\usepackage{makecell}
+\usepackage{comment}
+\usepackage{tcolorbox}
+\usepackage{ragged2e}
+\usepackage{xcolor}
+% --- Revision highlighting (JBHI-00758-2026 major revision) ---
+% \rev{}    : blue  -> text revisions in response to reviewers
+% \newexp{} : red   -> new experiments / newly reported results
+\newcommand{\rev}[1]{{\color{blue}#1}}
+\newcommand{\newexp}[1]{{\color{red}#1}}
+\newcommand{\cmark}{\ensuremath{\checkmark}}
+\newcommand{\pmark}{\ensuremath{\sim}}
+\newcommand{\xmark}{\ensuremath{\times}}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\markboth{\hskip25pc IEEE JOURNAL OF BIOMEDICAL AND HEALTH INFORMATICS}
+{Ilaty \MakeLowercase{\textit{et al.}}: DISCO-TAB: Hierarchical RL for Clinically Constrained Tabular Data Synthesis}
+
+
+\begin{document}
+
+\title{DISCO-TAB: A Hierarchical Reinforcement Learning Framework for \rev{Clinically Constrained Tabular Data Synthesis}}
+
+% \author{Arshia Ilaty$^{*,1,2}$, Hossein Shirazi$^{3}$, Amir Rahmani$^{2}$, and Hajar Homayouni$^{4}$%
+% \thanks{$^{*}$Corresponding author: Arshia Ilaty (e-mail: \href{mailto:ailaty@uci.edu}{ailaty@uci.edu}).}%
+% \thanks{$^{1}$Computational Science Research Center, San Diego State University, San Diego, CA 92182 USA.}%
+% \thanks{$^{2}$School of Nursing and Department of Computer Science, University of California, Irvine, CA 92697 USA.}%
+% \thanks{$^{3}$Fowler College of Business, San Diego State University, San Diego, CA 92182 USA.}
+% \thanks{$^{4}$Department of Computer Science, San Diego State University, San Diego, CA 92182 USA.}%
+% \thanks{H. Shirazi: \href{mailto:hshirazi@sdsu.edu}{hshirazi@sdsu.edu}.\quad A. Rahmani: \href{mailto:amirr1@uci.edu}{amirr1@uci.edu}.\quad H. Homayouni: \href{mailto:hhomayouni@sdsu.edu}{hhomayouni@sdsu.edu}.}}
+
+\author{%
+\makebox[\textwidth][c]{%
+\small Arshia Ilaty, Hossein Shirazi, Amir Rahmani, Hajar Homayouni%
+}%
+}
+
+\maketitle
+
+\begin{abstract}
+\input{01-abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+Biomedical Informatics, Synthetic Data Generation, Reinforcement Learning, Generative Large Language Models, \rev{Disclosure-Risk Evaluation}, Tabular Data Synthesis.
+\end{IEEEkeywords}
+
+\section{Introduction}\label{sec:introduction}
+\input{02-introduction}
+
+\section{Related Work}\label{sec:related_work}
+\input{03-relatedwork}
+
+\section{Methodology}\label{sec:methodology}
+\input{04-methodology}
+
+\section{Experiments and Results}\label{sec:experiments}
+\input{05-result}
+
+\section{Ablation Study}\label{sec:ablation}
+\input{08-ablation}
+
+\section{Discussion and Limitations}\label{sec:discussion}
+\input{06-discussion}
+
+\section{Conclusion}\label{sec:conclusion}
+\input{07-conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\appendix
+\subsection{Implementation and Computational Resources}
+\label{sec:implementation}
+
+To ensure reproducibility and rigorous benchmarking, all experiments were conducted in a unified hardware and software environment.
+
+\subsubsection{Hardware Configuration}
+All model training and evaluation were performed on a single node equipped with \rev{an NVIDIA A100 Tensor Core GPU (80GB VRAM)}. While our ablation studies (Section~\rev{\ref{sec:ablation}}) demonstrate that DISCO-TAB can be effectively trained on consumer-grade hardware (e.g., NVIDIA RTX 3090 with 24GB VRAM) due to our parameter-efficient design, we utilized high-memory infrastructure to facilitate concurrent baseline evaluations.
+
+\subsubsection{Software and Libraries}
+The framework was implemented in \textbf{Python 3.9} using \textbf{PyTorch 2.1.0} as the primary deep learning backend.
+
+\textbf{Generative Backbone:} We utilized the \texttt{transformers} library (v4.35.0) by Hugging Face to initialize the GPT-2 architecture.
+
+\textbf{Reinforcement Learning:} The PPO optimization loop was implemented using the \texttt{trl} (Transformer Reinforcement Learning) library, customized to support our hierarchical multi-objective reward function.
+
+\textbf{Baselines:} Adversarial baselines (CTGAN, TAEGAN) were implemented using the \texttt{SDV} (Synthetic Data Vault) library (v1.4.0). Diffusion baselines (TabDDPM) were reproduced using the official implementations provided by their respective authors to ensure fair comparison.
+
+\textbf{Metrics:} Statistical distance metrics (JSD, Wasserstein) were computed using \texttt{scipy.stats}, and machine learning utility scores were calculated using \texttt{scikit-learn} (v1.3.0).
+
+\subsubsection{Hyperparameter Configuration}
+For the DISCO-TAB generator, we employed the AdamW optimizer with a learning rate of $2 \times 10^{-5}$ and a linear decay schedule. The PPO phase utilized a distinct learning rate of $1.4 \times 10^{-5}$ for the value network, with a clip range $\epsilon = 0.2$ and a mini-batch size of 64. To manage the stability of the adversarial discriminators, we used a lower learning rate of $1 \times 10^{-4}$ with spectral normalization. All models were trained for a maximum of 100 epochs with early stopping based on the validation set perplexity (patience $= 10$ epochs).
+
+\subsection{Use of AI-Based Writing Assistance}
+In accordance with best practice for academic transparency, the authors acknowledge the use of Gemini (Google) in the preparation of this manuscript to assist with writing polish and structural organization. Specifically, the tool was utilized to refine the text in the Abstract, Introduction, Related Work, and Discussion sections to improve readability, ensure a formal academic tone, and correct typographical issues. The prompts used for these revisions generally instructed the model to ``revise this text for clarity and flow,'' ``restructure this section to meet the standards of a biomedical informatics journal,'' and ``evaluate and critique the methodological narrative.'' No AI-based tools were used to generate the core scientific claims, experimental data, analytical results, or novel architectural designs presented in this work.
+
+\input{biography}
+
+\end{document}

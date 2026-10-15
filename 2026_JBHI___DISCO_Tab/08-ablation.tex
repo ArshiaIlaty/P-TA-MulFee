@@ -1,0 +1,85 @@
+
+To systematically validate the contribution of each architectural component in DISCO-TAB, we conducted an extensive ablation study spanning 24 experimental configurations across our nine datasets. This analysis quantifies component importance, identifies optimal architecture subsets, and validates generalization across varying data regimes.
+We categorize configurations into four groups: (i) System Variants, (ii) Reinforcement Learning Methodologies, (iii) Discriminator Granularity, and (4) Balancing Strategies. All comparisons use the Full System (DISCO-TAB with PPO, 4-level discriminators, and IFRS) as the reference baseline ($100\%$ performance). \newexp{The relative-performance values reported in this section are point estimates from $\langle n_{\text{runs}}\rangle$ runs per configuration; the accompanying variability (standard deviation across runs) and the corresponding significance tests are reported using the same protocol described in Section~\ref{sec:experiments} [author to fill in from repeated-run logs].}
+
+
+Collectively, the ablation results directly validate the core design claims of DISCO-TAB. In particular, they (i) confirm the necessity of hierarchical, multi-granular discriminators for enforcing clinical validity, (ii) demonstrate that reinforcement learning provides substantial gains beyond standard LLM fine-tuning, especially in data-scarce regimes, (iii) show that class-aware reward shaping is critical for imbalanced medical datasets, and (iv) reveal a strong synergistic interaction between reinforcement learning and structured discriminators that cannot be achieved by either component in isolation. Each subsection below isolates one of these contributions and quantifies its effect.
+
+\subsubsection{System Architecture Variants}
+We evaluated four primary configurations to establish performance boundaries. The Full System serves as the primary baseline. We compared this against a Single Monolithic Discriminator , replacing the hierarchy with one row-level classifier, and a Minimal Baseline standard GPT-2 fine-tuning. Results (Table~\ref{tab:comprehensive_ablation}) reveal that the hierarchical multi-objective architecture provides a 13.1\% improvement over single-discriminator approaches. The complete system achieves a \rev{37.0\%} improvement over the minimal baseline, confirming that standard LLM fine-tuning is insufficient for high-fidelity tabular synthesis without explicit structural guidance.
+
+These results directly support our first contribution, demonstrating that explicit hierarchical verification is necessary for high-fidelity tabular synthesis and that standard LLM fine-tuning without reinforcement learning is insufficient in clinical settings.
+
+
+\subsubsection{Reinforcement Learning: PPO vs. DPO}
+Direct comparison between Proximal Policy Optimization (PPO) and Direct Preference Optimization (DPO) reveals nuanced behaviors. Under the sparse-reward conditions characteristic of small medical datasets ($N < 500$), PPO consistently outperforms DPO, achieving 14.9\% higher quality metrics than DPO. This stems from PPO's robust policy updates in sparse-reward environments, which is critical for datasets such as Heart Failure or Parkinsons. Conversely, DPO exhibits slightly better scaling and training stability on large datasets ($N > 10,000$). However, given the priority of generating data for scarcity scenarios in healthcare, PPO remains the preferred default for DISCO-TAB.
+
+This analysis substantiates our design choice of PPO as the default optimization strategy for DISCO-TAB, as it more effectively leverages sparse, multi-objective rewards in the small-sample regimes that dominate clinical data synthesis.
+
+\subsubsection{Discriminator Component Contributions}
+We systematically removed individual discriminators to measure their impact.
+\textbf{Row-Level ($D_{row}$):} Removal causes the largest degradation (8.9\%), validating its critical role in maintaining global clinical logic and consistency.
+\textbf{Sentence-Level ($D_{sent}$):} Contributes 4.0\% improvement, providing essential semantic validation of variable-value pairs.
+\textbf{Token-Level ($D_{token}$):} Yields 2.9\% contribution, ensuring syntactic validity (e.g., correct floating-point formats).
+\textbf{Feature-Level ($D_{feat}$):} While contributing the smallest individual gain (1.5\%), its removal correlates with a \rev{marked increase} in joint-distribution divergence (KS statistic), \rev{indicating} its \rev{importance} for preserving specific clinical correlations (e.g., Age vs. Disease).
+
+
+Together, these results validate our second contribution: clinical validity is best enforced through complementary verification at multiple granularities rather than a single monolithic discriminator, with higher-level discriminators governing global logic and lower-level components ensuring syntactic and statistical consistency.
+
+
+
+
+\subsubsection{Class Balancing Strategy Analysis}
+We compared our proposed Inverse Frequency Reward Shaping (IFRS) against traditional strategies like SMOTE, Class Weighting, and Undersampling. IFRS demonstrates superior performance on highly imbalanced datasets, achieving 12.3\% higher balanced accuracy compared to SMOTE on the Diabetes dataset. Unlike SMOTE, which interpolates in feature space and can generate unrealistic artifacts, IFRS works within the generative process, incentivizing the model to learn the semantic structure of minority classes directly. Undersampling showed competitive performance only on large datasets where information loss was negligible.
+
+This confirms our third contribution, showing that integrating class imbalance directly into the reinforcement learning objective is more effective than pre-processing techniques, which operate independently of the generative process.
+
+
+\textbf{Computational Cost-Benefit Analysis}
+Evaluation of computational trade-offs enables informed deployment. The Full System requires approximately 26.3 minutes per training epoch on small datasets. A simplified Two-Level Hierarchy (Sentence + Row discriminators only) achieves 94.2\% of the full system's performance while reducing computational cost by 29\%. This represents an optimal configuration for resource-constrained clinical environments (e.g., local hospital servers). However, for publication-quality data release where fidelity is paramount, the full four-level hierarchy remains necessary.
+
+\begin{table}[t]
+\centering
+\caption{Comprehensive Ablation Study Results. Aggregate performance is computed as the unweighted mean TSTR F1-score across all datasets. All datasets are weighted equally to avoid dominance by large benchmarks.}
+\label{tab:comprehensive_ablation}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Category} & \textbf{Configuration} & \textbf{Relative Perf.} & \textbf{Time (min)} \\
+\midrule
+\multirow{4}{*}{\textbf{System}} & \textbf{Full DISCO-TAB (PPO)} & \textbf{100\%} & 26.3 \\
+& Variant: DPO & 99.2\% & 24.8 \\
+& No Hierarchy (Row Only) & 86.9\% & 16.5 \\
+& Minimal Baseline (No RL) & 63.0\% & 8.7 \\
+\midrule
+\multirow{4}{*}{\textbf{Discriminators}} & \textbf{All Four Levels} & \textbf{100\%} & 26.3 \\
+& w/o Token Disc & 97.2\% & 24.1 \\
+& w/o Sentence Disc & 96.0\% & 23.8 \\
+& w/o Feature Disc & 98.6\% & 24.8 \\
+& w/o Row Disc & 91.1\% & 22.5 \\
+\midrule
+\multirow{4}{*}{\textbf{Balancing}} & \textbf{IFRS (Ours)} & \textbf{100\%} & 26.3 \\
+& SMOTE (Pre-process) & 92.4\% & 26.0 \\
+& Class Weighting (Pre-process) & 97.8\% & 25.9 \\
+& No Balancing & 89.8\% & 26.3 \\
+\midrule
+\multirow{3}{*}{\textbf{Hybrid}} & RL + Discriminators & 100\% & 26.3 \\
+& RL Only (No Disc) & 71.3\% & 12.4 \\
+& Discriminators Only (No RL) & 78.6\% & 22.1 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+These findings highlight an explicit design trade-off in DISCO-TAB: while the full hierarchy maximizes fidelity, reduced configurations offer Pareto-optimal alternatives for deployment in resource-constrained clinical environments.
+
+
+\textbf{Synergy Analysis.}
+The combination of Reinforcement Learning with Hierarchical Discriminators achieves a 37.0\% improvement over baseline. Interestingly, the sum of their individual contributions (RL alone: 18.4\%, Discriminators alone: 22.1\%) suggests a minimal overlap in their utility. RL provides the optimization mechanism to navigate the search space, while discriminators provide the map. Without RL, the discriminators act merely as filters; without discriminators, RL lacks a dense reward signal. Their integration creates a synergistic effect where the generator actively learns to satisfy clinical constraints.
+
+This non-additive interaction empirically supports our final contribution: reinforcement learning and hierarchical discriminators are mutually reinforcing components, and their integration enables learning behaviors that neither approach can achieve independently.
+
+
+
+These ablation findings inform the discussion in Section~\ref{sec:discussion}, where we interpret DISCO-TAB’s strengths and limitations as deliberate design trade-offs rather than isolated component effects.

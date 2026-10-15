@@ -1,0 +1,488 @@
+We propose \textbf{DISCO-TAB}, a hierarchical reinforcement learning framework for synthesizing high-fidelity, \rev{\emph{clinically constrained}} tabular data. The proposed approach mitigates the stochastic and unconstrained nature of standard large language models (LLMs) by explicitly enforcing structural, semantic, and statistical validity through a multi-granular feedback mechanism. Rather than relying on implicit likelihood optimization, DISCO-TAB formulates data generation as a constrained sequential decision-making problem guided by interpretable validity signals.
+
+As illustrated in Fig.~\ref{fig:framework}, the framework consists of three tightly integrated components: (1) an \emph{Automated Constraint Discovery} module that identifies latent clinical and statistical dependencies directly from real data; (2) a \emph{Hierarchical Discriminator System} that evaluates generated samples at four semantic resolutions, token, sentence, feature, and row, to localize and penalize distinct forms of invalidity; and (3) a \emph{Reward-Shaped Proximal Policy Optimization (PPO)} procedure that aligns the generative policy with both global distributional fidelity and robust minority-class representation.
+
+DISCO-TAB does not enforce formal differential privacy guarantees during training; instead, \rev{disclosure risk is assessed empirically using proximity-based auditing metrics (distance to closest record), as detailed in Section~\ref{sec:privacyResults}.}
+Collectively, these components enable DISCO-TAB to generate synthetic tabular data that is statistically faithful, structurally coherent, and suitable for downstream clinical analytics \rev{while supporting empirical, proximity-based privacy-risk assessment. We stress that DISCO-TAB does not provide a formal privacy guarantee (e.g., differential privacy); favorable empirical indicators must not be interpreted as proof of anonymization or as protection against membership-inference or other disclosure attacks.}
+
+Throughout this section, the generator $G_\theta$ and policy $\pi_\theta$ refer to the same autoregressive model, viewed respectively as a data generator and as a stochastic policy; $\mathcal{D}_{ens}$ denotes the discriminator ensemble, with $D_k(\cdot)$ indicating an individual discriminator operating at granularity $k$.
+
+\rev{\noindent\textbf{Assumptions.} The framework rests on three explicit assumptions. (i) The clinically salient dependencies of a dataset are, to first order, captured by the pairwise associations recovered by the constraint-discovery module and by the discriminator hierarchy; higher-order or causal interactions are not modeled. (ii) The schema-aware serialization retains sufficient structural information about each record for the discriminators to localize validity violations. (iii) The quality of the RL reward depends on the calibration and generalization of the component discriminators; poorly calibrated discriminators can therefore bias the learned policy. The consequences of these assumptions are discussed as limitations in Section~\ref{sec:discussion}.}
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{Frame.pdf} 
+    \caption{\textbf{The DISCO-TAB framework for tabular data synthesis.}
+\textbf{(A) Automated Constraint Discovery:} The system analyzes the real dataset ($\mathcal{D}_{real}$) to compute a global correlation matrix and identify statistically significant feature dependencies (e.g., Age vs. Comorbidities), which are used to initialize the feature-level discriminator ($D_{feat}$).
+\textbf{(B) Hierarchical Discriminators:} A multi-objective discriminator ensemble evaluates generated records ($S$) at four semantic granularities: token-level (syntactic validity), sentence-level (local semantic plausibility), feature-level (dependency consistency), and row-level (global coherence).
+\textbf{(C) Inverse Frequency Reward Shaping (IFRS):} During reinforcement learning, the PPO reward is scaled based on the rarity of the target class associated with the generated record, mitigating mode collapse in imbalanced datasets.}
+    \label{fig:framework}
+\end{figure*}
+
+
+
+\subsection{Problem Formulation and Linearization}\label{subSec:PrbFrm}
+
+We use $S_i$ to denote a specific serialized record corresponding to row $r_i \in \mathcal{D}_{real}$, and $S$ to denote a generic generated sequence sampled from the policy.
+Let $\mathcal{D}_{real} = \{r_1, r_2, \dots, r_N\}$ be a private clinical dataset consisting of $N$ patient records. Each record $r_i$ contains $M$ heterogeneous features $\mathcal{F} = \{f_1, f_2, \dots, f_M\}$, where $f_j$ may be continuous (e.g., BMI), categorical (e.g., Diagnosis Code), or ordinal (e.g., Disease Stage).
+
+To leverage the semantic reasoning of pre-trained LLMs, we employ a schema-aware linearization function $\mathcal{L}: \mathcal{R}^M \rightarrow \mathcal{V}^*$ that transforms a structured row $r_i$ into a natural language sequence $S_i = \{w_1, w_2, \dots, w_T\}$. We adopt a verbose template strategy to preserve semantic context:
+\begin{equation}
+    S_i = \text{``[}f_1\text{] is [}v_{i,1}\text{], [}f_2\text{] is [}v_{i,2}\text{],} \dots \text{"}
+\end{equation}
+The generator $G_\theta$, initialized with a GPT-2 backbone, models the probability of a sequence as $P_\theta(S) = \prod_{t=1}^T P(w_t | w_{<t})$.
+
+
+To ensure reproducibility and prevent schema drift, we employ a deterministic linearization scheme shared across all datasets. Feature names are treated as fixed lexical tokens and appear in a predefined order consistent with the original tabular schema. Continuous values are standardized using statistics computed on $\mathcal{D}_{real}$ and rendered with fixed decimal precision. Categorical and ordinal values are represented using canonical string identifiers derived from the original data vocabulary. Missing values are explicitly encoded using a reserved \texttt{[MISSING]} token to distinguish absence from valid zero or null-equivalent values. This schema-aware representation enforces consistent structure during generation and enables discriminators to localize syntactic and semantic violations reliably.
+
+
+\subsection{Automated Constraint Discovery}
+Medical datasets often contain strong statistical dependencies across heterogeneous variables (e.g., Age vs. Comorbidities) that are critical for clinical validity.
+Relying on manual rule definitions is unscalable. Instead, we introduce an unsupervised constraint discovery phase prior to training.
+
+We compute a global correlation matrix $\mathbf{C} \in \mathbb{R}^{M \times M}$ for $\mathcal{D}_{real}$. We utilize Pearson correlation for numerical-numerical pairs, Cramér's V for categorical-categorical pairs, and the Correlation Ratio for mixed types.
+We identify the set of critical dependency pairs $\mathcal{P}_{crit}$ by first filtering feature pairs whose association strength exceeds a predefined threshold $\delta_{thresh}$, and then selecting the top-$k$ strongest pairs among them:
+
+
+\begin{equation}
+    \mathcal{P}_{crit} = \text{Top-}k \Big( \{ (f_a, f_b) \mid |\mathbf{C}_{ab}| \geq \delta_{thresh} \} \Big)
+\end{equation}
+These discovered pairs initialize the input heads of our Feature-Level Discriminator ($D_{feat}$), ensuring the model explicitly optimizes for the preservation of these specific, clinically significant relationships.
+This two-stage selection ensures that only statistically meaningful dependencies are retained while bounding the number of feature-level constraints for computational efficiency and training stability.
+
+
+While this discovery process is correlation-based, it is sufficient to surface dominant linear and mixed-type associations that capture clinically meaningful structure without requiring explicit causal or high-order dependency modeling.
+
+
+\subsection{Hierarchical Multi-Objective Discriminators}
+To guide the generator towards clinically valid distributions, we employ a composite discriminator system $\mathcal{D}_{ens}$ operating at four granularities.
+
+
+Table~\ref{tab:discriminator_overview} summarizes the hierarchical discriminator ensemble, highlighting the semantic granularity, inputs, and roles of each component.
+
+
+\begin{table*}[t]
+\centering
+\caption{Overview of the DISCO-TAB hierarchical discriminator ensemble. Each discriminator operates at a distinct semantic granularity, providing interpretable validity signals that jointly guide reinforcement learning.}
+\label{tab:discriminator_overview}
+\small
+\begin{tabular}{lllll}
+\hline
+\textbf{Discriminator} & \textbf{Granularity} & \textbf{Input} & \textbf{Output} & \textbf{Role} \\
+\hline
+$D_{token}$ & Token-level &
+Individual tokens &
+Token validity score &
+Enforces syntactic correctness \\
+\\[-0.6em]
+$D_{sent}$ & Sentence-level &
+Feature--value clauses &
+Clause plausibility score &
+Detects local semantic contradictions \\
+\\[-0.6em]
+$D_{feat}$ & Feature-level &
+Feature embedding pairs &
+Dependency consistency score &
+Preserves critical statistical dependencies \\
+\\[-0.6em]
+$D_{row}$ & Row-level &
+Full serialized record &
+Global coherence score &
+Ensures holistic clinical plausibility \\
+\hline
+\end{tabular}
+\end{table*}
+
+
+\subsubsection{Level 1: Token Consistency ($D_{token}$)}
+Medical data requires strict syntactic adherence (e.g., ICD codes must follow alphanumeric formats; floats must not contain characters). We employ a lightweight Bidirectional LSTM to evaluate the syntactic validity of each generated token $w_t$ given its local context. This provides immediate, low-level feedback to prevent syntax errors.
+
+
+We adopt a lightweight Bidirectional LSTM for $D_{token}$ rather than deterministic rule-based validation (e.g., regular expressions or hard-coded type checks) for two reasons. First, learned sequence models generalize across heterogeneous schemas and tokenization patterns without requiring manual specification of dataset-specific rules. Second, contextual modeling enables $D_{token}$ to detect subtle syntactic violations that depend on local token context (e.g., malformed numeric values or invalid code prefixes) while remaining differentiable and seamlessly integrable into the reinforcement learning objective. This design balances expressiveness and computational efficiency, providing robust low-level validity signals without constraining the generator through brittle decoding rules.
+
+Let a generated serialized record be
+\begin{equation}
+S=(w_1,w_2,\ldots,w_T),
+\end{equation}
+where $w_t$ is the token emitted at position $t$. Each token is first mapped to an embedding
+\begin{equation}
+e_t = E(w_t),
+\end{equation}
+where $E(\cdot)$ denotes the token embedding matrix.
+
+To capture both left and right local context, we pass the embedded sequence through a bidirectional LSTM:
+\begin{equation}
+\overrightarrow{h}_t = \mathrm{LSTM}_{f}(e_t,\overrightarrow{h}_{t-1}),
+\qquad
+\overleftarrow{h}_t = \mathrm{LSTM}_{b}(e_t,\overleftarrow{h}_{t+1}).
+\end{equation}
+
+The contextual representation of token $w_t$ is then
+\begin{equation}
+h_t^{token} = [\overrightarrow{h}_t \oplus \overleftarrow{h}_t],
+\end{equation}
+where $\oplus$ denotes vector concatenation.
+
+The token-level discriminator outputs a validity probability for each token:
+\begin{equation}
+d_t^{token}
+=
+D_{token}(w_t \mid S)
+=
+\sigma
+\left(
+W_{token} h_t^{token} + b_{token}
+\right),
+\end{equation}
+where $\sigma(\cdot)$ is the sigmoid activation. A value close to $1$ indicates that the token is syntactically consistent with valid serialized medical records.
+
+The record-level token consistency score is obtained by averaging token-level scores:
+\begin{equation}
+D_{token}(S)
+=
+\frac{1}{T}
+\sum_{t=1}^{T}
+d_t^{token}.
+\end{equation}
+
+During discriminator training, each token-level sample is labeled as real or synthetic. The binary cross-entropy loss for $D_{token}$ is
+% \footnotesize
+\begin{equation}
+\begin{aligned}
+\mathcal{L}_{disc}^{token}
+= &-
+\mathbb{E}_{w_t \sim \mathcal{B}_{real}^{token}}
+\left[
+\log D_{token}(w_t)
+\right] \\
+&-
+\mathbb{E}_{w_t \sim \mathcal{B}_{syn}^{token}}
+\left[
+\log(1-D_{token}(w_t))
+\right].
+\end{aligned}
+\end{equation}
+
+
+\subsubsection{Level 2: Semantic Plausibility ($D_{sent}$)}
+
+In the context of serialized tabular data, a ``sentence'' corresponds to a single feature--value clause generated by the linearization template (e.g., ``\texttt{Gender is Male}'' or ``\texttt{Pregnancy is Yes}''). Each clause is delimited deterministically based on the schema-aware serialization rules described in Section~\ref{subSec:PrbFrm}. During training and inference, $D_{sent}$ operates on individual clauses rather than full records, enabling localized detection of semantic inconsistencies between a feature and its assigned value without confounding effects from unrelated attributes.
+
+
+Local contradictions (e.g., "Gender: Male, Pregnancy: Yes") undermine clinical trust. We utilize a BERT-base encoder to evaluate short variable-value segments. This discriminator leverages pre-trained semantic knowledge to penalize logical hallucinations that are syntactically correct but semantically impossible.
+
+
+In the serialized tabular representation, each feature--value clause is treated as a short sentence. Let
+\begin{equation}
+C_m = (w_{a_m}, w_{a_m+1}, \ldots, w_{b_m})
+\end{equation}
+denote the $m$th clause in a generated record $S$, where $a_m$ and $b_m$ are clause boundary indices determined by the schema-aware linearization template. For example, a clause may correspond to ``\texttt{Pregnancy is Yes}'' or ``\texttt{Gender is Male}.''
+
+Each clause is encoded using a BERT encoder:
+\begin{equation}
+H_m^{sent}
+=
+\mathrm{BERT}(C_m).
+\end{equation}
+
+We use the contextual representation of the special classification token, denoted $h_{m,\mathrm{CLS}}^{sent}$, as the clause-level embedding:
+\begin{equation}
+h_m^{sent}
+=
+H_{m,\mathrm{CLS}}^{sent}.
+\end{equation}
+
+The sentence-level discriminator maps this embedding to a semantic plausibility score:
+\begin{equation}
+d_m^{sent}
+=
+D_{sent}(C_m)
+=
+\sigma
+\left(
+W_{sent} h_m^{sent} + b_{sent}
+\right).
+\end{equation}
+
+A score close to $1$ indicates that the feature--value clause is semantically plausible, while a score close to $0$ indicates a likely contradiction or implausible assignment.
+
+The record-level semantic plausibility score is computed by averaging over all $M$ feature--value clauses:
+\begin{equation}
+D_{sent}(S)
+=
+\frac{1}{M}
+\sum_{m=1}^{M}
+d_m^{sent}.
+\end{equation}
+
+The discriminator is trained using binary cross-entropy over real and synthetic clauses:
+\begin{equation}
+\begin{aligned}
+\mathcal{L}_{disc}^{sent}
+=
+&-
+\mathbb{E}_{C_m \sim \mathcal{B}_{real}^{sent}}
+\left[
+\log D_{sent}(C_m)
+\right]\\
+&-
+\mathbb{E}_{C_m \sim \mathcal{B}_{syn}^{sent}}
+\left[
+\log(1-D_{sent}(C_m))
+\right].
+\end{aligned}
+\end{equation}
+
+
+
+The scalar outputs $D_{token}(S)$ and $D_{sent}(S)$ are subsequently incorporated into the composite reward:
+\begin{equation}
+\begin{aligned}
+R_{\mathrm{raw}}(S)
+=
+\lambda_{token}D_{token}(S)
++
+\lambda_{sent}D_{sent}(S) \\
++
+\lambda_{feat}D_{feat}(S)
++
+\lambda_{row}D_{row}(S).
+\end{aligned}
+\end{equation}
+
+
+
+\subsubsection{Level 3: Feature Correlation ($D_{feat}$)}
+For every pair $(f_a, f_b) \in \mathcal{P}_{crit}$, we extract the contextual embeddings $h_a, h_b$ from the generator's last hidden layer. 
+
+For each feature--value clause in the serialized sequence, we maintain a deterministic mapping between feature identifiers and token spans based on the schema-aware linearization rules. Let $\mathcal{T}(f_a)$ denote the set of token indices corresponding to the \emph{value} of feature $f_a$. We compute the feature embedding $h_a$ by mean-pooling the generator's final-layer hidden states over these value tokens:
+\begin{equation}
+h_a = \frac{1}{|\mathcal{T}(f_a)|} \sum_{t \in \mathcal{T}(f_a)} H_t,
+\end{equation}
+where $H_t$ denotes the contextual embedding at token position $t$. Feature-name tokens are excluded from pooling to prevent the discriminator from exploiting trivial lexical cues. The same procedure is applied to obtain $h_b$ for feature $f_b$.
+These embeddings are concatenated and passed through a specialized \textbf{Multi-Layer Perceptron (MLP)} projection head:
+\begin{equation}
+    Score_{feat} = \sigma(W_2 \cdot \text{ReLU}(W_1 [h_a \oplus h_b] + b_1) + b_2)
+\end{equation}
+This encourages preservation of these dependencies if the joint distribution of highly correlated clinical features deviates from the real data manifold.
+The output of this projection head is treated as the feature-level discriminator score, and $D_{feat}(S)$ is obtained by aggregating these scores across all $(f_a,f_b)\in\mathcal{P}_{crit}$ for the record.
+
+
+\subsubsection{Level 4: Global Coherence ($D_{row}$)}
+To assess holistic clinical plausibility, the row-level discriminator evaluates entire serialized records. Specifically, $D_{row}$ operates on the sequence of final-layer token embeddings produced by the generator. These embeddings are aggregated using mean pooling across all token positions to obtain a fixed-length representation of the record, which is then passed through a lightweight Multi-Layer Perceptron (MLP) to produce a scalar realism score:
+\begin{equation}
+D_{row}(S_i) = \sigma\!\left(\text{MLP}\!\left(\frac{1}{T}\sum_{t=1}^{T} H_t\right)\right),
+\end{equation}
+where \rev{$T$ is the sequence length and $H_t$ is the contextual token embedding defined above}. This design captures global feature interactions while remaining computationally efficient and independent of other discriminators, enabling scalable training without introducing heavy Transformer-based overhead.
+
+
+\begin{algorithm}[t]
+\footnotesize
+\captionsetup{font=footnotesize}
+\caption{DISCO-TAB Training Procedure for Clinical Data}
+\label{alg:discotab}
+\begin{algorithmic}[1] % [1] tells the package to number every 1 line
+\Require Real Data $\mathcal{D}_{real}$, Pre-trained Generator $G_{\theta_{init}}$, Correlation Threshold $\delta_{thresh}$, Max Dependency Count $k$, Balancing Factor $\alpha$
+\Ensure Optimized Policy $\pi_{\theta^*}$
+
+\item[] \textbf{Phase 1: Constraint Discovery} % Using \item[] instead of \Statex can help numbering stability
+\State $\mathbf{C} \gets \text{ComputeGlobalCorrelation}(\mathcal{D}_{real})$
+\State $\mathcal{P}_{crit} \gets \text{ExtractPairs}(\mathbf{C}, \delta_{thresh}, k)$ \Comment{Identify dependencies}
+\State Initialize Discriminator Ensemble $\mathcal{D}_{ens} = \{D_{token}, D_{sent}, D_{feat}, D_{row}\}$
+
+\item[] \textbf{Phase 2: RL Optimization Loop}
+\For{epoch $e = 1$ to $E$}
+    \State $\mathcal{B}_{syn} \gets \text{GenerateBatch}(G_{\theta})$
+    \State $\mathcal{B}_{real} \gets \text{SampleBatch}(\mathcal{D}_{real})$
+    
+    \State \textit{// Step A: Update Discriminators}
+    \State $\mathcal{L}_{disc} \gets \sum_k \mu_k \mathcal{L}_{disc}^{(k)}$
+    \State Update $\mathcal{D}_{ens}$ to minimize $\mathcal{L}_{disc}$
+    
+    \State \textit{// Step B: Policy Update with IFRS}
+    \For{sequence $S \in \mathcal{B}_{syn}$}
+        \State $y \gets \text{ExtractDiagnosisLabel}(S)$
+        \State $W_{y} \gets 1 + \alpha \cdot \max(0, \log(\frac{N_{total}}{N_y \cdot |\mathcal{Y}|}))$ \Comment{Calculate Rarity Weight}
+        \State $R_{raw} \gets \sum \lambda_k D_k(S)$
+        \State $R_{total} \gets R_{raw} \cdot W_{y}$ \Comment{Apply Inverse Frequency Shaping}
+    \EndFor
+    
+    \State Update policy and value parameters $(\theta,\phi)$ by maximizing $\mathcal{L}(\theta,\phi)$ via PPO
+\EndFor
+\State \textbf{return} $\pi_{\theta^*}$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+
+
+
+
+
+\subsubsection{Discriminator Training and Loss Aggregation}
+
+We use $\mathcal{B}_{real}^{(k)}$ and $\mathcal{B}_{syn}^{(k)}$ to denote the real and synthetic minibatches constructed at discriminator granularity $k$.
+Each discriminator in the ensemble $\mathcal{D}_{ens} = \{D_{token}, D_{sent}, D_{feat}, D_{row}\}$ is trained as a binary classifier to distinguish real samples from synthetic ones at its respective granularity. Let $\mathcal{B}_{real}$ and $\mathcal{B}_{syn}$ denote minibatches of real and generated records, respectively.
+
+For both real and synthetic samples, token embeddings $H_t$ are obtained via a forward pass through the generator $G_\theta$; for real sequences, embeddings are computed under teacher forcing using the ground-truth token order.
+
+
+\noindent\textbf{Granularity-Specific Training Sets.}
+For each discriminator $D_k$, we construct a task-specific dataset:
+
+1. $D_{token}$ operates on individual tokens extracted from serialized records.
+
+2. $D_{sent}$ operates on short variable--value segments parsed from the sequence.
+
+3.  $D_{feat}$ operates on embedding pairs $(h_a,h_b)$ corresponding to feature pairs $(f_a,f_b)\in\mathcal{P}_{crit}$.
+
+4.  $D_{row}$ operates on full serialized records $S$.
+
+Each sample is labeled as real ($y=1$) if drawn from $\mathcal{D}_{real}$ and synthetic ($y=0$) otherwise.
+
+
+For discriminator $D_k$, we define a binary cross-entropy loss:
+\begin{equation}
+\mathcal{L}_{disc}^{(k)} =
+\mathbb{E}_{x \sim \mathcal{B}_{real}^{(k)}}\!\left[-\log D_k(x)\right]
++
+\mathbb{E}_{x \sim \mathcal{B}_{syn}^{(k)}}\!\left[-\log(1 - D_k(x))\right],
+\end{equation}
+where $\mathcal{B}_{real}^{(k)}$ and $\mathcal{B}_{syn}^{(k)}$ denote the real and synthetic samples at granularity $k$.
+
+
+The overall discriminator loss is the weighted sum of the individual losses:
+\begin{equation}
+\mathcal{L}_{disc} = \sum_{k \in \{token,\,sent,\,feat,\,row\}} \mu_k \, \mathcal{L}_{disc}^{(k)},
+\end{equation}
+where $\mu_k$ controls the relative contribution of each discriminator during training. In our experiments, we set $\mu_k$ uniformly unless stated otherwise.
+
+
+
+\subsection{Optimization via Reward-Shaped RL}
+\label{sec:rl_opt}
+
+We cast tabular record synthesis as an episodic Markov Decision Process (MDP) in which the generator is an autoregressive policy. For a given record template, the policy $\pi_\theta$ generates a serialized sequence $S = (w_1,\dots,w_T)$ token-by-token.
+At decoding step $t$, the \emph{state} is the prefix $s_t = (w_1,\dots,w_{t-1})$, the \emph{action} is the next-token emission $a_t = w_t$, and the episode terminates at $t=T$ when an end-of-record token is produced. Thus, the trajectory distribution is $S \sim \pi_\theta(\cdot)$ with $\pi_\theta(S)=\prod_{t=1}^{T}\pi_\theta(w_t \mid w_{<t})$.
+
+\noindent\textbf{Reward Construction and Timing.}
+After generating a complete sequence $S$, DISCO-TAB computes a composite reward from the discriminator ensemble. While the discriminators operate at different granularities (token/sentence/feature/row), we use their outputs to form a single terminal reward assigned to the trajectory:
+\begin{equation}
+\label{eq:rraw_timing}
+R_{\text{raw}}(S) = \sum_{k \in \{token,\,sent,\,feat,\,row\}} \lambda_k\, D_k(S),
+\end{equation}
+where $D_k(\cdot)\in[0,1]$ denotes the score produced by discriminator $k$ (aggregated over tokens/segments/pairs as appropriate) and $\lambda_k$ controls its contribution. \rev{We stress a distinction that motivated our terminology revision throughout the paper: the term ``multi-granular'' refers to the \emph{sources} of the reward---complementary discriminators evaluating the record at token, sentence, feature, and row granularity---and not to temporally dense, per-step credit assignment. Concretely, the aggregated scalar in Eq.~(\ref{eq:rraw_timing}) is a single \emph{terminal} reward, computed after the record is complete and then broadcast to all time steps through the return $\hat{G}_t$ used for policy-gradient updates. The policy therefore receives structured evaluative feedback from multiple granularities, but a terminal (sequence-level) reward rather than distinct intermediate rewards at each generation step. Extending DISCO-TAB with step-level or token-level credit assignment is an interesting direction for future work (Section~\ref{sec:discussion}).}
+
+\noindent\textbf{Discriminator Output Aggregation.}
+Each discriminator produces multiple local scores at its operating granularity, which are aggregated into a scalar record-level score $D_k(S)$. Specifically, $D_{token}(S)$ and $D_{sent}(S)$ are computed as the mean score over all tokens and feature--value clauses in $S$, respectively; $D_{feat}(S)$ is computed as the mean score over all feature pairs $(f_a,f_b)\in\mathcal{P}_{crit}$ evaluated for the record; and $D_{row}(S)$ directly outputs a scalar score for the entire sequence. Mean aggregation was chosen for stability and to avoid dominance by any single local violation.
+
+
+\subsubsection{Inverse Frequency Reward Shaping (IFRS)}
+Clinical datasets are often severely imbalanced; maximum-likelihood training can underrepresent minority cohorts. To counter this, we scale the reward by a class-dependent weight. For a generated record with target label $y \in \mathcal{Y}$, we define:
+\begin{equation}
+W_y = 1 + \alpha \cdot \max\left(0, \log\left(\frac{N_{\text{total}}}{N_y \cdot |\mathcal{Y}|}\right)\right),
+\end{equation}
+where $N_y$ is the frequency of class $y$ in $\mathcal{D}_{real}$, $N_{\text{total}}=\sum_{y\in\mathcal{Y}}N_y$, and $\alpha$ is a scaling hyperparameter. The final shaped reward is:
+\begin{equation}
+R_{\text{total}}(S) = W_y \cdot R_{\text{raw}}(S)
+\end{equation}
+
+\subsubsection{PPO Objective with KL Regularization}
+We optimize the generator parameters $\theta$ using Proximal Policy Optimization (PPO). Let $\pi_{\theta_{\text{old}}}$ denote the policy before the update, and define the likelihood ratio
+
+\begin{equation}
+r_t(\theta) = \frac{\pi_\theta(w_t \mid w_{<t})}{\pi_{\theta_{\text{old}}}(w_t \mid w_{<t})}
+\end{equation}
+
+We employ a learned value function $V_\phi(s_t)$ to reduce variance and compute advantages. Using the terminal reward, we define the Monte-Carlo return 
+$\hat{G}_t = R_{\text{total}}(S)$ 
+
+for all $t$ and the advantage
+
+\begin{equation}
+\hat{A}_t = \hat{G}_t - V_\phi(s_t)
+\end{equation}
+The PPO clipped surrogate objective is:
+\begin{equation}
+\mathcal{L}_{\text{PPO}}(\theta) = \mathbb{E}\left[
+\min\left(r_t(\theta)\hat{A}_t,\;
+\text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t\right)
+\right]
+\end{equation}
+
+where $\epsilon$ is the clipping threshold. To prevent the policy from drifting excessively from the reference model, we additionally include KL regularization to a fixed reference policy $\pi_{\text{ref}}$ (initialized from the pre-trained backbone):
+
+\begin{equation}
+\begin{aligned}
+\mathcal{L}(\theta,\phi) =
+&\;\mathcal{L}_{\text{PPO}}(\theta)
+- \beta\,\mathbb{E}\!\left[
+\text{KL}\!\left(\pi_\theta(\cdot \mid s_t)\,\|\,\pi_{\text{ref}}(\cdot \mid s_t)\right)
+\right] \\
+&\; - c_v\,\mathbb{E}\!\left[
+\left(V_\phi(s_t)-\hat{G}_t\right)^2
+\right]
+\end{aligned}
+\end{equation}
+
+where $\beta$ controls the KL penalty and $c_v$ weights the value-function regression loss. This formulation ensures stable optimization while aligning the generator with multi-granular validity constraints and minority-class coverage.
+
+
+
+
+\begin{comment}
+    
+
+
+
+\subsection{Optimization via Reward-Shaped RL}
+We treat the generation process as a sequential decision-making problem. The generator $G_\theta$ (policy) receives a cumulative reward $R(S)$ constructed from the discriminator ensemble.
+
+\subsubsection{Inverse Frequency Reward Shaping (IFRS)}
+Clinical datasets are often severely imbalanced. Standard maximum likelihood estimation causes mode collapse, where the model ignores rare classes (e.g., rare diseases). To counter this, we introduce IFRS. For a generated record with target class label $y$, we compute a dynamic weight $W_y$:
+\begin{equation}
+    W_y = 1 + \alpha \cdot \max\left(0, \log\left(\frac{N_{total}}{N_y \times |\mathcal{Y}|}\right)\right)
+\end{equation}
+where $N_y$ is the frequency of class $y$ in $\mathcal{D}_{real}$ and $\alpha$ is a scaling hyperparameter. This assigns significantly higher rewards to successful generation of minority samples.
+
+\subsubsection{PPO Update Rule}
+The total reward for a generated sequence is the weighted sum of discriminator outputs scaled by the IFRS factor:
+\begin{equation}
+    R_{total}(S) = W_y \cdot \sum_{k \in \{token, sent, feat, row\}} \lambda_k D_k(S)
+\end{equation}
+We optimize the generator parameters $\theta$ using Proximal Policy Optimization (PPO) to maximize this expected reward while constraining the policy shift from the initial pre-trained model $\pi_{ref}$ via KL-divergence penalty:
+\begin{equation}
+    \mathcal{L}_{PPO} = \mathbb{E}_{S \sim \pi_\theta} [R_{total}(S) - \beta \text{KL}(\pi_\theta(S) || \pi_{ref}(S))]
+\end{equation}
+This ensures stable training, preventing the model from hacking the reward function (e.g., generating gibberish that satisfies one discriminator) while guiding it toward high-fidelity clinical synthesis.
+
+
+
+\end{comment}
+
+
+
+
+
+
+\subsubsection{Mitigation of Reward Exploitation}
+Reinforcement learning–based generative models are susceptible to reward exploitation, where the policy discovers degenerate strategies that satisfy a subset of objectives without producing semantically meaningful outputs. DISCO-TAB mitigates this risk through several complementary design choices. First, the KL regularization term constrains policy updates to remain close to the reference pre-trained model, preventing abrupt divergence toward adversarial or nonsensical generations. Second, reward signals are derived from a multi-objective discriminator ensemble operating at distinct semantic granularities, making it difficult for the generator to exploit a single weak signal in isolation. Third, rewards are assigned at the trajectory level rather than per-token, discouraging locally optimal but globally invalid sequences. Finally, discriminators are updated continuously using both real and synthetic samples, reducing the risk of stale or easily exploitable decision boundaries. Together, these mechanisms promote stable training and ensure that improvements in reward correspond to meaningful gains in clinical validity and data utility.
+
+
+\subsection{Training Configuration and Hyperparameters}
+To ensure reproducibility, we briefly summarize the key training hyperparameters used in DISCO-TAB. Unless stated otherwise, hyperparameters are held fixed across datasets.
+
+\noindent\textbf{Generator and PPO Optimization.}
+The generator is initialized from a pre-trained GPT-2 backbone. PPO is trained with a fixed learning rate, clipping parameter $\epsilon$, and KL-regularization weight $\beta$ to control deviation from the reference policy. A learned value function is jointly optimized using mean-squared error loss weighted by coefficient $c_v$. All PPO-related hyperparameters, including learning rates, batch sizes, and number of update steps per epoch, are reported in Section~\ref{sec:experiments}.
+
+\noindent\textbf{Discriminator Training.}
+Each discriminator in $\mathcal{D}_{ens}$ is trained using binary cross-entropy loss with equal weighting ($\mu_k = 1$) unless otherwise specified. Discriminators are updated for a fixed number of steps per epoch using minibatches of real and synthetic samples drawn at their respective granularities. The relative contribution of each discriminator to the generator reward is controlled by $\lambda_k$, which is set uniformly in all experiments.
+
+\noindent\textbf{Constraint Discovery and Reward Shaping.}
+The constraint discovery threshold $\delta_{thresh}$ and the maximum number of retained dependency pairs $k$ are fixed across datasets. The Inverse Frequency Reward Shaping parameter $\alpha$ is selected from a small validation sweep and then held constant. Full hyperparameter values are provided in the experimental setup for completeness.
+
+\newexp{\noindent\textbf{[Author to insert after verifying against code.]} The exact configuration values are: association threshold $\delta_{thresh}=\langle\text{VALUE}\rangle$, maximum retained dependency pairs $k=\langle\text{VALUE}\rangle$, discriminator reward weights $\lambda_{token}=\lambda_{sent}=\lambda_{feat}=\lambda_{row}=\langle\text{VALUE}\rangle$ (set uniformly), discriminator loss weights $\mu_k=1$, and IFRS scaling factor $\alpha=\langle\text{VALUE}\rangle$. To assess robustness to these choices, we report a sensitivity analysis in which $\alpha$ and $\lambda_k$ are perturbed by $\pm\langle\text{VALUE}\rangle\%$; downstream utility varied by $\langle\text{VALUE}\rangle$ F1, indicating $\langle$low/moderate/high$\rangle$ sensitivity. \emph{These values must be transcribed directly from the released configuration files rather than estimated.}}
