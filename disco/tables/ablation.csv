@@ -1,0 +1,9 @@
+config,tag,rel_perf_%,rel_sd_%,mean_f1,runtime_min,n
+Full DISCO-TAB,disco,100.0,5.5,0.834,21.2,6
+w/o Token Disc,no_token,95.9,2.8,0.802,18.2,2
+w/o Sentence Disc,no_sent,97.3,1.9,0.813,18.2,2
+w/o Feature Disc,no_feat,90.6,7.6,0.76,18.2,2
+w/o Row Disc,no_row,91.7,4.9,0.767,18.4,2
+w/o IFRS,no_ifrs,103.8,8.8,0.862,18.3,2
+Row-only (no hierarchy),row_only,96.3,3.6,0.805,18.2,2
+No RL (SFT only),no_rl,102.3,3.7,0.852,15.8,2

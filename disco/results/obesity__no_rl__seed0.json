@@ -1,0 +1,94 @@
+{
+  "dataset": "obesity",
+  "seed": 0,
+  "tag": "no_rl",
+  "n_syn": 1688,
+  "valid_rate": 0.7083508182962652,
+  "pcrit": [
+    [
+      "Height",
+      "Gender"
+    ],
+    [
+      "Age",
+      "MTRANS"
+    ],
+    [
+      "Weight",
+      "family_history_with_overweight"
+    ],
+    [
+      "Height",
+      "Weight"
+    ],
+    [
+      "Weight",
+      "CAEC"
+    ],
+    [
+      "family_history_with_overweight",
+      "CAEC"
+    ],
+    [
+      "Height",
+      "FAF"
+    ]
+  ],
+  "max_new": 183,
+  "runtime_s": 1546.4,
+  "config": {
+    "lambda_token": 0.25,
+    "lambda_sent": 0.25,
+    "lambda_feat": 0.25,
+    "lambda_row": 0.25,
+    "alpha": 0.2,
+    "delta_thresh": 0.3,
+    "top_k": 8,
+    "sft_epochs": 40,
+    "sft_auto": true,
+    "sft_lr": 5e-05,
+    "ppo_steps": 0,
+    "ppo_batch": 16,
+    "ppo_lr": 5e-06,
+    "clip": 0.1,
+    "beta_kl": 0.5,
+    "c_v": 0.1,
+    "kl_target": 0.5,
+    "ppo_epochs": 2,
+    "disc_lr": 0.0002,
+    "disc_pretrain": 0,
+    "disc_pool": 512,
+    "disc_every": 2,
+    "max_train_sft": 3000,
+    "gen_cap": 3000,
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "use_ifrs": true,
+    "use_token": true,
+    "use_sent": true,
+    "use_feat": true,
+    "use_row": true
+  },
+  "reward_curve": [],
+  "tstr_f1_macro": 0.8739075306752221,
+  "tstr_f1_weighted": 0.8759666705133072,
+  "tstr_accuracy": 0.8770685579196218,
+  "tstr_n_train_used": 1688,
+  "fid_JS": 0.01817747272505131,
+  "fid_KL": 0.15184977737235847,
+  "fid_Hellinger": 0.09341903050258618,
+  "fid_KS": 0.2602191943127962,
+  "fid_Pearson": 0.9451496341536713,
+  "fid_JS_num": 0.031992191523981355,
+  "fid_JS_cat": 0.004362753926121262,
+  "dcr_median": 0.24288616176819572,
+  "dcr_mean": 0.24262818699619715,
+  "dcr_p5": 0.02563810852303624,
+  "dcr_realreal_median": 0.2844657650478658,
+  "faith_FAITH": 0.6068202260316696,
+  "faith_Factuality": 0.5355450236966824,
+  "faith_Alignment": 0.9320202406195698,
+  "faith_Integrity": 0.42417061611374407,
+  "faith_Tracking": 0.5355450236966824,
+  "trtr_f1_macro": 0.9664470347035004
+}

@@ -1,0 +1,10 @@
+dataset,domain,N,n_features,n_num,n_cat,n_classes,imbalance_ratio,target,class_counts,rows_dropped_na
+heart_failure,Medical,299,12,12,0,2,2.11,target,"{""0"": 203, ""1"": 96}",0
+breast_cancer,Medical,569,30,30,0,2,1.68,target,"{""1"": 357, ""0"": 212}",0
+liver_disorders,Medical,345,5,5,0,2,1.04,target,"{""1"": 176, ""0"": 169}",0
+parkinsons,Medical,195,22,22,0,2,3.06,target,"{""1"": 147, ""0"": 48}",0
+obesity,Medical,2111,16,8,8,7,1.29,target,"{""Obesity_Type_I"": 351, ""Obesity_Type_III"": 324, ""Obesity_Type_II"": 297, ""Overweight_Level_I"": 290, ""Overweight_Level_II"": 290, ""Normal_Weight"": 287, ""Insufficient_Weight"": 272}",0
+diabetes,Medical,100000,8,6,2,2,10.76,target,"{""0"": 91500, ""1"": 8500}",0
+german_credit,Finance,1000,20,7,13,2,2.33,target,"{""0"": 700, ""1"": 300}",0
+bank_marketing,Finance,45211,16,7,9,2,7.55,target,"{""0"": 39922, ""1"": 5289}",0
+census_income,Social,48842,14,6,8,2,3.18,target,"{""0"": 37155, ""1"": 11687}",0
