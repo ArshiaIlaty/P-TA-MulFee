@@ -1,36 +1,36 @@
 # DISCO-TAB — Regenerated Results (real, reproducible)
 
-_Generated from 107 scored runs. Single Tesla T4; GPT-2 backbone. All methods scored under one protocol (`disco/metrics.py`)._
+_Generated from 133 scored runs. Single Tesla T4; GPT-2 backbone. All methods scored under one protocol (`disco/metrics.py`)._
 
-> These are freshly computed numbers from the rebuilt pipeline. They replace the lost-server values. Baselines reproduced here: GaussCopula, CTGAN, TVAE. Paper baselines not regenerated (no surviving code/weights): TAEGAN, TabSyn, RealTabFormer, MostlyAI, TAGAL.
+> These are freshly computed numbers from the rebuilt pipeline. They replace the lost-server values. Baselines reproduced here: GaussCopula, CTGAN, TVAE, TabDDPM. Paper baselines not regenerated (no surviving code/weights): TAEGAN, TabSyn, RealTabFormer, MostlyAI, TAGAL.
 
 ## Table I — Downstream utility, TSTR macro-F1 (mean over seeds)
 
-| Dataset | GaussCopula | CTGAN | TVAE | DISCO-TAB | Δ(best base) |
-|---|---|---|---|---|---|
-| Heart Failure | 0.591 | 0.483 | 0.135 | 0.783 | **+0.192** |
-| Breast Cancer | 0.912 | 0.295 | 0.934 | 0.930 | **-0.004** |
-| Liver Disorders | 0.553 | 0.473 | 0.527 | 0.509 | **-0.044** |
-| Parkinson's | 0.630 | 0.480 | 0.000 | 0.646 | **+0.016** |
-| Obesity | 0.243 | 0.138 | 0.490 | 0.886 | **+0.396** |
-| Diabetes | 0.485 | 0.836 | 0.875 | 0.843 | **-0.032** |
-| German Credit | 0.496 | 0.448 | 0.137 | -- | -- |
-| Bank Marketing | 0.469 | 0.593 | 0.654 | 0.579 | **-0.075** |
-| Census Income | 0.459 | 0.714 | 0.740 | 0.769 | **+0.030** |
+| Dataset | GaussCopula | CTGAN | TVAE | TabDDPM | DISCO-TAB | Δ(best base) |
+|---|---|---|---|---|---|---|
+| Heart Failure | 0.591 | 0.483 | 0.135 | 0.406 | 0.783 | **+0.192** |
+| Breast Cancer | 0.912 | 0.295 | 0.934 | 0.924 | 0.930 | **-0.004** |
+| Liver Disorders | 0.553 | 0.473 | 0.527 | 0.592 | 0.509 | **-0.083** |
+| Parkinson's | 0.630 | 0.480 | 0.000 | 0.928 | 0.646 | **-0.281** |
+| Obesity | 0.243 | 0.138 | 0.490 | 0.795 | 0.886 | **+0.091** |
+| Diabetes | 0.485 | 0.836 | 0.875 | -- | 0.843 | **-0.032** |
+| German Credit | 0.496 | 0.448 | 0.137 | -- | 0.646 | **+0.150** |
+| Bank Marketing | 0.469 | 0.604 | 0.673 | -- | 0.673 | **+0.001** |
+| Census Income | 0.459 | 0.727 | 0.746 | -- | 0.765 | **+0.018** |
 
 ## Table I(b) — TSTR weighted-F1 (mean)
 
-| Dataset | GaussCopula | CTGAN | TVAE | DISCO-TAB | Δ(best base) |
-|---|---|---|---|---|---|
-| Heart Failure | 0.679 | 0.559 | 0.185 | 0.799 | **+0.120** |
-| Breast Cancer | 0.920 | 0.284 | 0.939 | 0.935 | **-0.003** |
-| Liver Disorders | 0.553 | 0.472 | 0.529 | 0.511 | **-0.042** |
-| Parkinson's | 0.729 | 0.632 | 0.000 | 0.732 | **+0.003** |
-| Obesity | 0.250 | 0.138 | 0.493 | 0.888 | **+0.394** |
-| Diabetes | 0.876 | 0.952 | 0.962 | 0.956 | **-0.006** |
-| German Credit | 0.624 | 0.585 | 0.192 | -- | -- |
-| Bank Marketing | 0.828 | 0.824 | 0.866 | 0.855 | **-0.011** |
-| Census Income | 0.671 | 0.805 | 0.811 | 0.831 | **+0.021** |
+| Dataset | GaussCopula | CTGAN | TVAE | TabDDPM | DISCO-TAB | Δ(best base) |
+|---|---|---|---|---|---|---|
+| Heart Failure | 0.679 | 0.559 | 0.185 | 0.555 | 0.799 | **+0.120** |
+| Breast Cancer | 0.920 | 0.284 | 0.939 | 0.929 | 0.935 | **-0.003** |
+| Liver Disorders | 0.553 | 0.472 | 0.529 | 0.592 | 0.511 | **-0.081** |
+| Parkinson's | 0.729 | 0.632 | 0.000 | 0.947 | 0.732 | **-0.215** |
+| Obesity | 0.250 | 0.138 | 0.493 | 0.796 | 0.888 | **+0.092** |
+| Diabetes | 0.876 | 0.952 | 0.962 | -- | 0.956 | **-0.006** |
+| German Credit | 0.624 | 0.585 | 0.192 | -- | 0.668 | **+0.044** |
+| Bank Marketing | 0.828 | 0.846 | 0.854 | -- | 0.865 | **+0.011** |
+| Census Income | 0.671 | 0.812 | 0.818 | -- | 0.830 | **+0.012** |
 
 ## Table II — Statistical fidelity (DISCO-TAB, mean; lower JS/KL/Hell/KS better, Pearson higher better)
 
@@ -42,9 +42,9 @@ _Generated from 107 scored runs. Single Tesla T4; GPT-2 backbone. All methods sc
 | Parkinson's | 0.082 | 1.233 | 0.238 | 0.184 | 0.845 |
 | Obesity | 0.022 | 0.109 | 0.098 | 0.258 | 0.945 |
 | Diabetes | 0.024 | 0.104 | 0.118 | 0.150 | 0.928 |
-| German Credit | -- | -- | -- | -- | -- |
-| Bank Marketing | 0.017 | 0.181 | 0.104 | 0.112 | 0.960 |
-| Census Income | 0.063 | 0.481 | 0.204 | 0.477 | 0.942 |
+| German Credit | 0.074 | 1.517 | 0.169 | 0.118 | 0.937 |
+| Bank Marketing | 0.016 | 0.180 | 0.102 | 0.104 | 0.952 |
+| Census Income | 0.050 | 0.450 | 0.182 | 0.445 | 0.951 |
 
 ## Table III — Empirical disclosure risk (DCR, DISCO-TAB) vs real–real baseline
 
@@ -56,9 +56,9 @@ _Generated from 107 scored runs. Single Tesla T4; GPT-2 backbone. All methods sc
 | Parkinson's | 0.646 | 0.483 | 0.524 |
 | Obesity | 0.886 | 0.277 | 0.279 |
 | Diabetes | 0.843 | 0.053 | 0.071 |
-| German Credit | -- | -- | -- |
-| Bank Marketing | 0.579 | 0.152 | 0.210 |
-| Census Income | 0.769 | 0.107 | 0.136 |
+| German Credit | 0.646 | 0.407 | 0.423 |
+| Bank Marketing | 0.673 | 0.160 | 0.209 |
+| Census Income | 0.765 | 0.087 | 0.136 |
 
 ## FAITH decomposition (DISCO-TAB, mean)
 
@@ -70,18 +70,19 @@ _Generated from 107 scored runs. Single Tesla T4; GPT-2 backbone. All methods sc
 | Parkinson's | 0.298 | 0.000 | 0.832 | 0.361 | 0.000 |
 | Obesity | 0.561 | 0.416 | 0.936 | 0.478 | 0.416 |
 | Diabetes | 0.745 | 0.859 | 0.912 | 0.350 | 0.859 |
-| German Credit | -- | -- | -- | -- | -- |
-| Bank Marketing | 0.805 | 1.000 | 0.935 | 0.287 | 1.000 |
-| Census Income | 0.364 | 0.076 | 0.928 | 0.374 | 0.076 |
+| German Credit | 0.333 | 0.000 | 0.942 | 0.388 | 0.000 |
+| Bank Marketing | 0.810 | 1.000 | 0.932 | 0.309 | 1.000 |
+| Census Income | 0.350 | 0.091 | 0.938 | 0.280 | 0.091 |
 
 ## Feature-type JSD (mean per method; lower better)
 
 | Method | Numerical JSD | Categorical JSD |
 |---|---|---|
 | GaussCopula | 0.059 | 0.000 |
-| CTGAN | 0.100 | 0.011 |
-| TVAE | 0.129 | 0.076 |
-| DISCO-TAB | 0.054 | 0.014 |
+| CTGAN | 0.087 | 0.011 |
+| TVAE | 0.118 | 0.066 |
+| TabDDPM | 0.163 | 0.015 |
+| DISCO-TAB | 0.049 | 0.030 |
 
 ## Ablation (relative TSTR F1 vs full system)
 
@@ -100,6 +101,6 @@ _Generated from 107 scored runs. Single Tesla T4; GPT-2 backbone. All methods sc
 
 | Baseline | n | DISCO mean | base mean | Δ | wins | p | p(Holm) | sig@.05 |
 |---|---|---|---|---|---|---|---|---|
-| CTGAN | 9 | 0.716 | 0.496 | 0.220 | 8 | 0.0117 | 0.0352 | True |
-| GaussCopula | 9 | 0.716 | 0.538 | 0.178 | 7 | 0.0391 | 0.0781 | False |
-| TVAE | 9 | 0.716 | 0.499 | 0.217 | 5 | 0.2500 | 0.2500 | False |
+| CTGAN | 9 | 0.742 | 0.498 | 0.244 | 9 | 0.0039 | 0.0117 | True |
+| GaussCopula | 9 | 0.742 | 0.538 | 0.205 | 8 | 0.0195 | 0.0391 | True |
+| TVAE | 9 | 0.742 | 0.502 | 0.240 | 6 | 0.1641 | 0.1641 | False |
