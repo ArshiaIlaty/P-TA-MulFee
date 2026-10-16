@@ -21,7 +21,17 @@ DOMAIN = {
     "obesity": "Medical", "diabetes": "Medical",
     "german_credit": "Finance", "bank_marketing": "Finance",
     "census_income": "Social",
+    # --- expansion: SurvSet clinical cohorts (target = event indicator) ---
+    "surv_melanoma": "Medical", "surv_pbc": "Medical", "surv_pbc3": "Medical",
+    "surv_retinopathy": "Medical", "surv_whas500": "Medical",
+    "surv_gbsg2": "Medical", "surv_colon": "Medical", "surv_grace": "Medical",
+    "surv_trace": "Medical", "surv_framingham": "Medical",
+    # --- expansion: TabArena/OpenML classification sets ---
+    "tab_blood_transfusion": "Tabular", "tab_credit_g": "Finance",
+    "tab_qsar_biodeg": "Chemistry", "tab_maternal_risk": "Medical",
+    "tab_website_phishing": "Web",
 }
+EXPANSION_DATASETS = [k for k in DOMAIN if k.startswith(("surv_", "tab_"))]
 ALL_DATASETS = list(DOMAIN.keys())
 TARGET = "target"
 
