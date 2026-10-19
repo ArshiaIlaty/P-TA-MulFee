@@ -26,7 +26,14 @@ ABLATIONS = {
 
 
 def result_exists(ds, tag, seed):
-    return os.path.exists(os.path.join(HERE, "results", f"{ds}__{tag}__seed{seed}.json"))
+    p = os.path.join(HERE, "results", f"{ds}__{tag}__seed{seed}.json")
+    if not os.path.exists(p):
+        return False
+    try:
+        import json
+        return json.load(open(p)).get("n_syn", 0) >= 10
+    except Exception:
+        return False
 
 
 def launch(ds, tag, seed, cfg_over, steps, batch, sft_epochs):
@@ -79,10 +86,18 @@ def main():
         cfg_over = dict(tags[tag])
         steps = cfg_over.pop("ppo_steps", args.ppo_steps)
         print(f"  >>> {ds} {tag} seed{seed} ...", flush=True)
-        rc, secs, log = launch(ds, tag, seed, cfg_over, steps, args.ppo_batch,
-                               args.sft_epochs)
-        status = "ok" if rc == 0 else f"FAIL(rc={rc})"
-        print(f"      {status} in {secs}s  log={log}", flush=True)
+        # Retry transient failures (e.g. CUDA OOM when the shared GPU is busy);
+        # a wait lets the co-tenant free VRAM before the next attempt.
+        for attempt in range(1, 4):
+            rc, secs, log = launch(ds, tag, seed, cfg_over, steps, args.ppo_batch,
+                                   args.sft_epochs)
+            if rc == 0 and result_exists(ds, tag, seed):
+                print(f"      ok in {secs}s  log={log}", flush=True)
+                break
+            print(f"      FAIL(rc={rc}) attempt {attempt}/3 in {secs}s  log={log}",
+                  flush=True)
+            if attempt < 3:
+                time.sleep(120)
 
 
 if __name__ == "__main__":

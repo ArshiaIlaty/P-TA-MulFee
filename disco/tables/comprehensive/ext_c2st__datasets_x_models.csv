@@ -1,0 +1,10 @@
+dataset,disco
+heart_failure,0.9685
+breast_cancer,1.0
+liver_disorders,0.6616
+parkinsons,0.9989
+obesity,0.998
+diabetes,0.9998
+german_credit,1.0
+bank_marketing,0.8881
+census_income,0.9999
