@@ -30,7 +30,8 @@ MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCopula", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow", "arf": "ARF",
         "bayesian_network": "BayesNet", "marginal": "Marginals",
-        "great": "GReaT", "realtabformer": "RealTabFormer"}
+        "great": "GReaT", "realtabformer": "RealTabFormer",
+        "taegan": "TAEGAN", "tagal": "TAGAL"}
 DLAB = lambda d: d.replace("surv_", "").replace("tab_", "").replace("_", " ").title()
 CLASSIC = ["ctgan", "tvae", "gaussian_copula", "adsgan", "pategan", "rtvae",
            "nflow", "bayesian_network", "marginal"]
@@ -158,7 +159,7 @@ def fig_winrate():
         if m == "disco":
             continue
         both = d[["disco", m]].dropna()
-        if len(both) < 6:
+        if len(both) < 12:   # keep the 24-dataset figure to fully-covered baselines
             continue
         n = len(both)
         wins = int((both["disco"] > both[m] + 1e-9).sum())

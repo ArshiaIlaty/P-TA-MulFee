@@ -15,12 +15,13 @@ LONG = os.path.join(OUT, "long.csv")
 
 MODELS = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm", "adsgan",
           "pategan", "rtvae", "nflow", "arf", "bayesian_network", "marginal",
-          "great", "realtabformer"]
+          "great", "realtabformer", "taegan", "tagal"]
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow", "arf": "ARF",
         "bayesian_network": "BayesNet", "marginal": "Marginals",
-        "great": "GReaT", "realtabformer": "RealTabF"}
+        "great": "GReaT", "realtabformer": "RealTabF",
+        "taegan": "TAEGAN", "tagal": "TAGAL"}
 DS_ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
             "obesity", "diabetes", "german_credit", "bank_marketing", "census_income",
             "surv_melanoma", "surv_pbc", "surv_pbc3", "surv_retinopathy",
