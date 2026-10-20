@@ -16,11 +16,12 @@ os.makedirs(OUT, exist_ok=True)
 
 GEN_MODELS = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm",
               "adsgan", "pategan", "rtvae", "nflow", "arf",
-              "bayesian_network", "marginal"]
+              "bayesian_network", "marginal", "great", "realtabformer"]
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow", "arf": "ARF",
-        "bayesian_network": "BayesNet", "marginal": "Marginals"}
+        "bayesian_network": "BayesNet", "marginal": "Marginals",
+        "great": "GReaT", "realtabformer": "RealTabF"}
 DS_ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
             "obesity", "diabetes", "german_credit", "bank_marketing", "census_income",
             "surv_melanoma", "surv_pbc", "surv_pbc3", "surv_retinopathy",
@@ -101,6 +102,25 @@ def main():
         piv = piv.reindex(index=[d for d in dss if d in piv.index],
                           columns=[m for m in models if m in piv.columns])
         piv.round(4).to_csv(os.path.join(OUT, f"{metric}__datasets_x_models.csv"))
+        # 95% CI (Student-t) half-width per cell, over seeds
+        from scipy import stats as _st
+
+        def _ci(s):
+            v = s.dropna().values
+            if len(v) < 2:
+                return np.nan
+            return float(_st.t.ppf(0.975, len(v) - 1) * np.std(v, ddof=1) / np.sqrt(len(v)))
+        ciP = sub.pivot_table(index="dataset", columns="model", values=metric, aggfunc=_ci)
+        ciP = ciP.reindex(index=piv.index, columns=piv.columns)
+        ciP.round(4).to_csv(os.path.join(OUT, f"{metric}__ci95.csv"))
+        # human-readable "mean +/- ci" combined CSV
+        comb = piv.copy().astype(object)
+        for d in piv.index:
+            for m in piv.columns:
+                mv = piv.loc[d, m]; cv = ciP.loc[d, m]
+                comb.loc[d, m] = ("" if pd.isna(mv) else
+                                  (f"{mv:.3f}" if pd.isna(cv) else f"{mv:.3f}+/-{cv:.3f}"))
+        comb.to_csv(os.path.join(OUT, f"{metric}__mean_ci.csv"))
         cov = int(sub.dataset.nunique())
         # leaderboard aggregate
         for m in piv.columns:

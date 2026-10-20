@@ -157,14 +157,19 @@ class PPO:
         last = {}
         for ep in range(ppo_epochs):
             logp, mask2, pooled = _resp_logprobs(self.policy, ids, attn, prompt_len)
+            kl_tok = (logp - ref_logp)
+            kl = ((kl_tok * mask2).sum() / mask2.sum().clamp(min=1))
+            # Hard guard: if the policy has ALREADY drifted past the target, skip
+            # this update entirely (don't apply a divergent step) and stop.
+            if float(kl) > self.kl_target:
+                last.setdefault("kl", float(kl)); last["kl_skip"] = True
+                break
             v = self.value(pooled)
             ratio = torch.exp((logp - old_logp) * mask2)
             a = adv.unsqueeze(1)
             s1 = ratio * a
             s2 = torch.clamp(ratio, 1 - self.clip, 1 + self.clip) * a
             pg = -(torch.min(s1, s2) * mask2).sum() / mask2.sum().clamp(min=1)
-            kl_tok = (logp - ref_logp)
-            kl = ((kl_tok * mask2).sum() / mask2.sum().clamp(min=1))
             vloss = F.mse_loss(v, rewards)
             # Penalize drift away from the reference (positive KL direction).
             loss = pg + self.beta_kl * F.relu(kl) + self.c_v * vloss

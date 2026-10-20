@@ -34,12 +34,20 @@ def evaluate_csv(path, log=print):
     # Align columns to the schema (baselines should already match).
     cols = [c for c in b.df_train.columns if c in df_syn.columns]
     df_syn = df_syn[cols]
-    res = {"dataset": ds, "seed": seed, "tag": method, "n_syn": len(df_syn)}
+    out = os.path.join(HERE, "results", f"{ds}__{method}__seed{seed}.json")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    # Merge into any existing JSON so previously-computed ext_* enrichment is
+    # NOT clobbered by a re-score (evaluate_ext and this can run concurrently).
+    res = {}
+    if os.path.exists(out):
+        try:
+            res = json.load(open(out))
+        except Exception:
+            res = {}
+    res.update({"dataset": ds, "seed": seed, "tag": method, "n_syn": len(df_syn)})
     if len(df_syn) >= 10:
         res.update(M.evaluate_all(b, df_syn, seed=seed))
         res["trtr_f1_macro"] = M.trtr_f1(b, seed=seed)["f1_macro"]
-    out = os.path.join(HERE, "results", f"{ds}__{method}__seed{seed}.json")
-    os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w") as f:
         json.dump(res, f, indent=2, default=float)
     log(f"[{ds} {method} seed{seed}] TSTR_F1={res.get('tstr_f1_macro')} "
