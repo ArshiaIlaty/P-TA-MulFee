@@ -33,8 +33,10 @@ MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "great": "GReaT", "realtabformer": "RealTabFormer",
         "taegan": "TAEGAN", "tagal": "TAGAL"}
 DLAB = lambda d: d.replace("surv_", "").replace("tab_", "").replace("_", " ").title()
+# ARF + Bayesian network dropped from the analysis (authors' revision choice).
+DROP = {"arf", "bayesian_network"}
 CLASSIC = ["ctgan", "tvae", "gaussian_copula", "adsgan", "pategan", "rtvae",
-           "nflow", "bayesian_network", "marginal"]
+           "nflow", "marginal"]
 MEDICAL = {"heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
            "obesity", "diabetes", "surv_melanoma", "surv_pbc", "surv_pbc3",
            "surv_retinopathy", "surv_whas500", "surv_gbsg2", "surv_colon",
@@ -61,7 +63,7 @@ def save(fig, name):
 def fig_leaderboard():
     d = mean_df("tstr_f1_macro")
     stats = {m: (d[m].mean(), d[m].sem() * 1.96, d[m].notna().sum())
-             for m in d.columns if d[m].notna().sum() >= 8}
+             for m in d.columns if d[m].notna().sum() >= 8 and m not in DROP}
     s = pd.DataFrame(stats, index=["mean", "ci", "n"]).T.sort_values("mean")
     fig, ax = plt.subplots(figsize=(5.0, 4.2))
     colors = [ACCENT if m == "disco" else NEUTRAL for m in s.index]
@@ -114,7 +116,7 @@ def fig_margin():
         ax.text(v + (0.004 if v >= 0 else -0.004), i, f"{v:+.3f}", va="center",
                 ha="left" if v >= 0 else "right", fontsize=6.3, color=INK)
     ax.set_xlabel("ΔF1 = DISCO-TAB − best established baseline", fontsize=8.5)
-    ax.set_title("Per-dataset utility margin vs. best-of-9 established baselines\n(blue = DISCO-TAB wins)",
+    ax.set_title(f"Per-dataset utility margin vs. best-of-{len(base)} established baselines\n(blue = DISCO-TAB wins)",
                  fontsize=9.5, color=INK)
     wins = sum(v > 0 for v in vals)
     ax.text(0.98, 0.02, f"DISCO-TAB best on {wins}/{len(vals)} datasets",
@@ -156,7 +158,7 @@ def fig_winrate():
         return
     rows = []
     for m in d.columns:
-        if m == "disco":
+        if m == "disco" or m in DROP:
             continue
         both = d[["disco", m]].dropna()
         if len(both) < 12:   # keep the 24-dataset figure to fully-covered baselines
@@ -188,7 +190,8 @@ def fig_winrate():
 # ---- Fig 4: utility vs fidelity trade-off (scatter) ----
 def fig_tradeoff():
     u = mean_df("tstr_f1_macro"); f = mean_df("fid_JS")
-    models = [m for m in u.columns if m in f.columns and u[m].notna().sum() >= 8]
+    models = [m for m in u.columns if m in f.columns and u[m].notna().sum() >= 8
+              and m not in DROP]
     fig, ax = plt.subplots(figsize=(5.0, 4.0))
     for m in models:
         x, y = f[m].mean(), u[m].mean()

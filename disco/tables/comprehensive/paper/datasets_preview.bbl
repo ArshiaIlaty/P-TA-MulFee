@@ -1,0 +1,63 @@
+\begin{thebibliography}{9}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Chicco and Jurman(2020)]{chicco2020ml}
+Davide Chicco and Giuseppe Jurman.
+\newblock Machine learning can predict survival of patients with heart failure
+  from serum creatinine and ejection fraction alone.
+\newblock \emph{BMC Medical Informatics and Decision Making}, 20\penalty0
+  (1):\penalty0 16, 2020.
+
+\bibitem[Drysdale(2022)]{drysdale2022survset}
+Erik Drysdale.
+\newblock {SurvSet}: An open-source time-to-event dataset repository.
+\newblock \emph{arXiv preprint arXiv:2203.03094}, 2022.
+
+\bibitem[Dua and Graff(2019)]{uci}
+Dheeru Dua and Casey Graff.
+\newblock {UCI} machine learning repository.
+\newblock \url{https://archive.ics.uci.edu/ml}, 2019.
+
+\bibitem[Erickson et~al.(2025)]{erickson2025tabarena}
+Nick Erickson et~al.
+\newblock {TabArena}: A living benchmark for machine learning on tabular data.
+\newblock \emph{arXiv preprint}, 2025.
+
+\bibitem[Kohavi(1996)]{kohavi1996scaling}
+Ron Kohavi.
+\newblock Scaling up the accuracy of naive-{B}ayes classifiers: a decision-tree
+  hybrid.
+\newblock In \emph{KDD}, pages 202--207, 1996.
+
+\bibitem[Little et~al.(2007)Little, McSharry, Roberts, Costello, and
+  Moroz]{little2007exploiting}
+Max~A Little, Patrick~E McSharry, Stephen~J Roberts, Declan~A Costello, and
+  Irene~M Moroz.
+\newblock Exploiting nonlinear recurrence and fractal scaling properties for
+  voice disorder detection.
+\newblock \emph{BioMedical Engineering OnLine}, 6\penalty0 (1):\penalty0 23,
+  2007.
+
+\bibitem[Moro et~al.(2014)Moro, Cortez, and Rita]{moro2014data}
+S{\'e}rgio Moro, Paulo Cortez, and Paulo Rita.
+\newblock A data-driven approach to predict the success of bank telemarketing.
+\newblock \emph{Decision Support Systems}, 62:\penalty0 22--31, 2014.
+
+\bibitem[Mustafa(2023)]{kaggle_diabetes}
+Mohammed Mustafa.
+\newblock Diabetes prediction dataset.
+\newblock
+  \url{https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset},
+  2023.
+
+\bibitem[Palechor and de~la Hoz~Manotas(2019)]{palechor2019dataset}
+Fabio~Mendoza Palechor and Alexis de~la Hoz~Manotas.
+\newblock Dataset for estimation of obesity levels based on eating habits and
+  physical condition in individuals from colombia, peru and mexico.
+\newblock \emph{Data in Brief}, 25:\penalty0 104344, 2019.
+
+\end{thebibliography}

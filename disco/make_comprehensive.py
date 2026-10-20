@@ -14,14 +14,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "tables", "comprehensive")
 os.makedirs(OUT, exist_ok=True)
 
+# ARF and the Bayesian network dropped from the analysis (authors' choice for the
+# revision). FAITH dropped too (not part of the original submission).
 GEN_MODELS = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm",
-              "adsgan", "pategan", "rtvae", "nflow", "arf",
-              "bayesian_network", "marginal", "great", "realtabformer",
-              "taegan", "tagal"]
+              "adsgan", "pategan", "rtvae", "nflow", "marginal",
+              "great", "realtabformer", "taegan", "tagal"]
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
-        "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow", "arf": "ARF",
-        "bayesian_network": "BayesNet", "marginal": "Marginals",
+        "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow",
+        "marginal": "Marginals",
         "great": "GReaT", "realtabformer": "RealTabF",
         "taegan": "TAEGAN", "tagal": "TAGAL"}
 DS_ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
@@ -62,11 +63,6 @@ METRICS = {
     "ext_sdm_quality": (True, "SDMetrics", "SDM quality"),
     "ext_sdm_shapes": (True, "SDMetrics", "SDM column shapes"),
     "ext_sdm_pairs": (True, "SDMetrics", "SDM pair trends"),
-    "faith_FAITH": (True, "FAITH", "FAITH overall"),
-    "faith_Factuality": (True, "FAITH", "Factuality"),
-    "faith_Alignment": (True, "FAITH", "Alignment"),
-    "faith_Integrity": (True, "FAITH", "Integrity"),
-    "faith_Tracking": (True, "FAITH", "Tracking"),
     "valid_rate": (True, "Other", "Parse valid rate"),
 }
 
@@ -167,13 +163,13 @@ def main():
     md.append(render("fid_JS"))
     md.append("\n## Table 3 — DCR median (privacy proximity; bold = highest)\n")
     md.append(render("dcr_median"))
-    md.append("\n## Table 4 — FAITH overall (bold = best)\n")
-    md.append(render("faith_FAITH"))
+    md.append("\n## Table 4 — SDMetrics overall quality (bold = best)\n")
+    md.append(render("ext_sdm_quality"))
 
     # ---- per-model summary leaderboard (mean + avg-rank over datasets) ----
     md.append("\n## Per-model summary (mean over datasets; avg-rank 1=best; #best = datasets ranked #1)\n")
     key = ["tstr_f1_macro", "fid_JS", "dcr_median", "ext_c2st", "ext_coverage",
-           "ext_sdm_quality", "faith_FAITH"]
+           "ext_sdm_quality"]
     md.append("| Model | " + " | ".join(METRICS[k][2] for k in key) + " |")
     md.append("|" + "---|" * (len(key) + 1))
     for m in models:

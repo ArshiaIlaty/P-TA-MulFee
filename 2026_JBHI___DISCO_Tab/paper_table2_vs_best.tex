@@ -1,0 +1,37 @@
+\begin{table}[t]\centering\small
+\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}
+\caption{DISCO-TAB vs.\ the single best competing generator per metric (mean over all datasets $\pm$95\% CI). \textbf{Bold} marks the winner.}
+\label{tab:vsbest}
+\begin{tabular}{@{}clccl@{}}
+\toprule
+& \textbf{Metric} & \textbf{DISCO-TAB} & \textbf{Best competitor} & \textbf{(method)} \\
+\midrule
+\multirow{3}{*}{\rotatebox[origin=c]{90}{\shortstack{Downstream\\utility (TSTR)}}} & F1-macro $\uparrow$ & \textbf{\shortstack{0.641\\{\scriptsize$\pm$0.059}}} & \shortstack{0.618\\{\scriptsize$\pm$0.045}} & ADS-GAN \\
+ & F1-weighted $\uparrow$ & \shortstack{0.681\\{\scriptsize$\pm$0.064}} & \textbf{\shortstack{0.686\\{\scriptsize$\pm$0.052}}} & \textbf{ADS-GAN} \\
+ & Accuracy $\uparrow$ & \shortstack{0.687\\{\scriptsize$\pm$0.061}} & \textbf{\shortstack{0.713\\{\scriptsize$\pm$0.059}}} & \textbf{TabDDPM} \\
+\midrule
+\multirow{4}{*}{\rotatebox[origin=c]{90}{\shortstack{Statistical\\fidelity}}} & JS div. $\downarrow$ & \shortstack{0.064\\{\scriptsize$\pm$0.022}} & \textbf{\shortstack{0.034\\{\scriptsize$\pm$0.012}}} & \textbf{NFlow} \\
+ & KS stat. $\downarrow$ & \shortstack{0.166\\{\scriptsize$\pm$0.037}} & \textbf{\shortstack{0.105\\{\scriptsize$\pm$0.034}}} & \textbf{GaussCop} \\
+ & Hellinger $\downarrow$ & \shortstack{0.175\\{\scriptsize$\pm$0.027}} & \textbf{\shortstack{0.122\\{\scriptsize$\pm$0.037}}} & \textbf{GaussCop} \\
+ & Corr. pres. $\uparrow$ & \shortstack{0.910\\{\scriptsize$\pm$0.028}} & \textbf{\shortstack{0.930\\{\scriptsize$\pm$0.015}}} & \textbf{GaussCop} \\
+\midrule
+\multirow{4}{*}{\rotatebox[origin=c]{90}{\shortstack{Privacy /\\disclosure}}} & DCR $\uparrow$ & \shortstack{0.342\\{\scriptsize$\pm$0.074}} & \textbf{\shortstack{1.388\\{\scriptsize$\pm$0.391}}} & \textbf{Marginals} \\
+ & NNDR $\uparrow$ & \shortstack{0.888\\{\scriptsize$\pm$0.037}} & \textbf{\shortstack{0.952\\{\scriptsize$\pm$0.021}}} & \textbf{RTVAE} \\
+ & MIA AUROC $\to$.5 & \shortstack{0.545\\{\scriptsize$\pm$0.020}} & \textbf{\shortstack{0.501\\{\scriptsize$\pm$0.007}}} & \textbf{GaussCop} \\
+ & Dup. rate $\downarrow$ & \shortstack{0.043\\{\scriptsize$\pm$0.047}} & \textbf{\shortstack{0.002\\{\scriptsize$\pm$0.003}}} & \textbf{CTGAN} \\
+\midrule
+\multirow{4}{*}{\rotatebox[origin=c]{90}{\shortstack{Diversity /\\coverage (PRDC)}}} & Precision $\uparrow$ & \shortstack{0.879\\{\scriptsize$\pm$0.082}} & \textbf{\shortstack{0.900\\{\scriptsize$\pm$0.087}}} & \textbf{TVAE} \\
+ & Recall $\uparrow$ & \shortstack{0.732\\{\scriptsize$\pm$0.111}} & \textbf{\shortstack{0.964\\{\scriptsize$\pm$0.020}}} & \textbf{TabDDPM} \\
+ & Density $\uparrow$ & \shortstack{0.952\\{\scriptsize$\pm$0.173}} & \textbf{\shortstack{1.187\\{\scriptsize$\pm$0.235}}} & \textbf{TVAE} \\
+ & Coverage $\uparrow$ & \shortstack{0.758\\{\scriptsize$\pm$0.103}} & \textbf{\shortstack{0.881\\{\scriptsize$\pm$0.106}}} & \textbf{TabDDPM} \\
+\midrule
+\multirow{3}{*}{\rotatebox[origin=c]{90}{\shortstack{Detection}}} & C2ST $\downarrow$ & \shortstack{0.894\\{\scriptsize$\pm$0.056}} & \textbf{\shortstack{0.724\\{\scriptsize$\pm$0.085}}} & \textbf{TabDDPM} \\
+ & MMD $\downarrow$ & \shortstack{0.041\\{\scriptsize$\pm$0.013}} & \textbf{\shortstack{0.018\\{\scriptsize$\pm$0.004}}} & \textbf{NFlow} \\
+ & Wasserstein $\downarrow$ & \shortstack{0.230\\{\scriptsize$\pm$0.036}} & \textbf{\shortstack{0.168\\{\scriptsize$\pm$0.067}}} & \textbf{GaussCop} \\
+\midrule
+\multirow{3}{*}{\rotatebox[origin=c]{90}{\shortstack{SDMetrics}}} & Quality $\uparrow$ & \shortstack{0.630\\{\scriptsize$\pm$0.077}} & \textbf{\shortstack{0.676\\{\scriptsize$\pm$0.077}}} & \textbf{GaussCop} \\
+ & Col. shapes $\uparrow$ & \shortstack{0.770\\{\scriptsize$\pm$0.030}} & \textbf{\shortstack{0.834\\{\scriptsize$\pm$0.025}}} & \textbf{GaussCop} \\
+ & Pair trends $\uparrow$ & \shortstack{0.490\\{\scriptsize$\pm$0.147}} & \textbf{\shortstack{0.558\\{\scriptsize$\pm$0.181}}} & \textbf{TabDDPM} \\
+\bottomrule
+\end{tabular}
+\end{table}

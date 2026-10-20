@@ -1,0 +1,31 @@
+\begin{table}[t]\centering\small
+\setlength{\tabcolsep}{5pt}\renewcommand{\arraystretch}{1.05}
+\caption{Benchmark datasets (24 total: 9 from the original study plus 10 clinical time-to-event cohorts from SurvSet and 5 from TabArena). Time-to-event cohorts use the event indicator as a binary target.}
+\label{tab:datasets}
+\begin{tabular}{@{}llrrrl@{}}\toprule
+\textbf{Dataset} & \textbf{Domain} & \textbf{\#Inst.} & \textbf{\#Feat.} & \textbf{\#Cls.} & \textbf{Source} \\ \midrule
+Heart Failure & Clinical & 299 & 12 & 2 & \cite{chicco2020ml} \\
+Breast Cancer & Clinical & 569 & 30 & 2 & \cite{uci} \\
+Liver Disorders & Clinical & 345 & 5 & 2 & \cite{uci} \\
+Parkinsons & Clinical & 195 & 22 & 2 & \cite{little2007exploiting} \\
+Obesity & Clinical & 2111 & 16 & 7 & \cite{palechor2019dataset} \\
+Diabetes & Clinical & 100000 & 8 & 2 & \cite{kaggle_diabetes} \\
+German Credit & Finance & 1000 & 20 & 2 & \cite{uci} \\
+Bank Marketing & Finance & 45211 & 16 & 2 & \cite{moro2014data} \\
+Census Income & Finance & 48842 & 14 & 2 & \cite{kohavi1996scaling} \\
+Melanoma & Clinical & 205 & 5 & 2 & \cite{drysdale2022survset} \\
+PBC & Clinical & 312 & 6 & 2 & \cite{drysdale2022survset} \\
+PBC3 & Clinical & 349 & 12 & 2 & \cite{drysdale2022survset} \\
+Retinopathy & Clinical & 368 & 7 & 2 & \cite{drysdale2022survset} \\
+WHAS500 & Clinical & 461 & 16 & 2 & \cite{drysdale2022survset} \\
+GBSG2 & Clinical & 686 & 8 & 2 & \cite{drysdale2022survset} \\
+Colon & Clinical & 885 & 9 & 2 & \cite{drysdale2022survset} \\
+GRACE & Clinical & 998 & 5 & 2 & \cite{drysdale2022survset} \\
+TRACE & Clinical & 1878 & 6 & 2 & \cite{drysdale2022survset} \\
+Framingham & Clinical & 4699 & 7 & 2 & \cite{drysdale2022survset} \\
+Blood Transfusion & Clinical & 533 & 4 & 2 & \cite{erickson2025tabarena} \\
+Credit-G & Finance & 1000 & 20 & 2 & \cite{erickson2025tabarena} \\
+QSAR Biodeg & Chemistry & 1052 & 41 & 2 & \cite{erickson2025tabarena} \\
+Maternal Risk & Clinical & 452 & 6 & 3 & \cite{erickson2025tabarena} \\
+Website Phishing & Security & 724 & 9 & 3 & \cite{erickson2025tabarena} \\
+\bottomrule\end{tabular}\end{table}

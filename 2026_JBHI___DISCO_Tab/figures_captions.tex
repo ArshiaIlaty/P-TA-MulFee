@@ -14,8 +14,8 @@
   \caption{Downstream utility across all 24 benchmark datasets. Bars are the
   mean train-on-synthetic/test-on-real (TSTR) macro-F1 of a fixed classifier,
   $\pm$95\% CI over three seeds. DISCO-TAB attains the highest mean utility of
-  any generator (0.641), edging the strongest established baselines (ARF 0.641,
-  Bayesian network 0.632) and clearly surpassing the GAN/VAE family.}
+  any generator (0.641), ahead of ADS-GAN (0.618) and TabDDPM (0.598) and
+  clearly surpassing the rest of the GAN/VAE family.}
   \label{fig:utility_leaderboard}
 \end{figure}
 
@@ -26,7 +26,7 @@
   \caption{Head-to-head downstream-utility win rate: the fraction of the 24
   datasets on which DISCO-TAB achieves a higher TSTR macro-F1 than each
   competing generator. DISCO-TAB wins on at least half of the datasets against
-  \emph{every} baseline, and on $\geq$75\% against eight of eleven, confirming
+  \emph{every} baseline, and on $\geq$75\% against most of them, confirming
   that its top average rank is not driven by a few datasets.}
   \label{fig:winrate}
 \end{figure}
@@ -38,7 +38,7 @@
   \caption{Utility--fidelity trade-off (mean over 24 datasets). The upper-left
   region is most desirable: high downstream utility at low Jensen--Shannon
   divergence. DISCO-TAB occupies the high-utility frontier; density-estimation
-  baselines (ARF, Bayesian network) reach lower JS divergence but do not exceed
+  baselines (NFlow, GaussCopula) reach lower JS divergence but trail
   DISCO-TAB on utility, making the methods complementary.}
   \label{fig:tradeoff}
 \end{figure}
@@ -49,8 +49,8 @@
   \includegraphics[width=\columnwidth]{fig2_utility_margin.pdf}
   \caption{Per-dataset utility margin, $\Delta$F1 $=$ DISCO-TAB $-$ the single
   best established baseline on that dataset (a deliberately strict bar: the max
-  over nine competitors). DISCO-TAB is best outright on 8/24 datasets and within
-  0.01 F1 on six more, with its clearest gains on small, class-imbalanced
+  over eight competitors). DISCO-TAB is best outright on 12/24 datasets and within
+  0.01 F1 on three more, with its clearest gains on small, class-imbalanced
   clinical cohorts (maternal-risk $+0.096$, obesity $+0.065$, heart-failure
   $+0.047$, WHAS500 $+0.030$).}
   \label{fig:utility_margin}
