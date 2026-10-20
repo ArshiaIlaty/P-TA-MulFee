@@ -1,21 +1,24 @@
 """
-Paper-revision summary tables (compact, 14-page budget). Reads
-tables/comprehensive/long.csv and writes tables/comprehensive/paper/:
+Paper-revision summary tables sized for the JBHI IEEE two-column template
+(ieeecolor.cls). Reads tables/comprehensive/long.csv; writes
+tables/comprehensive/paper/:
 
-  Table 1  paper_table1_aggregate.tex  -- models as columns; rows grouped by
-           evaluation dimension (rotated dimension label) with its metrics;
-           each cell = mean across datasets (normal font) with the 95% CI in a
-           smaller font beneath; bold = best model per metric row.
-  Table 2  paper_table2_vs_best.tex    -- per metric: DISCO-TAB's score vs the
-           single best competing method (named) and its score.
-  paper_tables_preview.pdf             -- both compiled for review.
+  paper_table1_aggregate.tex  -- table* (spans both columns). Models across the
+      top in two groups (Established generators | LLM-era), a #datasets coverage
+      row, then rows grouped by evaluation dimension (single-line rotated label)
+      with its metrics. Each cell: mean (table font) over a smaller-font CI.
+      Bold = best per row among the fully-covered established generators.
+  paper_table2_vs_best.tex    -- DISCO-TAB vs the best established competitor per
+      metric (named + score).
+  table_test.tex / .pdf       -- compiled with the real ieeecolor.cls for a fit
+      check (no makecell; uses built-in \\shortstack).
 
-Choices for the revision (per authors): FAITH dropped; ARF and Bayesian network
-dropped; SDMetrics added. The aggregate uses the 10 models with full 24-dataset
-coverage so the averages are comparable; the LLM-era subset baselines (GReaT,
-RealTabFormer, TAEGAN, TAGAL) are reported separately (subset table).
+Revision choices: FAITH dropped; ARF + Bayesian network dropped; SDMetrics added.
+Established models have full 24-dataset coverage; the LLM-era models cover a
+subset (coverage row makes this explicit) and are excluded from the "best"
+bolding and from Table 2's competitor pool.
 """
-import os, subprocess
+import os, shutil, subprocess
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -23,36 +26,40 @@ from scipy import stats
 HERE = os.path.dirname(os.path.abspath(__file__))
 C = os.path.join(HERE, "tables", "comprehensive")
 OUT = os.path.join(C, "paper")
+PAPER = "/home/ec2-user/P-TA-MulFee/2026_JBHI___DISCO_Tab"
 os.makedirs(OUT, exist_ok=True)
 
-MODELS = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm", "adsgan",
-          "pategan", "rtvae", "nflow", "marginal"]
+FULLCOV = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm", "adsgan",
+           "pategan", "rtvae", "nflow", "marginal"]
+LLM = ["great", "realtabformer", "taegan", "tagal"]
+MODELS = FULLCOV + LLM
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow",
-        "marginal": "Marginals"}
+        "marginal": "Marg.", "great": "GReaT", "realtabformer": "RTF",
+        "taegan": "TAEGAN", "tagal": "TAGAL"}
 
-# dimension -> [(metric, direction, short label)]; direction: up|down|half(=0.5 ideal)
+# dimension (single-line rotated label) -> [(metric, direction, short label)]
 DIMENSIONS = [
-    ("Downstream\\\\utility (TSTR)", [
+    ("Utility (TSTR)", [
         ("tstr_f1_macro", "up", "F1-macro $\\uparrow$"),
-        ("tstr_f1_weighted", "up", "F1-weighted $\\uparrow$"),
+        ("tstr_f1_weighted", "up", "F1-weight. $\\uparrow$"),
         ("tstr_accuracy", "up", "Accuracy $\\uparrow$"),
     ]),
-    ("Statistical\\\\fidelity", [
+    ("Fidelity", [
         ("fid_JS", "down", "JS div. $\\downarrow$"),
         ("fid_KS", "down", "KS stat. $\\downarrow$"),
-        ("fid_Hellinger", "down", "Hellinger $\\downarrow$"),
-        ("fid_Pearson", "up", "Corr. pres. $\\uparrow$"),
+        ("fid_Hellinger", "down", "Helling. $\\downarrow$"),
+        ("fid_Pearson", "up", "Corr. $\\uparrow$"),
     ]),
-    ("Privacy /\\\\disclosure", [
+    ("Privacy", [
         ("dcr_median", "up", "DCR $\\uparrow$"),
         ("ext_nndr", "up", "NNDR $\\uparrow$"),
-        ("ext_mia_auc", "half", "MIA AUROC $\\to$.5"),
-        ("ext_dup_rate", "down", "Dup. rate $\\downarrow$"),
+        ("ext_mia_auc", "half", "MIA $\\to$.5"),
+        ("ext_dup_rate", "down", "Dup. $\\downarrow$"),
     ]),
-    ("Diversity /\\\\coverage (PRDC)", [
-        ("ext_precision", "up", "Precision $\\uparrow$"),
+    ("Diversity", [
+        ("ext_precision", "up", "Precis. $\\uparrow$"),
         ("ext_recall", "up", "Recall $\\uparrow$"),
         ("ext_density", "up", "Density $\\uparrow$"),
         ("ext_coverage", "up", "Coverage $\\uparrow$"),
@@ -60,18 +67,17 @@ DIMENSIONS = [
     ("Detection", [
         ("ext_c2st", "down", "C2ST $\\downarrow$"),
         ("ext_mmd", "down", "MMD $\\downarrow$"),
-        ("ext_wasserstein", "down", "Wasserstein $\\downarrow$"),
+        ("ext_wasserstein", "down", "Wass. $\\downarrow$"),
     ]),
     ("SDMetrics", [
         ("ext_sdm_quality", "up", "Quality $\\uparrow$"),
-        ("ext_sdm_shapes", "up", "Col. shapes $\\uparrow$"),
-        ("ext_sdm_pairs", "up", "Pair trends $\\uparrow$"),
+        ("ext_sdm_shapes", "up", "Shapes $\\uparrow$"),
+        ("ext_sdm_pairs", "up", "Pairs $\\uparrow$"),
     ]),
 ]
 
 
 def agg(df, metric):
-    """mean over seeds per (model,dataset), then mean + 95% t-CI across datasets."""
     if metric not in df.columns:
         return {}
     g = df.groupby(["model", "dataset"])[metric].mean().reset_index()
@@ -87,134 +93,130 @@ def agg(df, metric):
     return out
 
 
-def best_idx(stats_by_model, direction):
-    cand = {m: v[0] for m, v in stats_by_model.items() if m in MODELS}
+def best_among(sbm, direction, pool):
+    cand = {m: v[0] for m, v in sbm.items() if m in pool}
     if not cand:
         return None
     if direction == "up":
         return max(cand, key=cand.get)
     if direction == "down":
         return min(cand, key=cand.get)
-    return min(cand, key=lambda m: abs(cand[m] - 0.5))   # half
+    return min(cand, key=lambda m: abs(cand[m] - 0.5))
 
 
-def fmt(mean, ci):
+def fmt(mean, ci, bold=False):
     s = f"{mean:.3f}"
-    if ci is None or np.isnan(ci):
-        return s
-    return f"\\shortstack{{{s}\\\\{{\\scriptsize$\\pm${ci:.3f}}}}}"
+    cell = s if (ci is None or np.isnan(ci)) else \
+        f"\\shortstack{{{s}\\\\[-2.5pt]{{\\tiny$\\pm${ci:.3f}}}}}"
+    return f"\\textbf{{{cell}}}" if bold else cell
+
+
+def coverage(df):
+    return {m: int(df[df.model == m]["dataset"].nunique()) for m in MODELS}
 
 
 def table1(df):
-    lines = [
+    cov = coverage(df)
+    N = len(MODELS)
+    L = [
         r"\begin{table*}[t]\centering\scriptsize",
-        r"\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.1}",
-        r"\caption{Benchmark summary: mean over all datasets (95\% CI beneath, smaller "
-        r"font) for each metric and generator. \textbf{Bold} = best per row. "
-        r"Arrows give the preferred direction; MIA AUROC is best near 0.5.}",
+        r"\setlength{\tabcolsep}{2.5pt}\renewcommand{\arraystretch}{1.0}",
+        r"\caption{Benchmark summary: mean over all datasets (with 95\% CI) for "
+        r"each metric and generator. \textbf{Bold} = best per row among the "
+        r"established generators. Arrows give the preferred direction (MIA is best "
+        r"near 0.5). Established generators cover all 24 datasets; LLM-era methods "
+        r"cover the subset shown in the \#datasets row (`--' = not evaluated).}",
         r"\label{tab:aggregate}",
-        r"\begin{tabular}{@{}cl" + "c" * len(MODELS) + r"@{}}",
+        r"\begin{tabular}{@{}cl *{%d}{c}@{}}" % N,
         r"\toprule",
+        (r"& & \multicolumn{%d}{c}{\textbf{Established generators}} & "
+         r"\multicolumn{%d}{c}{\textbf{LLM-era}} \\" % (len(FULLCOV), len(LLM))),
+        (r"\cmidrule(lr){3-%d}\cmidrule(lr){%d-%d}" % (2 + len(FULLCOV),
+                                                       3 + len(FULLCOV), 2 + N)),
         r"& \textbf{Metric} & " + " & ".join(r"\textbf{%s}" % MLAB[m] for m in MODELS) + r" \\",
+        r"& \#datasets & " + " & ".join(str(cov.get(m, 0)) for m in MODELS) + r" \\",
     ]
     for dim, metrics in DIMENSIONS:
-        lines.append(r"\midrule")
+        L.append(r"\midrule")
         n = len(metrics)
         for j, (metric, direction, lab) in enumerate(metrics):
             sbm = agg(df, metric)
-            bi = best_idx(sbm, direction)
-            if j == 0:
-                cell0 = r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{\shortstack{%s}}}" % (n, dim)
-            else:
-                cell0 = ""
+            bi = best_among(sbm, direction, FULLCOV)
+            cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{%s}}" % (n, dim)
+                     if j == 0 else "")
             row = [cell0, lab]
             for m in MODELS:
                 if m in sbm:
                     mean, ci, _ = sbm[m]
-                    c = fmt(mean, ci)
-                    if m == bi:
-                        c = r"\textbf{%s}" % c
+                    row.append(fmt(mean, ci, bold=(m == bi)))
                 else:
-                    c = "--"
-                row.append(c)
-            lines.append(" & ".join(row) + r" \\")
-    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table*}"]
-    return "\n".join(lines)
+                    row.append("--")
+            L.append(" & ".join(row) + r" \\")
+    L += [r"\bottomrule", r"\end{tabular}", r"\end{table*}"]
+    return "\n".join(L)
 
 
 def table2(df):
-    lines = [
+    L = [
         r"\begin{table}[t]\centering\small",
-        r"\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}",
-        r"\caption{DISCO-TAB vs.\ the single best competing generator per metric "
-        r"(mean over all datasets $\pm$95\% CI). \textbf{Bold} marks the winner.}",
+        r"\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.1}",
+        r"\caption{DISCO-TAB vs.\ the best established competing generator per "
+        r"metric (mean over all datasets, with 95\% CI). \textbf{Bold} = winner.}",
         r"\label{tab:vsbest}",
         r"\begin{tabular}{@{}clccl@{}}",
         r"\toprule",
-        r"& \textbf{Metric} & \textbf{DISCO-TAB} & \textbf{Best competitor} & \textbf{(method)} \\",
+        r"& \textbf{Metric} & \textbf{DISCO-TAB} & \textbf{Best comp.} & \textbf{Method} \\",
     ]
     for dim, metrics in DIMENSIONS:
-        lines.append(r"\midrule")
+        L.append(r"\midrule")
         n = len(metrics)
         for j, (metric, direction, lab) in enumerate(metrics):
             sbm = agg(df, metric)
             if "disco" not in sbm:
                 continue
             dmean, dci, _ = sbm["disco"]
-            others = {m: v for m, v in sbm.items() if m in MODELS and m != "disco"}
-            bi = best_idx(others, direction)
-            cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{\shortstack{%s}}}" % (n, dim)
+            pool = [m for m in FULLCOV if m != "disco"]
+            bi = best_among(sbm, direction, pool)
+            cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{%s}}" % (n, dim)
                      if j == 0 else "")
             if bi is None:
-                lines.append(" & ".join([cell0, lab, fmt(dmean, dci), "--", "--"]) + r" \\")
+                L.append(" & ".join([cell0, lab, fmt(dmean, dci), "--", "--"]) + r" \\")
                 continue
-            bmean, bci, _ = others[bi]
-            # does DISCO win?
+            bmean, bci, _ = sbm[bi]
             if direction == "up":
-                disco_wins = dmean >= bmean
+                dwin = dmean >= bmean
             elif direction == "down":
-                disco_wins = dmean <= bmean
+                dwin = dmean <= bmean
             else:
-                disco_wins = abs(dmean - 0.5) <= abs(bmean - 0.5)
-            d_cell = fmt(dmean, dci)
-            b_cell = fmt(bmean, bci)
-            name = MLAB[bi]
-            if disco_wins:
-                d_cell = r"\textbf{%s}" % d_cell
-            else:
-                b_cell = r"\textbf{%s}" % b_cell
-                name = r"\textbf{%s}" % name
-            lines.append(" & ".join([cell0, lab, d_cell, b_cell, name]) + r" \\")
-    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
-    return "\n".join(lines)
+                dwin = abs(dmean - 0.5) <= abs(bmean - 0.5)
+            name = (r"\textbf{%s}" if not dwin else r"%s") % MLAB[bi]
+            L.append(" & ".join([cell0, lab, fmt(dmean, dci, dwin),
+                                 fmt(bmean, bci, not dwin), name]) + r" \\")
+    L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+    return "\n".join(L)
 
 
 def main():
     df = pd.read_csv(os.path.join(C, "long.csv"))
-    t1 = table1(df)
-    t2 = table2(df)
+    t1, t2 = table1(df), table2(df)
     open(os.path.join(OUT, "paper_table1_aggregate.tex"), "w").write(t1 + "\n")
     open(os.path.join(OUT, "paper_table2_vs_best.tex"), "w").write(t2 + "\n")
-    doc = (r"""\documentclass[10pt]{article}
-\usepackage[landscape,margin=1cm]{geometry}
-\usepackage{booktabs,multirow,graphicx,amssymb,amsmath}
-\renewcommand\theadfont{\scriptsize}
-\begin{document}
-""" + t1 + "\n\n\\clearpage\n\\begin{landscape}\n" + "" + t2 +
-           "\n\\end{document}\n")
-    # table2 is portrait-friendly; keep simple single-doc preview
-    doc = (r"""\documentclass[10pt]{article}
-\usepackage[landscape,margin=1cm]{geometry}
-\usepackage{booktabs,multirow,graphicx,amssymb,amsmath}
-\begin{document}
-""" + t1 + "\n\n\\clearpage\n" + t2 + "\n\\end{document}\n")
-    tex = os.path.join(OUT, "paper_tables_preview.tex")
-    open(tex, "w").write(doc)
+    # fit test with the real IEEE class (copy class + generated tex into OUT)
+    for f in ("ieeecolor.cls", "generic.sty"):
+        src = os.path.join(PAPER, f)
+        if os.path.exists(src):
+            shutil.copy(src, OUT)
+    test = (r"\documentclass[journal,twoside,web]{ieeecolor}" "\n"
+            r"\usepackage{graphicx,booktabs,multirow,array,amssymb,amsmath}" "\n"
+            r"\begin{document}" "\n"
+            r"\input{paper_table1_aggregate}" "\n\\clearpage\n"
+            r"\input{paper_table2_vs_best}" "\n"
+            r"\end{document}" "\n")
+    open(os.path.join(OUT, "table_test.tex"), "w").write(test)
     for _ in range(2):
-        subprocess.run(["pdflatex", "-interaction=nonstopmode", "-halt-on-error",
-                        os.path.basename(tex)], cwd=OUT,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print("wrote:", os.listdir(OUT))
+        subprocess.run(["pdflatex", "-interaction=nonstopmode", "table_test.tex"],
+                       cwd=OUT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    print("wrote tables + table_test.pdf; coverage:", coverage(df))
 
 
 if __name__ == "__main__":

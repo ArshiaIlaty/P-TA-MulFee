@@ -270,6 +270,10 @@ Table \ref{tab:feature_type_fidelity} reveals a fundamental trade-off in existin
 
 \textit{The Unified Solution:} DISCO-TAB effectively resolves this dichotomy. By leveraging the pre-trained semantic knowledge of the LLM, it achieves \rev{strong} categorical alignment (JSD 0.015). Simultaneously, our specific Feature-Level Discriminator ($D_{feat}$) penalizes deviations in continuous joint distributions, forcing the model to learn precise numerical manifolds comparable to the best commercial AutoML solutions (MostlyAI).
 
+% ==== FAITH framework removed for the revision (not part of the original
+% submission). Wrapped in \iffalse...\fi so it is excluded but preserved; delete
+% the block entirely once confirmed. ====
+\iffalse
 \section{Quantifying Hallucinations: The FAITH Framework Evaluation}
 \label{sec:faith_eval}
 
@@ -339,3 +343,5 @@ DISCO-TAB achieves the highest \textbf{Alignment score ($0.9839$)} among all eva
 The results expose a Privacy Paradox in synthetic data evaluation. Diffusion-based models like \textbf{Tab-DDPM} achieve perfect \textbf{Integrity ($1.00$)}, suggesting excellent privacy. However, looking at their poor \textbf{Factuality ($0.1976$)} and \textbf{Tracking ($0.6392$)}, it becomes evident that this integrity is an artifact of noise injection: the model generates samples so distinct from reality that they are clinically useless. 
 
 In contrast, DISCO-TAB's lower Integrity score ($0.2303$) reflects its rigorous adherence to the true data manifold. By refusing to inject arbitrary noise, DISCO-TAB generates patients that are statistically indistinguishable from real cohorts. While this penalizes the aggregate FAITH score, it represents a deliberate design choice to prioritize \textbf{clinical utility} over \textbf{stochastic diversity}. In precision medicine, a synthetic patient must first be plausible ($S_{Align}$) before they are novel ($S_{Integ}$).
+\fi
+% ==== end removed FAITH framework ====
