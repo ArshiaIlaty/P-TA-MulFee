@@ -45,7 +45,7 @@ ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons", "obe
          "diabetes", "german_credit", "bank_marketing", "census_income",
          "surv_melanoma", "surv_pbc", "surv_pbc3", "surv_retinopathy", "surv_whas500",
          "surv_gbsg2", "surv_colon", "surv_grace", "surv_trace", "surv_framingham",
-         "tab_blood_transfusion", "tab_credit_g", "tab_qsar_biodeg",
+         "tab_blood_transfusion", "tab_qsar_biodeg",
          "tab_maternal_risk", "tab_website_phishing"]
 
 
@@ -75,7 +75,7 @@ def fig_leaderboard():
     for i, (m, r) in enumerate(s.iterrows()):
         ax.text(r["mean"] + r["ci"] + 0.008, i, f"{r['mean']:.3f}", va="center",
                 fontsize=7, color=INK)
-    ax.set_xlabel("Mean TSTR F1-macro across 24 datasets (↑)", fontsize=8.5)
+    ax.set_xlabel(f"Mean TSTR F1-macro across {len(d.index)} datasets (↑)", fontsize=8.5)
     ax.set_xlim(0, min(1.0, s["mean"].max() + 0.12))
     ax.set_title("Downstream utility: DISCO-TAB vs. all generators",
                  fontsize=9.5, color=INK)

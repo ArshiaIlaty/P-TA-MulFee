@@ -19,7 +19,6 @@ surv_grace,0.7018
 surv_trace,0.7078
 surv_framingham,0.7109
 tab_blood_transfusion,0.5287
-tab_credit_g,0.7018
 tab_qsar_biodeg,0.7026
 tab_maternal_risk,0.6876
 tab_website_phishing,0.6976

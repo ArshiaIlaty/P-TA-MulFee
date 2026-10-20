@@ -124,7 +124,7 @@ def table1(df):
         r"\caption{Benchmark summary: mean over all datasets (with 95\% CI) for "
         r"each metric and generator. \textbf{Bold} = best per row among the "
         r"established generators. Arrows give the preferred direction (MIA is best "
-        r"near 0.5). Established generators cover all 24 datasets; LLM-era methods "
+        r"near 0.5). Established generators cover all 23 datasets; LLM-era methods "
         r"cover the subset shown in the \#datasets row (`--' = not evaluated).}",
         r"\label{tab:aggregate}",
         r"\begin{tabular}{@{}cl *{%d}{c}@{}}" % N,
@@ -198,6 +198,7 @@ def table2(df):
 
 def main():
     df = pd.read_csv(os.path.join(C, "long.csv"))
+    df = df[df.dataset != "tab_credit_g"]   # dropped: duplicate of German Credit
     t1, t2 = table1(df), table2(df)
     open(os.path.join(OUT, "paper_table1_aggregate.tex"), "w").write(t1 + "\n")
     open(os.path.join(OUT, "paper_table2_vs_best.tex"), "w").write(t2 + "\n")

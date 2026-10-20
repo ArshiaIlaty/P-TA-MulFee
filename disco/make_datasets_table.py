@@ -23,7 +23,7 @@ DS_ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
             "obesity", "diabetes", "german_credit", "bank_marketing", "census_income",
             "surv_melanoma", "surv_pbc", "surv_pbc3", "surv_retinopathy",
             "surv_whas500", "surv_gbsg2", "surv_colon", "surv_grace", "surv_trace",
-            "surv_framingham", "tab_blood_transfusion", "tab_credit_g",
+            "surv_framingham", "tab_blood_transfusion",
             "tab_qsar_biodeg", "tab_maternal_risk", "tab_website_phishing"]
 DISPLAY = {
     "heart_failure": "Heart Failure", "breast_cancer": "Breast Cancer",
@@ -34,13 +34,13 @@ DISPLAY = {
     "surv_retinopathy": "Retinopathy", "surv_whas500": "WHAS500",
     "surv_gbsg2": "GBSG2", "surv_colon": "Colon", "surv_grace": "GRACE",
     "surv_trace": "TRACE", "surv_framingham": "Framingham",
-    "tab_blood_transfusion": "Blood Transfusion", "tab_credit_g": "Credit-G",
+    "tab_blood_transfusion": "Blood Transfusion",
     "tab_qsar_biodeg": "QSAR Biodeg", "tab_maternal_risk": "Maternal Risk",
     "tab_website_phishing": "Website Phishing",
 }
 DOMAIN = {d: "Clinical" for d in DS_ORDER}
 DOMAIN.update({"german_credit": "Finance", "bank_marketing": "Finance",
-               "census_income": "Finance", "tab_credit_g": "Finance",
+               "census_income": "Finance",
                "tab_qsar_biodeg": "Chemistry", "tab_website_phishing": "Security"})
 # source citation key per dataset (collection we sourced it from / original)
 CITE = {
@@ -75,8 +75,8 @@ def main():
     body = []
     body.append(r"\begin{table}[t]\centering\small")
     body.append(r"\setlength{\tabcolsep}{5pt}\renewcommand{\arraystretch}{1.05}")
-    body.append(r"\caption{Benchmark datasets (24 total: 9 from the original study plus "
-                r"10 clinical time-to-event cohorts from SurvSet and 5 from TabArena). "
+    body.append(r"\caption{Benchmark datasets (23 total: 9 from the original study plus "
+                r"10 clinical time-to-event cohorts from SurvSet and 4 from TabArena). "
                 r"Time-to-event cohorts use the event indicator as a binary target.}")
     body.append(r"\label{tab:datasets}")
     body.append(r"\begin{tabular}{@{}llrrrl@{}}\toprule")

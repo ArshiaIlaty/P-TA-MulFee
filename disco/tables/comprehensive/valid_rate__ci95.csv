@@ -19,7 +19,6 @@ surv_grace,0.0
 surv_trace,0.0
 surv_framingham,0.0
 tab_blood_transfusion,0.7008
-tab_credit_g,0.0
 tab_qsar_biodeg,0.0
 tab_maternal_risk,0.0
 tab_website_phishing,0.0

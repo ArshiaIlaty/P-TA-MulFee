@@ -29,7 +29,7 @@ DS_ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
             "obesity", "diabetes", "german_credit", "bank_marketing", "census_income",
             "surv_melanoma", "surv_pbc", "surv_pbc3", "surv_retinopathy",
             "surv_whas500", "surv_gbsg2", "surv_colon", "surv_grace", "surv_trace",
-            "surv_framingham", "tab_blood_transfusion", "tab_credit_g",
+            "surv_framingham", "tab_blood_transfusion",
             "tab_qsar_biodeg", "tab_maternal_risk", "tab_website_phishing"]
 
 # metric -> (higher_is_better, group, label)
