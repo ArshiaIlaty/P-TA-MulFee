@@ -1,0 +1,6 @@
+{
+  "dataset": "german_credit",
+  "seed": 0,
+  "tag": "great",
+  "n_syn": 0
+}
