@@ -53,8 +53,11 @@ def align(syn, real_cols, target_classes):
 
 
 def run_one(ds, seed):
+    # Drop this script's own dir from sys.path: disco/data.py would otherwise
+    # shadow TAGAL's `data` package (`from data.datasets_infos import ...`).
+    sys.path[:] = [p for p in sys.path if os.path.abspath(p or ".") != HERE]
     sys.path.insert(0, TAGAL_SL)     # dataloader, serializer, models, feedback_maker, llms_infos
-    sys.path.insert(0, TAGAL_ROOT)   # data.datasets_infos (namespace package)
+    sys.path.insert(0, TAGAL_ROOT)   # data.datasets_infos (now a real package)
     from dataloader import Dataloader
     from serializer import CSVSerializer
     from models import SynthLoop
@@ -110,7 +113,7 @@ def main():
                    "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1"}
             print(f">>> {ds} tagal seed{seed}", flush=True)
             try:
-                r = subprocess.run(base, env=env, timeout=5400)
+                r = subprocess.run(base, env=env, timeout=7200)
                 if r.returncode != 0 or not os.path.exists(out):
                     print(f"[FAIL] {ds} tagal seed{seed} rc={r.returncode}", flush=True)
             except subprocess.TimeoutExpired:
