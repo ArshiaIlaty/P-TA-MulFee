@@ -53,7 +53,6 @@ METRICS = [
     ("fid_Hellinger", False, "Statistical fidelity", "Hellinger ($\\downarrow$)"),
     ("fid_Pearson", True, "Statistical fidelity", "Pearson corr.\\ preservation ($\\uparrow$)"),
     ("fid_JS_num", False, "Statistical fidelity", "JS numeric ($\\downarrow$)"),
-    ("fid_JS_cat", False, "Statistical fidelity", "JS categorical ($\\downarrow$)"),
     ("dcr_median", True, "Privacy / disclosure", "DCR median ($\\uparrow$=less memorization)"),
     ("dcr_realreal_median", None, "Privacy / disclosure", "DCR real--real reference"),
     ("ext_dcr", True, "Privacy / disclosure", "DCR encoded ($\\uparrow$)"),
@@ -73,7 +72,6 @@ METRICS = [
     ("ext_sdm_quality", True, "SDMetrics quality report", "Overall quality ($\\uparrow$)"),
     ("ext_sdm_shapes", True, "SDMetrics quality report", "Column shapes ($\\uparrow$)"),
     ("ext_sdm_pairs", True, "SDMetrics quality report", "Column-pair trends ($\\uparrow$)"),
-    ("valid_rate", True, "Other", "Parse valid-rate ($\\uparrow$)"),
 ]
 
 
