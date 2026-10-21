@@ -141,7 +141,7 @@ def table1(df):
         col += len(ms)
     L = [
         r"\begin{table*}[t]\centering\scriptsize",
-        r"\setlength{\tabcolsep}{1.5pt}\renewcommand{\arraystretch}{1.15}",
+        r"\setlength{\tabcolsep}{1.1pt}\renewcommand{\arraystretch}{1.15}",
         r"\caption{Benchmark summary: mean over all datasets with 95\% CI (same "
         r"cell, smaller font) for each metric and generator, grouped by model "
         r"family. \textbf{Bold} = best per row among the full-coverage models. "
