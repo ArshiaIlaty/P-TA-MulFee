@@ -20,7 +20,9 @@ from serialize import Serializer
 from constraints import discover_constraints
 from discriminators import HierarchicalDiscriminators, clauses_of
 from train import build_generator, sft, ifrs_weights, ValueHead, PPO, generate
+from calibrate import calibrate_numerics
 import metrics as M
+import pandas as pd
 
 DEFAULTS = dict(
     lambda_token=0.25, lambda_sent=0.25, lambda_feat=0.25, lambda_row=0.25,
@@ -30,6 +32,10 @@ DEFAULTS = dict(
     kl_target=0.5, ppo_epochs=2, disc_lr=2e-4, disc_pretrain=40, disc_pool=512,
     disc_every=2, max_train_sft=3000, gen_cap=3000, temperature=0.9, top_p=0.95,
     use_ifrs=True, use_token=True, use_sent=True, use_feat=True, use_row=True,
+    # --- revision improvements ---
+    use_calibration=True,                 # (1) post-hoc quantile/copula calibration
+    use_distmatch=True, w_dist=0.3,       # (2) per-row distribution+correlation (Mahalanobis) reward
+    use_utility=True, w_util=0.3,         # (3) per-row utility (frozen real-classifier) reward
 )
 
 
@@ -56,6 +62,31 @@ def run_disco(name, seed=0, cfg=None, tag="disco", log=print):
     if len(train_df) > cfg["max_train_sft"]:
         train_df = train_df.sample(cfg["max_train_sft"], random_state=seed)
     real_texts = ser.serialize_df(train_df)
+
+    # --- precompute reward-shaping targets (improvements 2 & 3) ---
+    # (2) real numeric mean + (regularized) covariance for a per-row Mahalanobis
+    #     "distribution+correlation" fit reward; (3) a frozen classifier trained
+    #     on real train for a per-row downstream-utility (label-consistency) reward.
+    num = b.num_cols
+    mu = cov_inv = None
+    if cfg["use_distmatch"] and num:
+        Xr = b.df_train[num].apply(pd.to_numeric, errors="coerce")
+        mu = Xr.mean()
+        Xr = Xr.fillna(mu).values.astype(float)
+        mu = mu.values.astype(float)
+        if len(num) > 1:
+            cov = np.cov(Xr.T) + np.eye(len(num)) * 1e-3
+        else:
+            cov = np.array([[Xr.var() + 1e-6]])
+        cov_inv = np.linalg.pinv(np.atleast_2d(cov))
+    util_clf = util_cls_idx = None
+    if cfg["use_utility"]:
+        from sklearn.ensemble import RandomForestClassifier
+        Xtr, ytr = b.pp.xy(b.df_train)
+        if len(set(ytr)) > 1:
+            util_clf = RandomForestClassifier(n_estimators=100, random_state=seed,
+                                              class_weight="balanced", n_jobs=-1).fit(Xtr, ytr)
+            util_cls_idx = {c: i for i, c in enumerate(list(util_clf.classes_))}
 
     model, tok = build_generator(dev)
     # token budget for generation = a bit beyond the longest real record
@@ -95,14 +126,46 @@ def run_disco(name, seed=0, cfg=None, tag="disco", log=print):
     def reward_fn(texts):
         sc = disc.score(model, ser, texts)
         raw = sum(lam[k] * sc[k] for k in lam) / lam_sum
-        W = np.ones(len(texts))
+        n = len(texts)
+        dicts = [ser.parse_text(t) for t in texts]
+        W = np.ones(n)
         if cfg["use_ifrs"]:
-            for i, t in enumerate(texts):
-                d = ser.parse_text(t)
-                lab = str(d.get(b.target))
-                W[i] = ifrs_w.get(lab, 1.0)
+            for i, d in enumerate(dicts):
+                W[i] = ifrs_w.get(str(d.get(b.target)), 1.0)
         total = raw * W
-        return total.tolist(), {f"D_{k}": float(np.mean(sc[k])) for k in sc}
+        info = {f"D_{k}": float(np.mean(sc[k])) for k in sc}
+
+        # (2) per-row Mahalanobis fit to real (mean, covariance): rewards rows that
+        #     respect the real marginals AND correlation structure.
+        if cov_inv is not None:
+            dist_r = np.zeros(n)
+            for i, d in enumerate(dicts):
+                x = np.array([float(d[c]) if (c in d and d.get(c) is not None
+                              and not pd.isna(d.get(c))) else np.nan for c in num], float)
+                mk = np.isnan(x); x[mk] = mu[mk]
+                diff = x - mu
+                dist_r[i] = np.exp(-float(diff @ cov_inv @ diff) / (2.0 * len(num)))
+            total = total + cfg["w_dist"] * dist_r
+            info["D_dist"] = float(dist_r.mean())
+
+        # (3) per-row utility: frozen real-trained classifier's probability of the
+        #     row's own claimed label -> rewards label-consistent (useful) rows.
+        if util_clf is not None:
+            dfb = pd.DataFrame(dicts)
+            for c in ser.order:
+                if c not in dfb.columns:
+                    dfb[c] = np.nan
+            try:
+                proba = util_clf.predict_proba(b.pp.transform_X(dfb))
+                yb = b.pp.transform_y(dfb)
+                util_r = np.array([proba[i, util_cls_idx[y]]
+                                   if (y >= 0 and y in util_cls_idx) else 0.0
+                                   for i, y in enumerate(yb)])
+                total = total + cfg["w_util"] * util_r
+                info["D_util"] = float(util_r.mean())
+            except Exception:
+                pass
+        return total.tolist(), info
 
     # --- discriminator pretrain (real vs SFT samples) ---
     def sample_real(nbatch):
@@ -141,7 +204,8 @@ def run_disco(name, seed=0, cfg=None, tag="disco", log=print):
             log(f"   step {step:4d} R={logs['reward_mean']:.3f} kl={logs['kl']:.3f} "
                 f"pg={logs['pg']:.3f} | Dtok={logs.get('D_token',0):.2f} "
                 f"Dsent={logs.get('D_sent',0):.2f} Dfeat={logs.get('D_feat',0):.2f} "
-                f"Drow={logs.get('D_row',0):.2f}")
+                f"Drow={logs.get('D_row',0):.2f} Ddist={logs.get('D_dist',0):.2f} "
+                f"Dutil={logs.get('D_util',0):.2f}")
 
     # --- final generation + parse ---
     n_gen = min(len(b.df_train), cfg["gen_cap"])
@@ -153,6 +217,10 @@ def run_disco(name, seed=0, cfg=None, tag="disco", log=print):
     df_syn = df_syn.head(n_gen)
     valid_rate = len(df_syn) / max(1, len(raw_texts))
     log(f"[{name}] parsed {len(df_syn)} valid rows (valid rate {valid_rate:.2f})")
+    # (1) post-hoc class-conditional quantile/copula calibration of numerics
+    if cfg["use_calibration"] and len(df_syn) >= 10:
+        df_syn = calibrate_numerics(df_syn, b.df_train, b.num_cols, target=b.target)
+        log(f"[{name}] applied numeric calibration ({len(b.num_cols)} cols)")
 
     os.makedirs(os.path.join(HERE, "synthetic"), exist_ok=True)
     os.makedirs(os.path.join(HERE, "results"), exist_ok=True)
