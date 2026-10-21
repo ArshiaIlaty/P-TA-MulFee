@@ -38,7 +38,7 @@ FAMILIES = [
     ("VAE", ["tvae", "rtvae"]),
     ("Diff.", ["tabddpm"]),
     ("Stat./Flow", ["gaussian_copula", "nflow", "marginal"]),
-    ("LLM", ["great", "realtabformer", "tagal"]),
+    ("LLM", ["great", "tagal"]),
 ]
 MODELS = [m for _, ms in FAMILIES for m in ms]
 FULLCOV = ["disco", "ctgan", "adsgan", "pategan", "tvae", "rtvae", "tabddpm",

@@ -131,6 +131,17 @@ For the DISCO-TAB generator, we employed the AdamW optimizer with a learning rat
 \subsection{Use of AI-Based Writing Assistance}
 In accordance with best practice for academic transparency, the authors acknowledge the use of Gemini (Google) in the preparation of this manuscript to assist with writing polish and structural organization. Specifically, the tool was utilized to refine the text in the Abstract, Introduction, Related Work, and Discussion sections to improve readability, ensure a formal academic tone, and correct typographical issues. The prompts used for these revisions generally instructed the model to ``revise this text for clarity and flow,'' ``restructure this section to meet the standards of a biomedical informatics journal,'' and ``evaluate and critique the methodological narrative.'' No AI-based tools were used to generate the core scientific claims, experimental data, analytical results, or novel architectural designs presented in this work.
 
+\subsection{Comprehensive Benchmark Tables}
+\label{sec:appendix-benchmark}
+For full transparency and colleague/reviewer inspection, we report the complete
+benchmark below. Table~\ref{tab:aggregate} gives the per-metric mean (with 95\%
+CI) across all datasets for every generator, grouped by model family;
+Table~\ref{tab:vsbest} contrasts DISCO-TAB against the single best competing
+generator on each metric. (These are placed here for review and can be moved
+into the main text as space permits.)
+\input{paper_table1_aggregate}
+\input{paper_table2_vs_best}
+
 \input{biography}
 
 \end{document}
