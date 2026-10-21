@@ -145,9 +145,12 @@ def table1(df):
         r"\caption{Benchmark summary: mean over all datasets with 95\% CI (same "
         r"cell, smaller font) for each metric and generator, grouped by model "
         r"family. \textbf{Bold} = best per row among the full-coverage models. "
-        r"Arrows give the preferred direction (MIA is best near 0.5). The "
-        r"\#datasets row gives per-model coverage; subset models (TAEGAN, GReaT, "
-        r"RTF, TAGAL) show `--' where a metric was not evaluated.}",
+        r"Arrows give the preferred direction. \emph{Ranges:} all scores lie in "
+        r"$[0,1]$ except DCR, MMD and Wasserstein, which are unbounded "
+        r"($\geq 0$, scale depends on the dataset), and PRDC density, which may "
+        r"exceed $1$; MIA AUROC and C2ST are AUROCs for which $0.5$ is ideal "
+        r"(synthetic indistinguishable from real). The \#datasets row gives "
+        r"per-model coverage; `--' marks a metric not evaluated for that model.}",
         r"\label{tab:aggregate}",
         r"\begin{tabular}{@{}cl *{%d}{c}@{}}" % N,
         r"\toprule",
@@ -181,7 +184,9 @@ def table2(df):
         r"\begin{table}[t]\centering\small",
         r"\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.1}",
         r"\caption{DISCO-TAB vs.\ the best established competing generator per "
-        r"metric (mean over all datasets, with 95\% CI). \textbf{Bold} = winner.}",
+        r"metric (mean over all datasets, with 95\% CI). \textbf{Bold} = winner. "
+        r"Scores are in $[0,1]$ except DCR/MMD/Wasserstein (unbounded $\geq 0$) "
+        r"and PRDC density ($>1$ possible); MIA and C2ST are AUROCs with $0.5$ ideal.}",
         r"\label{tab:vsbest}",
         r"\begin{tabular}{@{}clccl@{}}",
         r"\toprule",
