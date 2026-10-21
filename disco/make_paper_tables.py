@@ -36,9 +36,9 @@ FAMILIES = [
     ("Ours", ["disco"]),
     ("GAN", ["ctgan", "adsgan", "pategan", "taegan"]),
     ("VAE", ["tvae", "rtvae"]),
-    ("Diff.", ["tabddpm"]),
+    ("Diff.", ["tabddpm"]),  # tabsyn added here once its runs land
     ("Stat./Flow", ["gaussian_copula", "nflow", "marginal"]),
-    ("LLM", ["great", "tagal"]),
+    ("LLM", ["great", "realtabformer", "tagal"]),
 ]
 MODELS = [m for _, ms in FAMILIES for m in ms]
 FULLCOV = ["disco", "ctgan", "adsgan", "pategan", "tvae", "rtvae", "tabddpm",
@@ -47,7 +47,7 @@ MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow",
         "marginal": "Marg.", "great": "GReaT", "realtabformer": "RTF",
-        "taegan": "TAEGAN", "tagal": "TAGAL"}
+        "taegan": "TAEGAN", "tagal": "TAGAL", "tabsyn": "TabSyn"}
 
 # dimension (rotated label; \\ gives a line break) -> [(metric, direction, label)]
 DIMENSIONS = [

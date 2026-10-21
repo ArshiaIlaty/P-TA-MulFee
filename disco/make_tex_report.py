@@ -16,12 +16,12 @@ LONG = os.path.join(OUT, "long.csv")
 # ARF + Bayesian network dropped; FAITH dropped (authors' revision choices).
 MODELS = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm", "adsgan",
           "pategan", "rtvae", "nflow", "marginal",
-          "great", "taegan", "tagal"]
+          "great", "realtabformer", "taegan", "tagal", "tabsyn"]
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow",
         "marginal": "Marginals",
-        "great": "GReaT",
+        "great": "GReaT", "realtabformer": "RealTabF", "tabsyn": "TabSyn",
         "taegan": "TAEGAN", "tagal": "TAGAL"}
 DS_ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
             "obesity", "diabetes", "german_credit", "bank_marketing", "census_income",
