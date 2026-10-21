@@ -60,6 +60,13 @@ def run_one(ds, seed=0, timeout=3600):
     out = os.path.join(OUTDIR, f"{ds}__tabsyn__seed{seed}.csv")
     syn.to_csv(out, index=False)
     print(f"[OK] {ds} tabsyn seed{seed} -> {syn.shape}", flush=True)
+    # Free this dataset's VAE/diffusion checkpoints + latents once the synthetic
+    # CSV is saved, so finished runs don't accumulate (GBs across 23 datasets).
+    import shutil
+    for d in (os.path.join(TABSYN, "tabsyn", "ckpt", ds),
+              os.path.join(TABSYN, "tabsyn", "vae", "ckpt", ds),
+              os.path.join(TABSYN, "synthetic", ds)):
+        shutil.rmtree(d, ignore_errors=True)
 
 
 def main():
