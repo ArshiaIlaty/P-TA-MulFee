@@ -33,9 +33,13 @@ DEFAULTS = dict(
     disc_every=2, max_train_sft=3000, gen_cap=3000, temperature=0.9, top_p=0.95,
     use_ifrs=True, use_token=True, use_sent=True, use_feat=True, use_row=True,
     # --- revision improvements ---
+    # (1) calibration shipped ON (safe fidelity win at ~neutral utility).
+    # (2)+(3) reward terms kept in code but OFF by default: at w=0.3 they helped
+    # fidelity + the weakest datasets but regressed utility on strong datasets
+    # (obesity/WHAS500); re-enable with lower weights after tuning.
     use_calibration=True,                 # (1) post-hoc quantile/copula calibration
-    use_distmatch=True, w_dist=0.3,       # (2) per-row distribution+correlation (Mahalanobis) reward
-    use_utility=True, w_util=0.3,         # (3) per-row utility (frozen real-classifier) reward
+    use_distmatch=False, w_dist=0.3,      # (2) per-row distribution+correlation (Mahalanobis) reward
+    use_utility=False, w_util=0.3,        # (3) per-row utility (frozen real-classifier) reward
 )
 
 
