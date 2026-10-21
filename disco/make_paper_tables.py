@@ -29,19 +29,29 @@ OUT = os.path.join(C, "paper")
 PAPER = "/home/ec2-user/P-TA-MulFee/2026_JBHI___DISCO_Tab"
 os.makedirs(OUT, exist_ok=True)
 
-FULLCOV = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm", "adsgan",
-           "pategan", "rtvae", "nflow", "marginal"]
-LLM = ["great", "realtabformer", "taegan", "tagal"]
-MODELS = FULLCOV + LLM
+# Column grouping by model family (DISCO-TAB = ours, shown first). FULLCOV =
+# the models with full dataset coverage; only these are eligible for the
+# "best per row" bolding (subset models TAEGAN/GReaT/RTF/TAGAL are not).
+FAMILIES = [
+    ("Ours", ["disco"]),
+    ("GAN", ["ctgan", "adsgan", "pategan", "taegan"]),
+    ("VAE", ["tvae", "rtvae"]),
+    ("Diff.", ["tabddpm"]),
+    ("Stat./Flow", ["gaussian_copula", "nflow", "marginal"]),
+    ("LLM", ["great", "realtabformer", "tagal"]),
+]
+MODELS = [m for _, ms in FAMILIES for m in ms]
+FULLCOV = ["disco", "ctgan", "adsgan", "pategan", "tvae", "rtvae", "tabddpm",
+           "gaussian_copula", "nflow", "marginal"]
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow",
         "marginal": "Marg.", "great": "GReaT", "realtabformer": "RTF",
         "taegan": "TAEGAN", "tagal": "TAGAL"}
 
-# dimension (single-line rotated label) -> [(metric, direction, short label)]
+# dimension (rotated label; \\ gives a line break) -> [(metric, direction, label)]
 DIMENSIONS = [
-    ("Utility (TSTR)", [
+    ("Utility\\\\(TSTR)", [
         ("tstr_f1_macro", "up", "F1-macro $\\uparrow$"),
         ("tstr_f1_weighted", "up", "F1-weight. $\\uparrow$"),
         ("tstr_accuracy", "up", "Accuracy $\\uparrow$"),
@@ -105,9 +115,14 @@ def best_among(sbm, direction, pool):
 
 
 def fmt(mean, ci, bold=False):
+    # value and CI on the SAME line; CI in a smaller font, 2 dp w/o leading 0
+    # so the 14-column table fits the IEEE two-column width.
     s = f"{mean:.3f}"
-    cell = s if (ci is None or np.isnan(ci)) else \
-        f"\\shortstack{{{s}\\\\[-2.5pt]{{\\tiny$\\pm${ci:.3f}}}}}"
+    if ci is None or np.isnan(ci):
+        cell = s
+    else:
+        c = (f"{ci:.2f}".lstrip("0")) or ".00"
+        cell = f"{s}\\,{{\\tiny$\\pm${c}}}"
     return f"\\textbf{{{cell}}}" if bold else cell
 
 
@@ -118,21 +133,26 @@ def coverage(df):
 def table1(df):
     cov = coverage(df)
     N = len(MODELS)
+    # family group headers + cmidrules (first data column is 3)
+    grp, cmids, col = [], [], 3
+    for fam, ms in FAMILIES:
+        grp.append(r"\multicolumn{%d}{c}{\textbf{%s}}" % (len(ms), fam))
+        cmids.append(r"\cmidrule(lr){%d-%d}" % (col, col + len(ms) - 1))
+        col += len(ms)
     L = [
         r"\begin{table*}[t]\centering\scriptsize",
-        r"\setlength{\tabcolsep}{2.5pt}\renewcommand{\arraystretch}{1.0}",
-        r"\caption{Benchmark summary: mean over all datasets (with 95\% CI) for "
-        r"each metric and generator. \textbf{Bold} = best per row among the "
-        r"established generators. Arrows give the preferred direction (MIA is best "
-        r"near 0.5). Established generators cover all 23 datasets; LLM-era methods "
-        r"cover the subset shown in the \#datasets row (`--' = not evaluated).}",
+        r"\setlength{\tabcolsep}{1.5pt}\renewcommand{\arraystretch}{1.15}",
+        r"\caption{Benchmark summary: mean over all datasets with 95\% CI (same "
+        r"cell, smaller font) for each metric and generator, grouped by model "
+        r"family. \textbf{Bold} = best per row among the full-coverage models. "
+        r"Arrows give the preferred direction (MIA is best near 0.5). The "
+        r"\#datasets row gives per-model coverage; subset models (TAEGAN, GReaT, "
+        r"RTF, TAGAL) show `--' where a metric was not evaluated.}",
         r"\label{tab:aggregate}",
         r"\begin{tabular}{@{}cl *{%d}{c}@{}}" % N,
         r"\toprule",
-        (r"& & \multicolumn{%d}{c}{\textbf{Established generators}} & "
-         r"\multicolumn{%d}{c}{\textbf{LLM-era}} \\" % (len(FULLCOV), len(LLM))),
-        (r"\cmidrule(lr){3-%d}\cmidrule(lr){%d-%d}" % (2 + len(FULLCOV),
-                                                       3 + len(FULLCOV), 2 + N)),
+        r"& & " + " & ".join(grp) + r" \\",
+        "".join(cmids),
         r"& \textbf{Metric} & " + " & ".join(r"\textbf{%s}" % MLAB[m] for m in MODELS) + r" \\",
         r"& \#datasets & " + " & ".join(str(cov.get(m, 0)) for m in MODELS) + r" \\",
     ]
@@ -142,7 +162,7 @@ def table1(df):
         for j, (metric, direction, lab) in enumerate(metrics):
             sbm = agg(df, metric)
             bi = best_among(sbm, direction, FULLCOV)
-            cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{%s}}" % (n, dim)
+            cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{\shortstack{%s}}}" % (n, dim)
                      if j == 0 else "")
             row = [cell0, lab]
             for m in MODELS:
@@ -177,7 +197,7 @@ def table2(df):
             dmean, dci, _ = sbm["disco"]
             pool = [m for m in FULLCOV if m != "disco"]
             bi = best_among(sbm, direction, pool)
-            cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{%s}}" % (n, dim)
+            cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{\shortstack{%s}}}" % (n, dim)
                      if j == 0 else "")
             if bi is None:
                 L.append(" & ".join([cell0, lab, fmt(dmean, dci), "--", "--"]) + r" \\")

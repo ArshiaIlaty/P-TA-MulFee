@@ -6,32 +6,32 @@
 \toprule
 & \textbf{Metric} & \textbf{DISCO-TAB} & \textbf{Best comp.} & \textbf{Method} \\
 \midrule
-\multirow{3}{*}{\rotatebox[origin=c]{90}{Utility (TSTR)}} & F1-macro $\uparrow$ & \textbf{\shortstack{0.641\\[-2.5pt]{\tiny$\pm$0.062}}} & \shortstack{0.620\\[-2.5pt]{\tiny$\pm$0.047}} & ADS-GAN \\
- & F1-weight. $\uparrow$ & \shortstack{0.681\\[-2.5pt]{\tiny$\pm$0.067}} & \textbf{\shortstack{0.687\\[-2.5pt]{\tiny$\pm$0.054}}} & \textbf{ADS-GAN} \\
- & Accuracy $\uparrow$ & \shortstack{0.688\\[-2.5pt]{\tiny$\pm$0.064}} & \textbf{\shortstack{0.714\\[-2.5pt]{\tiny$\pm$0.062}}} & \textbf{TabDDPM} \\
+\multirow{3}{*}{\rotatebox[origin=c]{90}{\shortstack{Utility\\(TSTR)}}} & F1-macro $\uparrow$ & \textbf{0.641\,{\tiny$\pm$.06}} & 0.620\,{\tiny$\pm$.05} & ADS-GAN \\
+ & F1-weight. $\uparrow$ & 0.681\,{\tiny$\pm$.07} & \textbf{0.687\,{\tiny$\pm$.05}} & \textbf{ADS-GAN} \\
+ & Accuracy $\uparrow$ & 0.688\,{\tiny$\pm$.06} & \textbf{0.714\,{\tiny$\pm$.06}} & \textbf{TabDDPM} \\
 \midrule
-\multirow{4}{*}{\rotatebox[origin=c]{90}{Fidelity}} & JS div. $\downarrow$ & \shortstack{0.059\\[-2.5pt]{\tiny$\pm$0.020}} & \textbf{\shortstack{0.035\\[-2.5pt]{\tiny$\pm$0.012}}} & \textbf{NFlow} \\
- & KS stat. $\downarrow$ & \shortstack{0.169\\[-2.5pt]{\tiny$\pm$0.038}} & \textbf{\shortstack{0.108\\[-2.5pt]{\tiny$\pm$0.035}}} & \textbf{GaussCop} \\
- & Helling. $\downarrow$ & \shortstack{0.170\\[-2.5pt]{\tiny$\pm$0.026}} & \textbf{\shortstack{0.125\\[-2.5pt]{\tiny$\pm$0.038}}} & \textbf{GaussCop} \\
- & Corr. $\uparrow$ & \shortstack{0.908\\[-2.5pt]{\tiny$\pm$0.029}} & \textbf{\shortstack{0.929\\[-2.5pt]{\tiny$\pm$0.015}}} & \textbf{GaussCop} \\
+\multirow{4}{*}{\rotatebox[origin=c]{90}{\shortstack{Fidelity}}} & JS div. $\downarrow$ & 0.059\,{\tiny$\pm$.02} & \textbf{0.035\,{\tiny$\pm$.01}} & \textbf{NFlow} \\
+ & KS stat. $\downarrow$ & 0.169\,{\tiny$\pm$.04} & \textbf{0.108\,{\tiny$\pm$.03}} & \textbf{GaussCop} \\
+ & Helling. $\downarrow$ & 0.170\,{\tiny$\pm$.03} & \textbf{0.125\,{\tiny$\pm$.04}} & \textbf{GaussCop} \\
+ & Corr. $\uparrow$ & 0.908\,{\tiny$\pm$.03} & \textbf{0.929\,{\tiny$\pm$.02}} & \textbf{GaussCop} \\
 \midrule
-\multirow{4}{*}{\rotatebox[origin=c]{90}{Privacy}} & DCR $\uparrow$ & \shortstack{0.338\\[-2.5pt]{\tiny$\pm$0.077}} & \textbf{\shortstack{1.420\\[-2.5pt]{\tiny$\pm$0.404}}} & \textbf{Marg.} \\
- & NNDR $\uparrow$ & \shortstack{0.885\\[-2.5pt]{\tiny$\pm$0.038}} & \textbf{\shortstack{0.953\\[-2.5pt]{\tiny$\pm$0.022}}} & \textbf{RTVAE} \\
- & MIA $\to$.5 & \shortstack{0.546\\[-2.5pt]{\tiny$\pm$0.020}} & \textbf{\shortstack{0.499\\[-2.5pt]{\tiny$\pm$0.004}}} & \textbf{PATE-GAN} \\
- & Dup. $\downarrow$ & \shortstack{0.045\\[-2.5pt]{\tiny$\pm$0.049}} & \textbf{\shortstack{0.003\\[-2.5pt]{\tiny$\pm$0.003}}} & \textbf{CTGAN} \\
+\multirow{4}{*}{\rotatebox[origin=c]{90}{\shortstack{Privacy}}} & DCR $\uparrow$ & 0.338\,{\tiny$\pm$.08} & \textbf{1.420\,{\tiny$\pm$.40}} & \textbf{Marg.} \\
+ & NNDR $\uparrow$ & 0.885\,{\tiny$\pm$.04} & \textbf{0.953\,{\tiny$\pm$.02}} & \textbf{RTVAE} \\
+ & MIA $\to$.5 & 0.546\,{\tiny$\pm$.02} & \textbf{0.499\,{\tiny$\pm$.00}} & \textbf{PATE-GAN} \\
+ & Dup. $\downarrow$ & 0.045\,{\tiny$\pm$.05} & \textbf{0.003\,{\tiny$\pm$.00}} & \textbf{CTGAN} \\
 \midrule
-\multirow{4}{*}{\rotatebox[origin=c]{90}{Diversity}} & Precis. $\uparrow$ & \shortstack{0.883\\[-2.5pt]{\tiny$\pm$0.086}} & \textbf{\shortstack{0.896\\[-2.5pt]{\tiny$\pm$0.091}}} & \textbf{TVAE} \\
- & Recall $\uparrow$ & \shortstack{0.756\\[-2.5pt]{\tiny$\pm$0.104}} & \textbf{\shortstack{0.967\\[-2.5pt]{\tiny$\pm$0.021}}} & \textbf{TabDDPM} \\
- & Density $\uparrow$ & \shortstack{0.974\\[-2.5pt]{\tiny$\pm$0.175}} & \textbf{\shortstack{1.134\\[-2.5pt]{\tiny$\pm$0.218}}} & \textbf{TVAE} \\
- & Coverage $\uparrow$ & \shortstack{0.764\\[-2.5pt]{\tiny$\pm$0.107}} & \textbf{\shortstack{0.876\\[-2.5pt]{\tiny$\pm$0.112}}} & \textbf{TabDDPM} \\
+\multirow{4}{*}{\rotatebox[origin=c]{90}{\shortstack{Diversity}}} & Precis. $\uparrow$ & 0.883\,{\tiny$\pm$.09} & \textbf{0.896\,{\tiny$\pm$.09}} & \textbf{TVAE} \\
+ & Recall $\uparrow$ & 0.756\,{\tiny$\pm$.10} & \textbf{0.967\,{\tiny$\pm$.02}} & \textbf{TabDDPM} \\
+ & Density $\uparrow$ & 0.974\,{\tiny$\pm$.17} & \textbf{1.134\,{\tiny$\pm$.22}} & \textbf{TVAE} \\
+ & Coverage $\uparrow$ & 0.764\,{\tiny$\pm$.11} & \textbf{0.876\,{\tiny$\pm$.11}} & \textbf{TabDDPM} \\
 \midrule
-\multirow{3}{*}{\rotatebox[origin=c]{90}{Detection}} & C2ST $\downarrow$ & \shortstack{0.889\\[-2.5pt]{\tiny$\pm$0.058}} & \textbf{\shortstack{0.726\\[-2.5pt]{\tiny$\pm$0.089}}} & \textbf{TabDDPM} \\
- & MMD $\downarrow$ & \shortstack{0.039\\[-2.5pt]{\tiny$\pm$0.013}} & \textbf{\shortstack{0.019\\[-2.5pt]{\tiny$\pm$0.005}}} & \textbf{NFlow} \\
- & Wass. $\downarrow$ & \shortstack{0.233\\[-2.5pt]{\tiny$\pm$0.038}} & \textbf{\shortstack{0.173\\[-2.5pt]{\tiny$\pm$0.069}}} & \textbf{GaussCop} \\
+\multirow{3}{*}{\rotatebox[origin=c]{90}{\shortstack{Detection}}} & C2ST $\downarrow$ & 0.889\,{\tiny$\pm$.06} & \textbf{0.726\,{\tiny$\pm$.09}} & \textbf{TabDDPM} \\
+ & MMD $\downarrow$ & 0.039\,{\tiny$\pm$.01} & \textbf{0.019\,{\tiny$\pm$.00}} & \textbf{NFlow} \\
+ & Wass. $\downarrow$ & 0.233\,{\tiny$\pm$.04} & \textbf{0.173\,{\tiny$\pm$.07}} & \textbf{GaussCop} \\
 \midrule
-\multirow{3}{*}{\rotatebox[origin=c]{90}{SDMetrics}} & Quality $\uparrow$ & \shortstack{0.629\\[-2.5pt]{\tiny$\pm$0.080}} & \textbf{\shortstack{0.666\\[-2.5pt]{\tiny$\pm$0.077}}} & \textbf{GaussCop} \\
- & Shapes $\uparrow$ & \shortstack{0.770\\[-2.5pt]{\tiny$\pm$0.031}} & \textbf{\shortstack{0.828\\[-2.5pt]{\tiny$\pm$0.023}}} & \textbf{GaussCop} \\
- & Pairs $\uparrow$ & \shortstack{0.488\\[-2.5pt]{\tiny$\pm$0.154}} & \textbf{\shortstack{0.539\\[-2.5pt]{\tiny$\pm$0.187}}} & \textbf{TabDDPM} \\
+\multirow{3}{*}{\rotatebox[origin=c]{90}{\shortstack{SDMetrics}}} & Quality $\uparrow$ & 0.629\,{\tiny$\pm$.08} & \textbf{0.666\,{\tiny$\pm$.08}} & \textbf{GaussCop} \\
+ & Shapes $\uparrow$ & 0.770\,{\tiny$\pm$.03} & \textbf{0.828\,{\tiny$\pm$.02}} & \textbf{GaussCop} \\
+ & Pairs $\uparrow$ & 0.488\,{\tiny$\pm$.15} & \textbf{0.539\,{\tiny$\pm$.19}} & \textbf{TabDDPM} \\
 \bottomrule
 \end{tabular}
 \end{table}
