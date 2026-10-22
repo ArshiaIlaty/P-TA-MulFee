@@ -1,158 +1,169 @@
 metric,group,label,model,mean,n_datasets,avg_rank,n_best
-tstr_f1_macro,Utility,TSTR F1-macro,disco,0.6375,23,3.52,4.0
-tstr_f1_macro,Utility,TSTR F1-macro,ctgan,0.4702,23,8.57,1.0
-tstr_f1_macro,Utility,TSTR F1-macro,tvae,0.4032,23,8.17,1.0
-tstr_f1_macro,Utility,TSTR F1-macro,gaussian_copula,0.5426,23,6.22,0.0
-tstr_f1_macro,Utility,TSTR F1-macro,tabddpm,0.5992,23,5.0,4.0
-tstr_f1_macro,Utility,TSTR F1-macro,adsgan,0.6198,23,4.22,1.0
-tstr_f1_macro,Utility,TSTR F1-macro,pategan,0.4234,23,9.87,0.0
-tstr_f1_macro,Utility,TSTR F1-macro,rtvae,0.5779,23,5.83,3.0
-tstr_f1_macro,Utility,TSTR F1-macro,nflow,0.5384,23,7.13,0.0
-tstr_f1_macro,Utility,TSTR F1-macro,marginal,0.4087,23,9.83,0.0
-tstr_f1_macro,Utility,TSTR F1-macro,great,0.5087,12,7.75,1.0
-tstr_f1_macro,Utility,TSTR F1-macro,realtabformer,0.7309,4,1.75,2.0
-tstr_f1_macro,Utility,TSTR F1-macro,taegan,0.6378,23,3.52,6.0
-tstr_f1_macro,Utility,TSTR F1-macro,tagal,0.6144,5,5.2,0.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,disco,0.6793,23,4.91,3.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,ctgan,0.5489,23,8.17,1.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,tvae,0.453,23,8.04,0.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,gaussian_copula,0.6401,23,5.96,0.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,tabddpm,0.6814,23,4.26,5.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,adsgan,0.6872,23,4.13,0.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,pategan,0.53,23,9.61,0.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,rtvae,0.6654,23,5.83,3.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,nflow,0.6321,23,6.96,0.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,marginal,0.4558,23,10.83,0.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,great,0.632,12,6.75,1.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,realtabformer,0.7802,4,1.75,1.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,taegan,0.7087,23,3.17,9.0
-tstr_f1_weighted,Utility,TSTR F1-weighted,tagal,0.6899,5,7.6,0.0
-tstr_accuracy,Utility,TSTR accuracy,disco,0.6853,23,5.76,2.0
-tstr_accuracy,Utility,TSTR accuracy,ctgan,0.578,23,8.67,0.0
-tstr_accuracy,Utility,TSTR accuracy,tvae,0.4846,23,7.5,0.0
-tstr_accuracy,Utility,TSTR accuracy,gaussian_copula,0.6698,23,5.67,1.0
-tstr_accuracy,Utility,TSTR accuracy,tabddpm,0.7131,23,4.22,6.0
-tstr_accuracy,Utility,TSTR accuracy,adsgan,0.7057,23,4.39,1.0
-tstr_accuracy,Utility,TSTR accuracy,pategan,0.5826,23,9.11,0.0
-tstr_accuracy,Utility,TSTR accuracy,rtvae,0.6885,23,5.83,3.0
-tstr_accuracy,Utility,TSTR accuracy,nflow,0.6657,23,6.35,1.0
-tstr_accuracy,Utility,TSTR accuracy,marginal,0.4641,23,11.15,0.0
-tstr_accuracy,Utility,TSTR accuracy,great,0.6631,12,6.88,0.0
-tstr_accuracy,Utility,TSTR accuracy,realtabformer,0.7866,4,1.88,1.0
-tstr_accuracy,Utility,TSTR accuracy,taegan,0.7279,23,3.04,8.0
-tstr_accuracy,Utility,TSTR accuracy,tagal,0.6703,5,8.0,0.0
-fid_JS,Fidelity,JS divergence,disco,0.0427,23,4.17,3.0
-fid_JS,Fidelity,JS divergence,ctgan,0.0876,23,6.52,0.0
-fid_JS,Fidelity,JS divergence,tvae,0.1319,23,8.96,0.0
-fid_JS,Fidelity,JS divergence,gaussian_copula,0.047,23,3.57,6.0
-fid_JS,Fidelity,JS divergence,tabddpm,0.0859,23,4.17,7.0
-fid_JS,Fidelity,JS divergence,adsgan,0.0696,23,6.17,0.0
-fid_JS,Fidelity,JS divergence,pategan,0.1742,23,9.74,0.0
-fid_JS,Fidelity,JS divergence,rtvae,0.2323,23,10.57,0.0
-fid_JS,Fidelity,JS divergence,nflow,0.0345,23,3.96,1.0
-fid_JS,Fidelity,JS divergence,marginal,0.2079,23,10.26,0.0
-fid_JS,Fidelity,JS divergence,great,0.0401,12,5.08,2.0
-fid_JS,Fidelity,JS divergence,realtabformer,0.0069,4,1.0,4.0
-fid_JS,Fidelity,JS divergence,taegan,0.0591,23,5.04,0.0
-fid_JS,Fidelity,JS divergence,tagal,0.0708,5,6.4,0.0
-fid_KS,Fidelity,KS statistic,disco,0.0777,22,2.86,6.0
-fid_KS,Fidelity,KS statistic,ctgan,0.2167,22,7.77,0.0
-fid_KS,Fidelity,KS statistic,tvae,0.2667,22,8.95,0.0
-fid_KS,Fidelity,KS statistic,gaussian_copula,0.1078,22,3.5,4.0
-fid_KS,Fidelity,KS statistic,tabddpm,0.1198,22,3.55,9.0
-fid_KS,Fidelity,KS statistic,adsgan,0.1826,22,6.86,0.0
-fid_KS,Fidelity,KS statistic,pategan,0.3488,22,10.77,0.0
-fid_KS,Fidelity,KS statistic,rtvae,0.2479,22,8.77,0.0
-fid_KS,Fidelity,KS statistic,nflow,0.1124,22,4.32,1.0
-fid_KS,Fidelity,KS statistic,marginal,0.3889,22,11.27,0.0
-fid_KS,Fidelity,KS statistic,great,0.1092,12,4.42,0.0
-fid_KS,Fidelity,KS statistic,realtabformer,0.0421,4,1.5,2.0
-fid_KS,Fidelity,KS statistic,taegan,0.1468,22,5.09,0.0
-fid_KS,Fidelity,KS statistic,tagal,0.1623,5,6.4,0.0
-fid_KL,Fidelity,KL divergence,disco,0.5338,23,5.35,4.0
-fid_KL,Fidelity,KL divergence,ctgan,0.5678,23,5.0,0.0
-fid_KL,Fidelity,KL divergence,tvae,2.8983,23,10.61,0.0
-fid_KL,Fidelity,KL divergence,gaussian_copula,0.4766,23,3.26,4.0
-fid_KL,Fidelity,KL divergence,tabddpm,0.7605,23,3.48,9.0
-fid_KL,Fidelity,KL divergence,adsgan,0.5873,23,7.3,0.0
-fid_KL,Fidelity,KL divergence,pategan,1.3301,23,8.91,0.0
-fid_KL,Fidelity,KL divergence,rtvae,5.7837,23,11.17,0.0
-fid_KL,Fidelity,KL divergence,nflow,0.1713,23,3.35,2.0
-fid_KL,Fidelity,KL divergence,marginal,0.5832,23,7.48,0.0
-fid_KL,Fidelity,KL divergence,great,0.4611,12,6.08,1.0
-fid_KL,Fidelity,KL divergence,realtabformer,0.0701,4,1.25,3.0
-fid_KL,Fidelity,KL divergence,taegan,0.591,23,6.22,0.0
-fid_KL,Fidelity,KL divergence,tagal,0.747,5,8.4,0.0
-fid_Hellinger,Fidelity,Hellinger,disco,0.1378,23,4.43,3.0
-fid_Hellinger,Fidelity,Hellinger,ctgan,0.1967,23,6.61,0.0
-fid_Hellinger,Fidelity,Hellinger,tvae,0.3002,23,9.57,0.0
-fid_Hellinger,Fidelity,Hellinger,gaussian_copula,0.1251,23,2.96,6.0
-fid_Hellinger,Fidelity,Hellinger,tabddpm,0.1715,23,4.04,8.0
-fid_Hellinger,Fidelity,Hellinger,adsgan,0.1835,23,6.17,0.0
-fid_Hellinger,Fidelity,Hellinger,pategan,0.2983,23,9.43,0.0
-fid_Hellinger,Fidelity,Hellinger,rtvae,0.3466,23,10.26,0.0
-fid_Hellinger,Fidelity,Hellinger,nflow,0.1356,23,4.17,1.0
-fid_Hellinger,Fidelity,Hellinger,marginal,0.3557,23,10.39,0.0
-fid_Hellinger,Fidelity,Hellinger,great,0.1399,12,5.0,2.0
-fid_Hellinger,Fidelity,Hellinger,realtabformer,0.0591,4,1.5,3.0
-fid_Hellinger,Fidelity,Hellinger,taegan,0.1648,23,5.04,0.0
-fid_Hellinger,Fidelity,Hellinger,tagal,0.2014,5,6.4,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,disco,0.9192,22,3.45,2.0
-fid_Pearson,Fidelity,Pearson corr-preserve,ctgan,0.8212,22,9.18,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,tvae,0.8445,22,7.59,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,gaussian_copula,0.9295,22,2.91,8.0
-fid_Pearson,Fidelity,Pearson corr-preserve,tabddpm,0.8879,22,6.14,5.0
-fid_Pearson,Fidelity,Pearson corr-preserve,adsgan,0.9131,22,3.91,2.0
-fid_Pearson,Fidelity,Pearson corr-preserve,pategan,0.7968,22,11.09,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,rtvae,0.8653,22,6.0,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,nflow,0.8623,22,6.64,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,marginal,0.8183,22,9.55,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,great,0.9132,12,5.83,2.0
-fid_Pearson,Fidelity,Pearson corr-preserve,realtabformer,0.9575,4,1.25,3.0
-fid_Pearson,Fidelity,Pearson corr-preserve,taegan,0.8917,22,5.77,0.0
-fid_Pearson,Fidelity,Pearson corr-preserve,tagal,0.8393,5,9.8,0.0
-fid_JS_num,Fidelity,JS numeric,disco,0.026,22,3.09,3.0
-fid_JS_num,Fidelity,JS numeric,ctgan,0.0875,22,6.64,0.0
-fid_JS_num,Fidelity,JS numeric,tvae,0.1352,22,8.68,0.0
-fid_JS_num,Fidelity,JS numeric,gaussian_copula,0.0479,22,3.77,6.0
-fid_JS_num,Fidelity,JS numeric,tabddpm,0.0927,22,4.45,5.0
-fid_JS_num,Fidelity,JS numeric,adsgan,0.0778,22,6.36,0.0
-fid_JS_num,Fidelity,JS numeric,pategan,0.1963,22,10.09,0.0
-fid_JS_num,Fidelity,JS numeric,rtvae,0.2685,22,11.27,0.0
-fid_JS_num,Fidelity,JS numeric,nflow,0.0354,22,3.5,1.0
-fid_JS_num,Fidelity,JS numeric,marginal,0.2387,22,10.36,0.0
-fid_JS_num,Fidelity,JS numeric,great,0.0322,12,4.33,3.0
-fid_JS_num,Fidelity,JS numeric,realtabformer,0.0076,4,1.0,4.0
-fid_JS_num,Fidelity,JS numeric,taegan,0.0683,22,5.68,0.0
-fid_JS_num,Fidelity,JS numeric,tagal,0.0767,5,6.2,0.0
-fid_JS_cat,Fidelity,JS categorical,disco,0.0924,11,8.91,0.0
-fid_JS_cat,Fidelity,JS categorical,ctgan,0.0267,11,5.27,0.0
-fid_JS_cat,Fidelity,JS categorical,tvae,0.1121,11,10.27,0.0
-fid_JS_cat,Fidelity,JS categorical,gaussian_copula,0.0208,11,1.91,8.0
-fid_JS_cat,Fidelity,JS categorical,tabddpm,0.0045,11,3.27,3.0
-fid_JS_cat,Fidelity,JS categorical,adsgan,0.0223,11,6.18,0.0
-fid_JS_cat,Fidelity,JS categorical,pategan,0.0431,11,9.09,0.0
-fid_JS_cat,Fidelity,JS categorical,rtvae,0.0216,11,5.64,0.0
-fid_JS_cat,Fidelity,JS categorical,nflow,0.0274,11,7.73,0.0
-fid_JS_cat,Fidelity,JS categorical,marginal,0.1071,11,9.82,0.0
-fid_JS_cat,Fidelity,JS categorical,great,0.0726,8,9.12,0.0
-fid_JS_cat,Fidelity,JS categorical,realtabformer,0.0037,3,4.33,0.0
-fid_JS_cat,Fidelity,JS categorical,taegan,0.003,11,3.09,0.0
-fid_JS_cat,Fidelity,JS categorical,tagal,0.0306,2,9.0,0.0
-dcr_median,Privacy,DCR median,disco,0.3396,23,7.54,0.0
-dcr_median,Privacy,DCR median,ctgan,0.5562,23,3.22,1.0
-dcr_median,Privacy,DCR median,tvae,0.2554,23,11.3,0.0
-dcr_median,Privacy,DCR median,gaussian_copula,0.3991,23,5.13,0.0
-dcr_median,Privacy,DCR median,tabddpm,0.7575,23,6.67,2.0
-dcr_median,Privacy,DCR median,adsgan,0.3569,23,7.33,0.0
-dcr_median,Privacy,DCR median,pategan,0.612,23,2.91,0.0
-dcr_median,Privacy,DCR median,rtvae,0.334,23,8.07,0.0
-dcr_median,Privacy,DCR median,nflow,0.4042,23,5.33,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,disco,0.6375,23,4.52,1.0
+tstr_f1_macro,Utility,TSTR F1-macro,ctgan,0.4702,23,10.0,1.0
+tstr_f1_macro,Utility,TSTR F1-macro,tvae,0.4032,23,9.54,1.0
+tstr_f1_macro,Utility,TSTR F1-macro,gaussian_copula,0.5426,23,7.43,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,tabddpm,0.5992,23,6.09,4.0
+tstr_f1_macro,Utility,TSTR F1-macro,adsgan,0.6198,23,5.52,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,pategan,0.4234,23,11.39,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,rtvae,0.5779,23,7.09,3.0
+tstr_f1_macro,Utility,TSTR F1-macro,nflow,0.5384,23,8.52,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,marginal,0.4087,23,11.39,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,great,0.5087,12,9.42,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,realtabformer,0.6667,18,3.33,2.0
+tstr_f1_macro,Utility,TSTR F1-macro,taegan,0.6378,23,4.2,6.0
+tstr_f1_macro,Utility,TSTR F1-macro,tagal,0.5634,18,7.11,0.0
+tstr_f1_macro,Utility,TSTR F1-macro,tabsyn,0.3595,22,7.77,5.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,disco,0.6793,23,5.96,1.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,ctgan,0.5489,23,9.61,1.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,tvae,0.453,23,9.37,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,gaussian_copula,0.6401,23,7.13,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,tabddpm,0.6814,23,5.17,4.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,adsgan,0.6872,23,5.22,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,pategan,0.53,23,11.09,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,rtvae,0.6654,23,7.09,3.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,nflow,0.6321,23,8.39,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,marginal,0.4558,23,12.39,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,great,0.632,12,8.17,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,realtabformer,0.7119,18,3.44,2.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,taegan,0.7087,23,3.8,6.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,tagal,0.6116,18,8.56,0.0
+tstr_f1_weighted,Utility,TSTR F1-weighted,tabsyn,0.3864,22,7.68,6.0
+tstr_accuracy,Utility,TSTR accuracy,disco,0.6853,23,6.85,1.0
+tstr_accuracy,Utility,TSTR accuracy,ctgan,0.578,23,10.11,0.0
+tstr_accuracy,Utility,TSTR accuracy,tvae,0.4846,23,8.7,0.0
+tstr_accuracy,Utility,TSTR accuracy,gaussian_copula,0.6698,23,6.76,0.0
+tstr_accuracy,Utility,TSTR accuracy,tabddpm,0.7131,23,5.04,5.0
+tstr_accuracy,Utility,TSTR accuracy,adsgan,0.7057,23,5.37,0.0
+tstr_accuracy,Utility,TSTR accuracy,pategan,0.5826,23,10.46,0.0
+tstr_accuracy,Utility,TSTR accuracy,rtvae,0.6885,23,6.91,3.0
+tstr_accuracy,Utility,TSTR accuracy,nflow,0.6657,23,7.63,0.0
+tstr_accuracy,Utility,TSTR accuracy,marginal,0.4641,23,12.72,0.0
+tstr_accuracy,Utility,TSTR accuracy,great,0.6631,12,8.29,0.0
+tstr_accuracy,Utility,TSTR accuracy,realtabformer,0.7163,18,3.92,3.0
+tstr_accuracy,Utility,TSTR accuracy,taegan,0.7279,23,3.63,6.0
+tstr_accuracy,Utility,TSTR accuracy,tagal,0.6123,18,9.36,0.0
+tstr_accuracy,Utility,TSTR accuracy,tabsyn,0.3899,22,7.66,5.0
+fid_JS,Fidelity,JS divergence,disco,0.0427,23,5.48,2.0
+fid_JS,Fidelity,JS divergence,ctgan,0.0876,23,8.35,0.0
+fid_JS,Fidelity,JS divergence,tvae,0.1319,23,10.91,0.0
+fid_JS,Fidelity,JS divergence,gaussian_copula,0.047,23,4.61,1.0
+fid_JS,Fidelity,JS divergence,tabddpm,0.0859,23,5.13,6.0
+fid_JS,Fidelity,JS divergence,adsgan,0.0696,23,7.91,0.0
+fid_JS,Fidelity,JS divergence,pategan,0.1742,23,11.65,0.0
+fid_JS,Fidelity,JS divergence,rtvae,0.2323,23,12.57,0.0
+fid_JS,Fidelity,JS divergence,nflow,0.0345,23,5.22,0.0
+fid_JS,Fidelity,JS divergence,marginal,0.2079,23,12.26,0.0
+fid_JS,Fidelity,JS divergence,great,0.0401,12,6.42,0.0
+fid_JS,Fidelity,JS divergence,realtabformer,0.011,18,1.83,11.0
+fid_JS,Fidelity,JS divergence,taegan,0.0591,23,6.48,0.0
+fid_JS,Fidelity,JS divergence,tagal,0.0765,18,9.0,0.0
+fid_JS,Fidelity,JS divergence,tabsyn,0.0275,22,4.0,3.0
+fid_KS,Fidelity,KS statistic,disco,0.0777,22,4.14,4.0
+fid_KS,Fidelity,KS statistic,ctgan,0.2167,22,9.77,0.0
+fid_KS,Fidelity,KS statistic,tvae,0.2667,22,11.0,0.0
+fid_KS,Fidelity,KS statistic,gaussian_copula,0.1078,22,4.68,0.0
+fid_KS,Fidelity,KS statistic,tabddpm,0.1198,22,4.41,6.0
+fid_KS,Fidelity,KS statistic,adsgan,0.1826,22,8.82,0.0
+fid_KS,Fidelity,KS statistic,pategan,0.3488,22,12.82,0.0
+fid_KS,Fidelity,KS statistic,rtvae,0.2479,22,10.77,0.0
+fid_KS,Fidelity,KS statistic,nflow,0.1124,22,6.05,0.0
+fid_KS,Fidelity,KS statistic,marginal,0.3889,22,13.36,0.0
+fid_KS,Fidelity,KS statistic,great,0.1092,12,5.75,0.0
+fid_KS,Fidelity,KS statistic,realtabformer,0.056,17,2.53,6.0
+fid_KS,Fidelity,KS statistic,taegan,0.1468,22,6.77,0.0
+fid_KS,Fidelity,KS statistic,tagal,0.1677,17,8.65,0.0
+fid_KS,Fidelity,KS statistic,tabsyn,0.0548,22,2.55,6.0
+fid_KL,Fidelity,KL divergence,disco,0.5338,23,6.87,3.0
+fid_KL,Fidelity,KL divergence,ctgan,0.5678,23,6.52,0.0
+fid_KL,Fidelity,KL divergence,tvae,2.8983,23,12.61,0.0
+fid_KL,Fidelity,KL divergence,gaussian_copula,0.4766,23,4.26,3.0
+fid_KL,Fidelity,KL divergence,tabddpm,0.7605,23,4.3,6.0
+fid_KL,Fidelity,KL divergence,adsgan,0.5873,23,9.0,0.0
+fid_KL,Fidelity,KL divergence,pategan,1.3301,23,10.78,0.0
+fid_KL,Fidelity,KL divergence,rtvae,5.7837,23,13.22,0.0
+fid_KL,Fidelity,KL divergence,nflow,0.1713,23,4.52,0.0
+fid_KL,Fidelity,KL divergence,marginal,0.5832,23,9.13,0.0
+fid_KL,Fidelity,KL divergence,great,0.4611,12,7.58,0.0
+fid_KL,Fidelity,KL divergence,realtabformer,0.1037,18,2.61,6.0
+fid_KL,Fidelity,KL divergence,taegan,0.591,23,7.74,0.0
+fid_KL,Fidelity,KL divergence,tagal,0.8173,18,9.94,0.0
+fid_KL,Fidelity,KL divergence,tabsyn,0.2409,22,3.64,5.0
+fid_Hellinger,Fidelity,Hellinger,disco,0.1378,23,5.83,2.0
+fid_Hellinger,Fidelity,Hellinger,ctgan,0.1967,23,8.26,0.0
+fid_Hellinger,Fidelity,Hellinger,tvae,0.3002,23,11.61,0.0
+fid_Hellinger,Fidelity,Hellinger,gaussian_copula,0.1251,23,3.96,1.0
+fid_Hellinger,Fidelity,Hellinger,tabddpm,0.1715,23,4.96,7.0
+fid_Hellinger,Fidelity,Hellinger,adsgan,0.1835,23,7.74,0.0
+fid_Hellinger,Fidelity,Hellinger,pategan,0.2983,23,11.35,0.0
+fid_Hellinger,Fidelity,Hellinger,rtvae,0.3466,23,12.17,0.0
+fid_Hellinger,Fidelity,Hellinger,nflow,0.1356,23,5.48,0.0
+fid_Hellinger,Fidelity,Hellinger,marginal,0.3557,23,12.39,0.0
+fid_Hellinger,Fidelity,Hellinger,great,0.1399,12,6.42,0.0
+fid_Hellinger,Fidelity,Hellinger,realtabformer,0.0774,18,2.06,9.0
+fid_Hellinger,Fidelity,Hellinger,taegan,0.1648,23,6.39,0.0
+fid_Hellinger,Fidelity,Hellinger,tagal,0.21,18,9.5,0.0
+fid_Hellinger,Fidelity,Hellinger,tabsyn,0.1127,22,3.86,4.0
+fid_Pearson,Fidelity,Pearson corr-preserve,disco,0.9192,22,4.95,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,ctgan,0.8212,22,11.05,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,tvae,0.8445,22,9.45,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,gaussian_copula,0.9295,22,4.32,2.0
+fid_Pearson,Fidelity,Pearson corr-preserve,tabddpm,0.8879,22,7.5,2.0
+fid_Pearson,Fidelity,Pearson corr-preserve,adsgan,0.9131,22,5.41,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,pategan,0.7968,22,13.0,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,rtvae,0.8653,22,7.68,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,nflow,0.8623,22,8.32,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,marginal,0.8183,22,11.41,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,great,0.9132,12,7.33,1.0
+fid_Pearson,Fidelity,Pearson corr-preserve,realtabformer,0.9386,17,2.47,4.0
+fid_Pearson,Fidelity,Pearson corr-preserve,taegan,0.8917,22,7.36,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,tagal,0.8029,17,11.59,0.0
+fid_Pearson,Fidelity,Pearson corr-preserve,tabsyn,0.9603,22,1.59,13.0
+fid_JS_num,Fidelity,JS numeric,disco,0.026,22,4.23,2.0
+fid_JS_num,Fidelity,JS numeric,ctgan,0.0875,22,8.55,0.0
+fid_JS_num,Fidelity,JS numeric,tvae,0.1352,22,10.73,0.0
+fid_JS_num,Fidelity,JS numeric,gaussian_copula,0.0479,22,5.0,0.0
+fid_JS_num,Fidelity,JS numeric,tabddpm,0.0927,22,5.59,2.0
+fid_JS_num,Fidelity,JS numeric,adsgan,0.0778,22,8.27,0.0
+fid_JS_num,Fidelity,JS numeric,pategan,0.1963,22,12.05,0.0
+fid_JS_num,Fidelity,JS numeric,rtvae,0.2685,22,13.36,0.0
+fid_JS_num,Fidelity,JS numeric,nflow,0.0354,22,4.73,0.0
+fid_JS_num,Fidelity,JS numeric,marginal,0.2387,22,12.41,0.0
+fid_JS_num,Fidelity,JS numeric,great,0.0322,12,5.67,1.0
+fid_JS_num,Fidelity,JS numeric,realtabformer,0.0111,17,1.47,13.0
+fid_JS_num,Fidelity,JS numeric,taegan,0.0683,22,7.27,0.0
+fid_JS_num,Fidelity,JS numeric,tagal,0.0809,17,8.65,0.0
+fid_JS_num,Fidelity,JS numeric,tabsyn,0.0273,22,3.82,4.0
+fid_JS_cat,Fidelity,JS categorical,disco,0.0924,11,10.73,0.0
+fid_JS_cat,Fidelity,JS categorical,ctgan,0.0267,11,6.18,0.0
+fid_JS_cat,Fidelity,JS categorical,tvae,0.1121,11,12.0,0.0
+fid_JS_cat,Fidelity,JS categorical,gaussian_copula,0.0208,11,2.36,8.0
+fid_JS_cat,Fidelity,JS categorical,tabddpm,0.0045,11,3.64,2.0
+fid_JS_cat,Fidelity,JS categorical,adsgan,0.0223,11,7.55,0.0
+fid_JS_cat,Fidelity,JS categorical,pategan,0.0431,11,10.73,0.0
+fid_JS_cat,Fidelity,JS categorical,rtvae,0.0216,11,6.55,0.0
+fid_JS_cat,Fidelity,JS categorical,nflow,0.0274,11,9.09,0.0
+fid_JS_cat,Fidelity,JS categorical,marginal,0.1071,11,11.55,0.0
+fid_JS_cat,Fidelity,JS categorical,great,0.0726,8,10.62,0.0
+fid_JS_cat,Fidelity,JS categorical,realtabformer,0.0056,9,5.22,0.0
+fid_JS_cat,Fidelity,JS categorical,taegan,0.003,11,3.55,0.0
+fid_JS_cat,Fidelity,JS categorical,tagal,0.0489,9,10.67,0.0
+fid_JS_cat,Fidelity,JS categorical,tabsyn,0.0167,10,5.4,1.0
+dcr_median,Privacy,DCR median,disco,0.3396,23,8.2,0.0
+dcr_median,Privacy,DCR median,ctgan,0.5562,23,3.3,1.0
+dcr_median,Privacy,DCR median,tvae,0.2554,23,13.09,0.0
+dcr_median,Privacy,DCR median,gaussian_copula,0.3991,23,5.39,0.0
+dcr_median,Privacy,DCR median,tabddpm,0.7575,23,7.26,2.0
+dcr_median,Privacy,DCR median,adsgan,0.3569,23,7.87,0.0
+dcr_median,Privacy,DCR median,pategan,0.612,23,3.0,0.0
+dcr_median,Privacy,DCR median,rtvae,0.334,23,8.91,0.0
+dcr_median,Privacy,DCR median,nflow,0.4042,23,5.72,0.0
 dcr_median,Privacy,DCR median,marginal,1.42,23,1.17,20.0
-dcr_median,Privacy,DCR median,great,0.2616,12,10.25,0.0
-dcr_median,Privacy,DCR median,realtabformer,0.3468,4,9.5,0.0
-dcr_median,Privacy,DCR median,taegan,0.3102,23,9.8,0.0
-dcr_median,Privacy,DCR median,tagal,0.4485,5,8.6,0.0
+dcr_median,Privacy,DCR median,great,0.2616,12,11.75,0.0
+dcr_median,Privacy,DCR median,realtabformer,0.3007,18,10.39,0.0
+dcr_median,Privacy,DCR median,taegan,0.3102,23,11.09,0.0
+dcr_median,Privacy,DCR median,tagal,0.3422,18,8.67,0.0
+dcr_median,Privacy,DCR median,tabsyn,0.2925,22,10.64,0.0
 dcr_realreal_median,Privacy,DCR real-real ref,disco,0.3695,23,,
 dcr_realreal_median,Privacy,DCR real-real ref,ctgan,0.3695,23,,
 dcr_realreal_median,Privacy,DCR real-real ref,tvae,0.3695,23,,
@@ -164,37 +175,40 @@ dcr_realreal_median,Privacy,DCR real-real ref,rtvae,0.3695,23,,
 dcr_realreal_median,Privacy,DCR real-real ref,nflow,0.3695,23,,
 dcr_realreal_median,Privacy,DCR real-real ref,marginal,0.3695,23,,
 dcr_realreal_median,Privacy,DCR real-real ref,great,0.3695,12,,
-dcr_realreal_median,Privacy,DCR real-real ref,realtabformer,0.4154,4,,
+dcr_realreal_median,Privacy,DCR real-real ref,realtabformer,0.3823,18,,
 dcr_realreal_median,Privacy,DCR real-real ref,taegan,0.3787,23,,
-dcr_realreal_median,Privacy,DCR real-real ref,tagal,0.5187,5,,
-ext_dcr,Privacy,DCR (ext),disco,1.3507,23,8.04,0.0
-ext_dcr,Privacy,DCR (ext),ctgan,1.7813,23,4.5,0.0
-ext_dcr,Privacy,DCR (ext),tvae,1.8583,23,3.96,5.0
-ext_dcr,Privacy,DCR (ext),gaussian_copula,1.3661,23,7.98,0.0
-ext_dcr,Privacy,DCR (ext),tabddpm,2.0435,23,9.63,1.0
-ext_dcr,Privacy,DCR (ext),adsgan,1.3563,23,6.93,0.0
-ext_dcr,Privacy,DCR (ext),pategan,2.1073,23,2.83,1.0
-ext_dcr,Privacy,DCR (ext),rtvae,1.4212,23,7.37,0.0
-ext_dcr,Privacy,DCR (ext),nflow,1.4218,23,7.46,0.0
-ext_dcr,Privacy,DCR (ext),marginal,3.6818,23,1.8,16.0
-ext_dcr,Privacy,DCR (ext),great,1.0453,12,8.67,0.0
-ext_dcr,Privacy,DCR (ext),realtabformer,1.3967,4,12.75,0.0
-ext_dcr,Privacy,DCR (ext),taegan,1.3165,23,8.72,0.0
-ext_dcr,Privacy,DCR (ext),tagal,1.7462,5,6.4,0.0
-ext_nndr,Privacy,NNDR,disco,0.8862,23,5.8,2.0
-ext_nndr,Privacy,NNDR,ctgan,0.8722,23,6.59,0.0
-ext_nndr,Privacy,NNDR,tvae,0.9493,23,2.15,10.0
-ext_nndr,Privacy,NNDR,gaussian_copula,0.8462,23,8.59,0.0
-ext_nndr,Privacy,NNDR,tabddpm,0.8308,23,9.76,0.0
-ext_nndr,Privacy,NNDR,adsgan,0.8709,23,7.28,0.0
-ext_nndr,Privacy,NNDR,pategan,0.8821,23,5.28,0.0
-ext_nndr,Privacy,NNDR,rtvae,0.9526,23,3.43,10.0
-ext_nndr,Privacy,NNDR,nflow,0.8566,23,8.46,0.0
-ext_nndr,Privacy,NNDR,marginal,0.8685,23,6.72,0.0
-ext_nndr,Privacy,NNDR,great,0.8389,12,7.25,0.0
-ext_nndr,Privacy,NNDR,realtabformer,0.8754,4,11.25,0.0
-ext_nndr,Privacy,NNDR,taegan,0.8776,23,6.76,0.0
-ext_nndr,Privacy,NNDR,tagal,0.9251,5,3.6,1.0
+dcr_realreal_median,Privacy,DCR real-real ref,tagal,0.376,18,,
+dcr_realreal_median,Privacy,DCR real-real ref,tabsyn,0.3777,22,,
+ext_dcr,Privacy,DCR (ext),disco,1.3507,23,8.74,0.0
+ext_dcr,Privacy,DCR (ext),ctgan,1.7813,23,5.07,0.0
+ext_dcr,Privacy,DCR (ext),tvae,1.8583,23,4.24,5.0
+ext_dcr,Privacy,DCR (ext),gaussian_copula,1.3661,23,8.8,0.0
+ext_dcr,Privacy,DCR (ext),tabddpm,2.0435,23,10.61,1.0
+ext_dcr,Privacy,DCR (ext),adsgan,1.3563,23,7.61,0.0
+ext_dcr,Privacy,DCR (ext),pategan,2.1073,23,3.13,1.0
+ext_dcr,Privacy,DCR (ext),rtvae,1.4212,23,7.91,0.0
+ext_dcr,Privacy,DCR (ext),nflow,1.4218,23,8.22,0.0
+ext_dcr,Privacy,DCR (ext),marginal,3.6818,23,2.04,16.0
+ext_dcr,Privacy,DCR (ext),great,1.0453,12,9.79,0.0
+ext_dcr,Privacy,DCR (ext),realtabformer,1.0384,18,11.69,0.0
+ext_dcr,Privacy,DCR (ext),taegan,1.3165,23,9.52,0.0
+ext_dcr,Privacy,DCR (ext),tagal,1.3871,18,4.19,0.0
+ext_dcr,Privacy,DCR (ext),tabsyn,0.9926,22,13.36,0.0
+ext_nndr,Privacy,NNDR,disco,0.8862,23,6.37,2.0
+ext_nndr,Privacy,NNDR,ctgan,0.8722,23,7.33,0.0
+ext_nndr,Privacy,NNDR,tvae,0.9493,23,2.33,9.0
+ext_nndr,Privacy,NNDR,gaussian_copula,0.8462,23,9.54,0.0
+ext_nndr,Privacy,NNDR,tabddpm,0.8308,23,11.02,0.0
+ext_nndr,Privacy,NNDR,adsgan,0.8709,23,8.02,0.0
+ext_nndr,Privacy,NNDR,pategan,0.8821,23,6.02,0.0
+ext_nndr,Privacy,NNDR,rtvae,0.9526,23,3.63,10.0
+ext_nndr,Privacy,NNDR,nflow,0.8566,23,9.46,0.0
+ext_nndr,Privacy,NNDR,marginal,0.8685,23,7.5,0.0
+ext_nndr,Privacy,NNDR,great,0.8389,12,8.04,0.0
+ext_nndr,Privacy,NNDR,realtabformer,0.8242,18,10.0,0.0
+ext_nndr,Privacy,NNDR,taegan,0.8776,23,7.5,0.0
+ext_nndr,Privacy,NNDR,tagal,0.8908,18,4.61,2.0
+ext_nndr,Privacy,NNDR,tabsyn,0.8173,22,12.41,0.0
 ext_nnaa,Privacy,NNAA (0.5 ideal),disco,0.6561,23,,
 ext_nnaa,Privacy,NNAA (0.5 ideal),ctgan,0.7733,23,,
 ext_nnaa,Privacy,NNAA (0.5 ideal),tvae,0.8487,23,,
@@ -206,9 +220,10 @@ ext_nnaa,Privacy,NNAA (0.5 ideal),rtvae,0.778,23,,
 ext_nnaa,Privacy,NNAA (0.5 ideal),nflow,0.6462,23,,
 ext_nnaa,Privacy,NNAA (0.5 ideal),marginal,0.879,23,,
 ext_nnaa,Privacy,NNAA (0.5 ideal),great,0.6275,12,,
-ext_nnaa,Privacy,NNAA (0.5 ideal),realtabformer,0.4747,4,,
+ext_nnaa,Privacy,NNAA (0.5 ideal),realtabformer,0.4583,18,,
 ext_nnaa,Privacy,NNAA (0.5 ideal),taegan,0.6581,23,,
-ext_nnaa,Privacy,NNAA (0.5 ideal),tagal,0.694,5,,
+ext_nnaa,Privacy,NNAA (0.5 ideal),tagal,0.7313,18,,
+ext_nnaa,Privacy,NNAA (0.5 ideal),tabsyn,0.5199,22,,
 ext_mia_auc,Privacy,MIA AUROC (0.5 safe),disco,0.5251,23,,
 ext_mia_auc,Privacy,MIA AUROC (0.5 safe),ctgan,0.5032,23,,
 ext_mia_auc,Privacy,MIA AUROC (0.5 safe),tvae,0.5019,23,,
@@ -220,189 +235,203 @@ ext_mia_auc,Privacy,MIA AUROC (0.5 safe),rtvae,0.5121,23,,
 ext_mia_auc,Privacy,MIA AUROC (0.5 safe),nflow,0.5027,23,,
 ext_mia_auc,Privacy,MIA AUROC (0.5 safe),marginal,0.5008,23,,
 ext_mia_auc,Privacy,MIA AUROC (0.5 safe),great,0.5045,12,,
-ext_mia_auc,Privacy,MIA AUROC (0.5 safe),realtabformer,0.5119,4,,
+ext_mia_auc,Privacy,MIA AUROC (0.5 safe),realtabformer,0.5415,18,,
 ext_mia_auc,Privacy,MIA AUROC (0.5 safe),taegan,0.5135,23,,
-ext_mia_auc,Privacy,MIA AUROC (0.5 safe),tagal,0.4903,5,,
-ext_dup_rate,Privacy,Duplicate rate,disco,0.0175,23,5.59,22.0
-ext_dup_rate,Privacy,Duplicate rate,ctgan,0.0026,23,6.37,1.0
-ext_dup_rate,Privacy,Duplicate rate,tvae,0.0289,23,7.5,0.0
-ext_dup_rate,Privacy,Duplicate rate,gaussian_copula,0.0061,23,6.24,0.0
-ext_dup_rate,Privacy,Duplicate rate,tabddpm,0.0533,23,7.98,0.0
-ext_dup_rate,Privacy,Duplicate rate,adsgan,0.0202,23,6.11,0.0
-ext_dup_rate,Privacy,Duplicate rate,pategan,0.008,23,5.89,0.0
-ext_dup_rate,Privacy,Duplicate rate,rtvae,0.019,23,6.17,0.0
-ext_dup_rate,Privacy,Duplicate rate,nflow,0.0157,23,6.17,0.0
-ext_dup_rate,Privacy,Duplicate rate,marginal,0.0027,23,5.43,0.0
-ext_dup_rate,Privacy,Duplicate rate,great,0.0,12,5.46,0.0
-ext_dup_rate,Privacy,Duplicate rate,realtabformer,0.0178,4,8.12,0.0
-ext_dup_rate,Privacy,Duplicate rate,taegan,0.0336,23,6.76,0.0
-ext_dup_rate,Privacy,Duplicate rate,tagal,0.04,5,13.2,0.0
-ext_precision,Diversity,PRDC precision,disco,0.866,23,4.48,2.0
-ext_precision,Diversity,PRDC precision,ctgan,0.6153,23,9.87,0.0
-ext_precision,Diversity,PRDC precision,tvae,0.8957,23,2.37,12.0
-ext_precision,Diversity,PRDC precision,gaussian_copula,0.8242,23,6.74,2.0
-ext_precision,Diversity,PRDC precision,tabddpm,0.8266,23,5.37,2.0
-ext_precision,Diversity,PRDC precision,adsgan,0.8175,23,5.39,1.0
-ext_precision,Diversity,PRDC precision,pategan,0.5105,23,10.74,0.0
-ext_precision,Diversity,PRDC precision,rtvae,0.8198,23,5.17,2.0
-ext_precision,Diversity,PRDC precision,nflow,0.728,23,8.11,0.0
-ext_precision,Diversity,PRDC precision,marginal,0.4407,23,11.11,0.0
-ext_precision,Diversity,PRDC precision,great,0.9559,12,4.96,0.0
-ext_precision,Diversity,PRDC precision,realtabformer,0.978,4,3.62,1.0
-ext_precision,Diversity,PRDC precision,taegan,0.8737,23,4.2,0.0
-ext_precision,Diversity,PRDC precision,tagal,0.9827,5,2.7,1.0
-ext_recall,Diversity,PRDC recall,disco,0.7824,23,7.61,0.0
-ext_recall,Diversity,PRDC recall,ctgan,0.8946,23,5.61,0.0
-ext_recall,Diversity,PRDC recall,tvae,0.3232,23,11.57,0.0
-ext_recall,Diversity,PRDC recall,gaussian_copula,0.9289,23,4.24,1.0
-ext_recall,Diversity,PRDC recall,tabddpm,0.9618,23,2.43,3.0
-ext_recall,Diversity,PRDC recall,adsgan,0.8569,23,7.46,1.0
-ext_recall,Diversity,PRDC recall,pategan,0.8391,23,7.57,0.0
-ext_recall,Diversity,PRDC recall,rtvae,0.6115,23,9.83,0.0
-ext_recall,Diversity,PRDC recall,nflow,0.9408,23,4.0,0.0
-ext_recall,Diversity,PRDC recall,marginal,0.9181,23,2.17,17.0
-ext_recall,Diversity,PRDC recall,great,0.8148,12,8.88,0.0
-ext_recall,Diversity,PRDC recall,realtabformer,0.9611,4,2.75,0.0
-ext_recall,Diversity,PRDC recall,taegan,0.8492,23,7.59,1.0
-ext_recall,Diversity,PRDC recall,tagal,0.801,5,10.0,0.0
-ext_density,Diversity,PRDC density,disco,0.9287,23,4.61,2.0
-ext_density,Diversity,PRDC density,ctgan,0.4137,23,9.83,0.0
-ext_density,Diversity,PRDC density,tvae,1.1338,23,2.7,9.0
-ext_density,Diversity,PRDC density,gaussian_copula,0.682,23,7.52,1.0
-ext_density,Diversity,PRDC density,tabddpm,0.9315,23,5.09,1.0
-ext_density,Diversity,PRDC density,adsgan,0.8057,23,5.83,1.0
-ext_density,Diversity,PRDC density,pategan,0.3411,23,10.65,0.0
-ext_density,Diversity,PRDC density,rtvae,0.9501,23,4.52,6.0
-ext_density,Diversity,PRDC density,nflow,0.6805,23,8.13,0.0
-ext_density,Diversity,PRDC density,marginal,0.2271,23,11.48,0.0
-ext_density,Diversity,PRDC density,great,1.0335,12,4.0,1.0
-ext_density,Diversity,PRDC density,realtabformer,1.0974,4,4.0,0.0
-ext_density,Diversity,PRDC density,taegan,1.0405,23,3.3,2.0
-ext_density,Diversity,PRDC density,tagal,1.1869,5,4.2,0.0
-ext_coverage,Diversity,PRDC coverage,disco,0.7687,23,4.35,3.0
-ext_coverage,Diversity,PRDC coverage,ctgan,0.5254,23,8.28,0.0
-ext_coverage,Diversity,PRDC coverage,tvae,0.395,23,9.33,0.0
-ext_coverage,Diversity,PRDC coverage,gaussian_copula,0.7741,23,4.74,1.0
-ext_coverage,Diversity,PRDC coverage,tabddpm,0.889,23,2.22,14.0
-ext_coverage,Diversity,PRDC coverage,adsgan,0.7102,23,5.83,0.0
-ext_coverage,Diversity,PRDC coverage,pategan,0.3648,23,10.11,0.0
-ext_coverage,Diversity,PRDC coverage,rtvae,0.6245,23,6.48,1.0
-ext_coverage,Diversity,PRDC coverage,nflow,0.7033,23,5.78,0.0
-ext_coverage,Diversity,PRDC coverage,marginal,0.223,23,11.09,0.0
-ext_coverage,Diversity,PRDC coverage,great,0.7947,12,5.67,1.0
-ext_coverage,Diversity,PRDC coverage,realtabformer,0.9723,4,1.75,1.0
-ext_coverage,Diversity,PRDC coverage,taegan,0.8067,23,3.78,2.0
-ext_coverage,Diversity,PRDC coverage,tagal,0.6255,5,9.7,0.0
-ext_c2st,Detection,C2ST AUROC,disco,0.8191,23,4.74,1.0
-ext_c2st,Detection,C2ST AUROC,ctgan,0.9336,23,7.48,0.0
-ext_c2st,Detection,C2ST AUROC,tvae,0.9598,23,8.43,0.0
-ext_c2st,Detection,C2ST AUROC,gaussian_copula,0.815,23,4.09,4.0
-ext_c2st,Detection,C2ST AUROC,tabddpm,0.7115,23,2.3,13.0
-ext_c2st,Detection,C2ST AUROC,adsgan,0.9091,23,6.74,0.0
-ext_c2st,Detection,C2ST AUROC,pategan,0.9661,23,8.83,0.0
-ext_c2st,Detection,C2ST AUROC,rtvae,0.9784,23,11.22,0.0
-ext_c2st,Detection,C2ST AUROC,nflow,0.873,23,5.17,0.0
-ext_c2st,Detection,C2ST AUROC,marginal,0.9722,23,9.43,0.0
-ext_c2st,Detection,C2ST AUROC,great,0.7443,12,3.33,2.0
-ext_c2st,Detection,C2ST AUROC,realtabformer,0.5054,4,1.25,3.0
-ext_c2st,Detection,C2ST AUROC,taegan,0.8975,23,6.09,0.0
-ext_c2st,Detection,C2ST AUROC,tagal,0.8423,5,4.0,0.0
-ext_mmd,Detection,MMD,disco,0.0231,23,4.87,2.0
-ext_mmd,Detection,MMD,ctgan,0.1002,23,8.0,0.0
-ext_mmd,Detection,MMD,tvae,0.1759,23,9.74,0.0
-ext_mmd,Detection,MMD,gaussian_copula,0.0212,23,3.57,6.0
-ext_mmd,Detection,MMD,tabddpm,0.0637,23,3.63,14.0
-ext_mmd,Detection,MMD,adsgan,0.0401,23,6.35,0.0
-ext_mmd,Detection,MMD,pategan,0.2383,23,10.48,0.0
-ext_mmd,Detection,MMD,rtvae,0.0481,23,6.39,0.0
-ext_mmd,Detection,MMD,nflow,0.0186,23,4.65,0.0
-ext_mmd,Detection,MMD,marginal,0.3931,23,11.3,0.0
-ext_mmd,Detection,MMD,great,0.0323,12,5.79,0.0
-ext_mmd,Detection,MMD,realtabformer,0.002,4,2.5,0.0
-ext_mmd,Detection,MMD,taegan,0.018,23,3.48,1.0
-ext_mmd,Detection,MMD,tagal,0.0409,5,6.6,0.0
-ext_fpcad,Detection,Frechet-PCA dist,disco,1.5595,23,4.13,3.0
-ext_fpcad,Detection,Frechet-PCA dist,ctgan,5.3054,23,8.04,0.0
-ext_fpcad,Detection,Frechet-PCA dist,tvae,6.036,23,9.17,0.0
-ext_fpcad,Detection,Frechet-PCA dist,gaussian_copula,2.4764,23,3.74,7.0
-ext_fpcad,Detection,Frechet-PCA dist,tabddpm,65.3653,23,5.96,7.0
-ext_fpcad,Detection,Frechet-PCA dist,adsgan,1.6073,23,5.26,0.0
-ext_fpcad,Detection,Frechet-PCA dist,pategan,13.7064,23,10.04,0.0
-ext_fpcad,Detection,Frechet-PCA dist,rtvae,2.7639,23,6.39,0.0
-ext_fpcad,Detection,Frechet-PCA dist,nflow,2.2009,23,4.87,0.0
-ext_fpcad,Detection,Frechet-PCA dist,marginal,148.8416,23,11.61,0.0
-ext_fpcad,Detection,Frechet-PCA dist,great,3.0875,12,6.08,1.0
-ext_fpcad,Detection,Frechet-PCA dist,realtabformer,0.2027,4,1.75,1.0
-ext_fpcad,Detection,Frechet-PCA dist,taegan,1.2116,23,3.09,4.0
-ext_fpcad,Detection,Frechet-PCA dist,tagal,1.7606,5,7.2,0.0
-ext_wasserstein,Detection,Wasserstein,disco,0.1281,22,3.14,6.0
-ext_wasserstein,Detection,Wasserstein,ctgan,0.414,22,8.14,0.0
-ext_wasserstein,Detection,Wasserstein,tvae,0.4438,22,8.77,0.0
-ext_wasserstein,Detection,Wasserstein,gaussian_copula,0.1732,22,3.64,6.0
-ext_wasserstein,Detection,Wasserstein,tabddpm,0.4947,22,5.18,6.0
-ext_wasserstein,Detection,Wasserstein,adsgan,0.2634,22,6.32,0.0
-ext_wasserstein,Detection,Wasserstein,pategan,0.6644,22,10.45,0.0
-ext_wasserstein,Detection,Wasserstein,rtvae,0.3142,22,7.18,0.0
-ext_wasserstein,Detection,Wasserstein,nflow,0.1783,22,4.59,0.0
-ext_wasserstein,Detection,Wasserstein,marginal,1.755,22,11.77,0.0
-ext_wasserstein,Detection,Wasserstein,great,0.2059,12,5.58,0.0
-ext_wasserstein,Detection,Wasserstein,realtabformer,0.071,4,1.5,2.0
-ext_wasserstein,Detection,Wasserstein,taegan,0.1746,22,3.82,2.0
-ext_wasserstein,Detection,Wasserstein,tagal,0.2749,5,6.8,0.0
-ext_assoc_err,Detection,Association error,disco,0.0912,23,4.3,3.0
-ext_assoc_err,Detection,Association error,ctgan,0.1453,23,9.17,0.0
-ext_assoc_err,Detection,Association error,tvae,0.1367,23,8.61,0.0
-ext_assoc_err,Detection,Association error,gaussian_copula,0.0669,23,3.74,6.0
-ext_assoc_err,Detection,Association error,tabddpm,0.082,23,5.04,5.0
-ext_assoc_err,Detection,Association error,adsgan,0.073,23,3.65,3.0
-ext_assoc_err,Detection,Association error,pategan,0.1402,23,9.39,0.0
-ext_assoc_err,Detection,Association error,rtvae,0.1159,23,5.91,0.0
-ext_assoc_err,Detection,Association error,nflow,0.1196,23,6.7,0.0
-ext_assoc_err,Detection,Association error,marginal,0.1508,23,10.22,0.0
-ext_assoc_err,Detection,Association error,great,0.0759,12,5.42,3.0
-ext_assoc_err,Detection,Association error,realtabformer,0.0363,4,1.25,3.0
-ext_assoc_err,Detection,Association error,taegan,0.0888,23,5.26,0.0
-ext_assoc_err,Detection,Association error,tagal,0.1219,5,10.6,0.0
-ext_sdm_quality,SDMetrics,SDM quality,disco,0.6587,23,3.83,2.0
-ext_sdm_quality,SDMetrics,SDM quality,ctgan,0.5614,23,8.09,0.0
-ext_sdm_quality,SDMetrics,SDM quality,tvae,0.5485,23,8.96,0.0
-ext_sdm_quality,SDMetrics,SDM quality,gaussian_copula,0.6656,23,3.3,5.0
-ext_sdm_quality,SDMetrics,SDM quality,tabddpm,0.6667,23,3.26,10.0
-ext_sdm_quality,SDMetrics,SDM quality,adsgan,0.631,23,5.43,1.0
-ext_sdm_quality,SDMetrics,SDM quality,pategan,0.4948,23,10.74,0.0
-ext_sdm_quality,SDMetrics,SDM quality,rtvae,0.5542,23,8.52,0.0
-ext_sdm_quality,SDMetrics,SDM quality,nflow,0.6244,23,5.83,0.0
-ext_sdm_quality,SDMetrics,SDM quality,marginal,0.4616,23,11.13,0.0
-ext_sdm_quality,SDMetrics,SDM quality,great,0.6193,12,5.17,2.0
-ext_sdm_quality,SDMetrics,SDM quality,realtabformer,0.6132,4,1.75,2.0
-ext_sdm_quality,SDMetrics,SDM quality,taegan,0.6576,23,3.91,1.0
-ext_sdm_quality,SDMetrics,SDM quality,tagal,0.506,5,6.2,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,disco,0.8228,23,3.83,4.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,ctgan,0.7286,23,7.57,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,tvae,0.6736,23,9.17,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,gaussian_copula,0.8277,23,2.78,6.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,tabddpm,0.8058,23,3.43,10.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,adsgan,0.7641,23,6.61,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,pategan,0.626,23,10.57,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,rtvae,0.7152,23,8.13,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,nflow,0.8104,23,4.96,1.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,marginal,0.5844,23,11.17,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,great,0.7905,12,5.25,1.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,realtabformer,0.8724,4,2.0,1.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,taegan,0.7952,23,4.7,0.0
-ext_sdm_shapes,SDMetrics,SDM column shapes,tagal,0.7888,5,6.2,0.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,disco,0.4946,23,4.63,2.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,ctgan,0.3941,23,8.07,0.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,tvae,0.4234,23,7.11,1.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,gaussian_copula,0.5035,23,4.5,6.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,tabddpm,0.5275,23,3.83,5.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,adsgan,0.4978,23,5.09,1.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,pategan,0.3637,23,9.59,0.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,rtvae,0.3932,23,8.59,0.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,nflow,0.4384,23,6.46,1.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,marginal,0.3388,23,10.41,1.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,great,0.448,12,4.79,4.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,realtabformer,0.354,4,4.38,1.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,taegan,0.52,23,4.43,1.0
-ext_sdm_pairs,SDMetrics,SDM pair trends,tagal,0.2231,5,6.4,0.0
+ext_mia_auc,Privacy,MIA AUROC (0.5 safe),tagal,0.5021,18,,
+ext_mia_auc,Privacy,MIA AUROC (0.5 safe),tabsyn,0.5015,22,,
+ext_dup_rate,Privacy,Duplicate rate,disco,0.0175,23,6.33,22.0
+ext_dup_rate,Privacy,Duplicate rate,ctgan,0.0026,23,7.24,1.0
+ext_dup_rate,Privacy,Duplicate rate,tvae,0.0289,23,8.59,0.0
+ext_dup_rate,Privacy,Duplicate rate,gaussian_copula,0.0061,23,7.09,0.0
+ext_dup_rate,Privacy,Duplicate rate,tabddpm,0.0533,23,9.04,0.0
+ext_dup_rate,Privacy,Duplicate rate,adsgan,0.0202,23,6.89,0.0
+ext_dup_rate,Privacy,Duplicate rate,pategan,0.008,23,6.67,0.0
+ext_dup_rate,Privacy,Duplicate rate,rtvae,0.019,23,7.0,0.0
+ext_dup_rate,Privacy,Duplicate rate,nflow,0.0157,23,7.0,0.0
+ext_dup_rate,Privacy,Duplicate rate,marginal,0.0027,23,6.15,0.0
+ext_dup_rate,Privacy,Duplicate rate,great,0.0,12,6.25,0.0
+ext_dup_rate,Privacy,Duplicate rate,realtabformer,0.0853,18,10.83,0.0
+ext_dup_rate,Privacy,Duplicate rate,taegan,0.0336,23,7.65,0.0
+ext_dup_rate,Privacy,Duplicate rate,tagal,0.0693,18,11.42,0.0
+ext_dup_rate,Privacy,Duplicate rate,tabsyn,0.0,22,6.16,0.0
+ext_precision,Diversity,PRDC precision,disco,0.866,23,5.74,1.0
+ext_precision,Diversity,PRDC precision,ctgan,0.6153,23,11.91,0.0
+ext_precision,Diversity,PRDC precision,tvae,0.8957,23,3.22,7.0
+ext_precision,Diversity,PRDC precision,gaussian_copula,0.8242,23,8.39,0.0
+ext_precision,Diversity,PRDC precision,tabddpm,0.8266,23,6.8,1.0
+ext_precision,Diversity,PRDC precision,adsgan,0.8175,23,6.96,1.0
+ext_precision,Diversity,PRDC precision,pategan,0.5105,23,12.74,0.0
+ext_precision,Diversity,PRDC precision,rtvae,0.8198,23,6.65,1.0
+ext_precision,Diversity,PRDC precision,nflow,0.728,23,9.89,0.0
+ext_precision,Diversity,PRDC precision,marginal,0.4407,23,13.2,0.0
+ext_precision,Diversity,PRDC precision,great,0.9559,12,6.08,0.0
+ext_precision,Diversity,PRDC precision,realtabformer,0.9314,18,4.81,0.0
+ext_precision,Diversity,PRDC precision,taegan,0.8737,23,5.41,0.0
+ext_precision,Diversity,PRDC precision,tagal,0.9111,18,5.89,3.0
+ext_precision,Diversity,PRDC precision,tabsyn,0.9615,22,3.93,9.0
+ext_recall,Diversity,PRDC recall,disco,0.7824,23,9.3,0.0
+ext_recall,Diversity,PRDC recall,ctgan,0.8946,23,6.98,0.0
+ext_recall,Diversity,PRDC recall,tvae,0.3232,23,13.61,0.0
+ext_recall,Diversity,PRDC recall,gaussian_copula,0.9289,23,5.24,0.0
+ext_recall,Diversity,PRDC recall,tabddpm,0.9618,23,3.07,3.0
+ext_recall,Diversity,PRDC recall,adsgan,0.8569,23,9.22,1.0
+ext_recall,Diversity,PRDC recall,pategan,0.8391,23,9.26,0.0
+ext_recall,Diversity,PRDC recall,rtvae,0.6115,23,11.72,0.0
+ext_recall,Diversity,PRDC recall,nflow,0.9408,23,5.39,0.0
+ext_recall,Diversity,PRDC recall,marginal,0.9181,23,2.52,16.0
+ext_recall,Diversity,PRDC recall,great,0.8148,12,10.75,0.0
+ext_recall,Diversity,PRDC recall,realtabformer,0.9541,18,4.56,0.0
+ext_recall,Diversity,PRDC recall,taegan,0.8492,23,9.37,0.0
+ext_recall,Diversity,PRDC recall,tagal,0.795,18,10.19,0.0
+ext_recall,Diversity,PRDC recall,tabsyn,0.9481,22,3.55,3.0
+ext_density,Diversity,PRDC density,disco,0.9287,23,5.83,0.0
+ext_density,Diversity,PRDC density,ctgan,0.4137,23,11.91,0.0
+ext_density,Diversity,PRDC density,tvae,1.1338,23,3.35,7.0
+ext_density,Diversity,PRDC density,gaussian_copula,0.682,23,9.39,0.0
+ext_density,Diversity,PRDC density,tabddpm,0.9315,23,6.26,0.0
+ext_density,Diversity,PRDC density,adsgan,0.8057,23,7.35,1.0
+ext_density,Diversity,PRDC density,pategan,0.3411,23,12.7,0.0
+ext_density,Diversity,PRDC density,rtvae,0.9501,23,5.7,5.0
+ext_density,Diversity,PRDC density,nflow,0.6805,23,9.87,0.0
+ext_density,Diversity,PRDC density,marginal,0.2271,23,13.61,0.0
+ext_density,Diversity,PRDC density,great,1.0335,12,5.17,0.0
+ext_density,Diversity,PRDC density,realtabformer,1.1122,18,4.39,1.0
+ext_density,Diversity,PRDC density,taegan,1.0405,23,4.04,2.0
+ext_density,Diversity,PRDC density,tagal,1.0017,18,7.33,1.0
+ext_density,Diversity,PRDC density,tabsyn,1.0549,22,4.55,6.0
+ext_coverage,Diversity,PRDC coverage,disco,0.7687,23,5.83,0.0
+ext_coverage,Diversity,PRDC coverage,ctgan,0.5254,23,9.93,0.0
+ext_coverage,Diversity,PRDC coverage,tvae,0.395,23,11.11,0.0
+ext_coverage,Diversity,PRDC coverage,gaussian_copula,0.7741,23,6.26,0.0
+ext_coverage,Diversity,PRDC coverage,tabddpm,0.889,23,3.33,4.0
+ext_coverage,Diversity,PRDC coverage,adsgan,0.7102,23,7.35,0.0
+ext_coverage,Diversity,PRDC coverage,pategan,0.3648,23,11.89,0.0
+ext_coverage,Diversity,PRDC coverage,rtvae,0.6245,23,8.09,0.0
+ext_coverage,Diversity,PRDC coverage,nflow,0.7033,23,7.35,0.0
+ext_coverage,Diversity,PRDC coverage,marginal,0.223,23,13.09,0.0
+ext_coverage,Diversity,PRDC coverage,great,0.7947,12,7.25,0.0
+ext_coverage,Diversity,PRDC coverage,realtabformer,0.9287,18,2.61,5.0
+ext_coverage,Diversity,PRDC coverage,taegan,0.8067,23,5.22,1.0
+ext_coverage,Diversity,PRDC coverage,tagal,0.4642,18,11.92,0.0
+ext_coverage,Diversity,PRDC coverage,tabsyn,0.9558,22,1.7,13.0
+ext_c2st,Detection,C2ST AUROC,disco,0.8191,23,6.0,0.0
+ext_c2st,Detection,C2ST AUROC,ctgan,0.9336,23,9.26,0.0
+ext_c2st,Detection,C2ST AUROC,tvae,0.9598,23,10.43,0.0
+ext_c2st,Detection,C2ST AUROC,gaussian_copula,0.815,23,5.3,0.0
+ext_c2st,Detection,C2ST AUROC,tabddpm,0.7115,23,3.17,5.0
+ext_c2st,Detection,C2ST AUROC,adsgan,0.9091,23,8.17,0.0
+ext_c2st,Detection,C2ST AUROC,pategan,0.9661,23,10.83,0.0
+ext_c2st,Detection,C2ST AUROC,rtvae,0.9784,23,13.3,0.0
+ext_c2st,Detection,C2ST AUROC,nflow,0.873,23,6.7,0.0
+ext_c2st,Detection,C2ST AUROC,marginal,0.9722,23,11.43,0.0
+ext_c2st,Detection,C2ST AUROC,great,0.7443,12,4.33,0.0
+ext_c2st,Detection,C2ST AUROC,realtabformer,0.5278,18,1.44,14.0
+ext_c2st,Detection,C2ST AUROC,taegan,0.8975,23,7.57,0.0
+ext_c2st,Detection,C2ST AUROC,tagal,0.8455,18,6.67,0.0
+ext_c2st,Detection,C2ST AUROC,tabsyn,0.8173,22,5.68,4.0
+ext_mmd,Detection,MMD,disco,0.0231,23,6.39,0.0
+ext_mmd,Detection,MMD,ctgan,0.1002,23,9.87,0.0
+ext_mmd,Detection,MMD,tvae,0.1759,23,11.74,0.0
+ext_mmd,Detection,MMD,gaussian_copula,0.0212,23,4.8,2.0
+ext_mmd,Detection,MMD,tabddpm,0.0637,23,4.57,10.0
+ext_mmd,Detection,MMD,adsgan,0.0401,23,8.13,0.0
+ext_mmd,Detection,MMD,pategan,0.2383,23,12.52,0.0
+ext_mmd,Detection,MMD,rtvae,0.0481,23,8.13,0.0
+ext_mmd,Detection,MMD,nflow,0.0186,23,6.26,0.0
+ext_mmd,Detection,MMD,marginal,0.3931,23,13.35,0.0
+ext_mmd,Detection,MMD,great,0.0323,12,7.46,0.0
+ext_mmd,Detection,MMD,realtabformer,0.0037,18,3.25,1.0
+ext_mmd,Detection,MMD,taegan,0.018,23,4.91,0.0
+ext_mmd,Detection,MMD,tagal,0.0569,18,9.11,0.0
+ext_mmd,Detection,MMD,tabsyn,0.0024,22,2.07,10.0
+ext_fpcad,Detection,Frechet-PCA dist,disco,1.5595,23,5.61,1.0
+ext_fpcad,Detection,Frechet-PCA dist,ctgan,5.3054,23,9.91,0.0
+ext_fpcad,Detection,Frechet-PCA dist,tvae,6.036,23,11.17,0.0
+ext_fpcad,Detection,Frechet-PCA dist,gaussian_copula,2.4764,23,4.96,3.0
+ext_fpcad,Detection,Frechet-PCA dist,tabddpm,65.3653,23,7.13,4.0
+ext_fpcad,Detection,Frechet-PCA dist,adsgan,1.6073,23,6.87,0.0
+ext_fpcad,Detection,Frechet-PCA dist,pategan,13.7064,23,12.04,0.0
+ext_fpcad,Detection,Frechet-PCA dist,rtvae,2.7639,23,8.13,0.0
+ext_fpcad,Detection,Frechet-PCA dist,nflow,2.2009,23,6.52,0.0
+ext_fpcad,Detection,Frechet-PCA dist,marginal,148.8416,23,13.7,0.0
+ext_fpcad,Detection,Frechet-PCA dist,great,3.0875,12,7.75,0.0
+ext_fpcad,Detection,Frechet-PCA dist,realtabformer,0.4813,18,2.78,3.0
+ext_fpcad,Detection,Frechet-PCA dist,taegan,1.2116,23,4.52,1.0
+ext_fpcad,Detection,Frechet-PCA dist,tagal,4.2449,18,9.83,0.0
+ext_fpcad,Detection,Frechet-PCA dist,tabsyn,0.272,22,1.82,11.0
+ext_wasserstein,Detection,Wasserstein,disco,0.1281,22,4.36,3.0
+ext_wasserstein,Detection,Wasserstein,ctgan,0.414,22,10.05,0.0
+ext_wasserstein,Detection,Wasserstein,tvae,0.4438,22,10.86,0.0
+ext_wasserstein,Detection,Wasserstein,gaussian_copula,0.1732,22,4.68,4.0
+ext_wasserstein,Detection,Wasserstein,tabddpm,0.4947,22,6.27,2.0
+ext_wasserstein,Detection,Wasserstein,adsgan,0.2634,22,8.05,0.0
+ext_wasserstein,Detection,Wasserstein,pategan,0.6644,22,12.5,0.0
+ext_wasserstein,Detection,Wasserstein,rtvae,0.3142,22,9.05,0.0
+ext_wasserstein,Detection,Wasserstein,nflow,0.1783,22,6.27,0.0
+ext_wasserstein,Detection,Wasserstein,marginal,1.755,22,13.86,0.0
+ext_wasserstein,Detection,Wasserstein,great,0.2059,12,7.08,0.0
+ext_wasserstein,Detection,Wasserstein,realtabformer,0.097,17,2.94,3.0
+ext_wasserstein,Detection,Wasserstein,taegan,0.1746,22,5.32,0.0
+ext_wasserstein,Detection,Wasserstein,tagal,0.3937,17,9.47,0.0
+ext_wasserstein,Detection,Wasserstein,tabsyn,0.0835,22,2.18,10.0
+ext_assoc_err,Detection,Association error,disco,0.0912,23,5.83,0.0
+ext_assoc_err,Detection,Association error,ctgan,0.1453,23,10.87,0.0
+ext_assoc_err,Detection,Association error,tvae,0.1367,23,10.39,0.0
+ext_assoc_err,Detection,Association error,gaussian_copula,0.0669,23,5.09,2.0
+ext_assoc_err,Detection,Association error,tabddpm,0.082,23,6.26,3.0
+ext_assoc_err,Detection,Association error,adsgan,0.073,23,5.09,0.0
+ext_assoc_err,Detection,Association error,pategan,0.1402,23,11.04,0.0
+ext_assoc_err,Detection,Association error,rtvae,0.1159,23,7.57,0.0
+ext_assoc_err,Detection,Association error,nflow,0.1196,23,8.35,0.0
+ext_assoc_err,Detection,Association error,marginal,0.1508,23,12.04,0.0
+ext_assoc_err,Detection,Association error,great,0.0759,12,6.75,1.0
+ext_assoc_err,Detection,Association error,realtabformer,0.0577,18,2.78,2.0
+ext_assoc_err,Detection,Association error,taegan,0.0888,23,6.78,0.0
+ext_assoc_err,Detection,Association error,tagal,0.1411,18,12.44,0.0
+ext_assoc_err,Detection,Association error,tabsyn,0.0371,22,1.55,15.0
+ext_sdm_quality,SDMetrics,SDM quality,disco,0.6587,23,5.3,1.0
+ext_sdm_quality,SDMetrics,SDM quality,ctgan,0.5614,23,10.0,0.0
+ext_sdm_quality,SDMetrics,SDM quality,tvae,0.5485,23,10.96,0.0
+ext_sdm_quality,SDMetrics,SDM quality,gaussian_copula,0.6656,23,4.39,2.0
+ext_sdm_quality,SDMetrics,SDM quality,tabddpm,0.6667,23,4.17,7.0
+ext_sdm_quality,SDMetrics,SDM quality,adsgan,0.631,23,7.17,0.0
+ext_sdm_quality,SDMetrics,SDM quality,pategan,0.4948,23,12.78,0.0
+ext_sdm_quality,SDMetrics,SDM quality,rtvae,0.5542,23,10.52,0.0
+ext_sdm_quality,SDMetrics,SDM quality,nflow,0.6244,23,7.61,0.0
+ext_sdm_quality,SDMetrics,SDM quality,marginal,0.4616,23,13.22,0.0
+ext_sdm_quality,SDMetrics,SDM quality,great,0.6193,12,6.75,1.0
+ext_sdm_quality,SDMetrics,SDM quality,realtabformer,0.6556,18,2.78,5.0
+ext_sdm_quality,SDMetrics,SDM quality,taegan,0.6576,23,5.43,0.0
+ext_sdm_quality,SDMetrics,SDM quality,tagal,0.5771,18,8.44,0.0
+ext_sdm_quality,SDMetrics,SDM quality,tabsyn,0.6988,22,2.45,7.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,disco,0.8228,23,5.22,1.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,ctgan,0.7286,23,9.39,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,tvae,0.6736,23,11.22,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,gaussian_copula,0.8277,23,3.87,1.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,tabddpm,0.8058,23,4.22,8.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,adsgan,0.7641,23,8.39,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,pategan,0.626,23,12.57,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,rtvae,0.7152,23,10.04,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,nflow,0.8104,23,6.57,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,marginal,0.5844,23,13.22,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,great,0.7905,12,6.75,1.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,realtabformer,0.8452,18,3.0,5.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,taegan,0.7952,23,6.13,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,tagal,0.7413,18,9.06,0.0
+ext_sdm_shapes,SDMetrics,SDM column shapes,tabsyn,0.8566,22,2.55,7.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,disco,0.4946,23,5.93,1.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,ctgan,0.3941,23,9.76,0.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,tvae,0.4234,23,8.7,0.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,gaussian_copula,0.5035,23,5.7,3.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,tabddpm,0.5275,23,4.85,4.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,adsgan,0.4978,23,6.46,1.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,pategan,0.3637,23,11.43,0.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,rtvae,0.3932,23,10.43,0.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,nflow,0.4384,23,8.09,1.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,marginal,0.3388,23,12.28,0.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,great,0.448,12,6.21,2.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,realtabformer,0.466,18,4.5,2.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,taegan,0.52,23,5.67,1.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,tagal,0.4128,18,8.42,0.0
+ext_sdm_pairs,SDMetrics,SDM pair trends,tabsyn,0.541,22,3.73,8.0
 valid_rate,Other,Parse valid rate,disco,0.6695,23,,
