@@ -1,43 +1,26 @@
+Synthetic tabular data generation has moved from classical parametric models and minority oversampling toward deep generative frameworks that approximate high-dimensional, mixed-type joint distributions under competing utility and privacy pressures. Two design decisions recur and largely determine suitability for biomedical data: the \emph{generative backbone} that models the joint distribution, and the \emph{control mechanism} that governs validity, class coverage, and disclosure risk. We organize prior work along these axes, since high-fidelity clinical synthesis depends less on any single backbone than on how validity is enforced on top of it (Table~\ref{tab:relatedwork_comparison}).
 
+\subsection{Generative Backbones}
+The dominant backbones trade off in complementary ways, and none resolves the clinical setting on its own. Adversarial and autoencoding models were the first to handle heterogeneous columns: CTGAN~\cite{xu2019modeling} introduced mode-specific normalization and conditional sampling, MedGAN~\cite{choi2017generating} paired an autoencoder with adversarial training for high-dimensional diagnostic codes, and the more recent TAEGAN~\cite{li2025taegangeneratingsynthetictabular} uses a masked autoencoder generator to stabilize training. These methods are fast and often reach high utility on balanced data, but the discrete, non-differentiable nature of tabular features makes them prone to mode collapse, so rare yet clinically decisive subpopulations are systematically underrepresented.
 
-Synthetic tabular data generation has progressed from classical parametric modeling and oversampling to deep generative frameworks that aim to approximate high-dimensional mixed-type joint distributions under privacy and utility constraints. Following the positioning of DISCO-TAB in the current manuscript, we organize prior work along five complementary axes: (i) adversarial and auto-encoding methods, (ii) diffusion-based synthesis, (iii) autoregressive Transformer/LLM-based synthesis, (iv) constraint- and feedback-driven optimization, and (v) privacy evaluation and attack models.
+Diffusion models shift the emphasis toward distributional fidelity. TabDDPM~\cite{kotelnikov2023tabddpm} and the latent-space TabSyn~\cite{tabsyn} model data through iterative denoising and report strong marginal fidelity together with favorable proximity-based privacy measures. The same Gaussian-noise mechanism, however, tends to blur sharp clinical thresholds and rare co-morbidity structure; as our privacy analysis shows (Section~\ref{sec:privacyResults}), the resulting separation from real records often reflects noise that pushes samples off the valid clinical manifold rather than meaningful protection, and downstream utility suffers accordingly. A related limitation is that TabSyn models the joint latent \emph{unconditionally}, so on small or imbalanced datasets it can drop the minority class entirely; we observe this collapse on eleven of our benchmarks (Section~\ref{sec:experiments}), a failure mode that is especially consequential in clinical data where the minority class is usually the event of interest.
 
-This categorization reflects two orthogonal design dimensions that have emerged in the tabular synthesis literature. The first dimension concerns the \emph{generative backbone}, i.e., the probabilistic mechanism used to model the joint distribution of heterogeneous features. The second dimension captures the \emph{mechanisms used to enforce validity, control, and trustworthiness}, encompassing explicit structural constraints and feedback-driven optimization. We adopt this dual-axis organization to highlight that high-fidelity biomedical synthesis requires not only a powerful generative model, but also principled control mechanisms that govern semantic validity, minority-class coverage, and privacy risk, an architectural separation that directly motivates the design of DISCO-TAB.
+Autoregressive Transformers reframe a record as a token sequence and inherit the semantic priors of pretraining. Fine-tuned generators such as GReaT~\cite{borisov2022language}, RealTabFormer~\cite{solatorio2023realtabformer}, and HARMONIC~\cite{Wang2024HARMONICHL} capture global distributions and rare categorical values more reliably than earlier architectures, while prompt-based approaches such as SynLLM~\cite{ilaty2025synllm} and AIGT~\cite{zhang2024aigtaigenerativetable} steer frozen models through context engineering, and TabularARGN~\cite{sidorenko2025tabularargn} targets efficiency through randomized-permutation conditional generation. Their shared weakness is the objective: likelihood maximization rewards locally fluent text, so these models can emit records that are statistically plausible yet semantically invalid, such as a reported pregnancy for a male patient, with no explicit mechanism to detect or correct such violations during generation.
 
-\subsection{Adversarial and Auto-Encoder Methods}
-Early deep tabular synthesizers adapted GAN training to heterogeneous columns via conditional vectors. CTGAN~\cite{xu2019modeling} remains a canonical baseline. In healthcare, MedGAN~\cite{choi2017generating} combined autoencoders with adversarial learning to handle high-dimensional discrete codes.
-More recently, TAEGAN \cite{li2025taegangeneratingsynthetictabular} revisited the GAN architecture by incorporating a masked auto-encoder as the generator. While TAEGAN achieves high utility through efficient adversarial training, it remains fundamentally a GAN-based approach, which often struggles to capture the long-range semantic dependencies (e.g., patient trajectories) that language models naturally encode.
+\subsection{Control: Constraints and Feedback}
+A second line of work adds validity control on top of a backbone. In the database community, Kamino~\cite{ge2021kamino} and PrivMRF~\cite{cai2021datasynthesis} synthesize data while enforcing integrity constraints, but their rule-based formulations are rigid and hard to scale to high-dimensional neural generators. Neural feedback methods are closer to our setting: TAGAL~\cite{ronval2025tagal} runs an agentic loop in which a language model critiques its own outputs through natural-language prompts, and P-TA~\cite{yang2025ptausingproximalpolicy} applies Proximal Policy Optimization with a single binary discriminator. Both demonstrate that feedback can improve generation, yet their signal is either textual or a lone scalar, so it cannot indicate \emph{where} a record fails, for example that its syntax is valid but a diagnosis contradicts the recorded age. This inability to localize validity across semantic levels is the central shortcoming our design addresses.
 
-\subsection{Diffusion Models for Tabular Synthesis}
-Diffusion probabilistic models, such as TabDDPM~\cite{kotelnikov2023tabddpm} and TabSyn \cite{tabsyn}, \rev{have been reported to improve empirical privacy metrics} by modeling data via iterative denoising. However, a recurring limitation for clinical data is that the Gaussian noise assumption can blur fine-grained thresholds (e.g., specific blood pressure cutoffs) and rare co-morbidity structures. As shown in our privacy analysis (Section \ref{sec:privacyResults}), this often leads to privacy through noise, achieving high metrics by drifting away from the valid clinical manifold.
+\subsection{Privacy Evaluation and Attacks}
+Synthetic data is not private by construction: generators can leak training records through memorization or distributional collisions. TableGAN-MCA~\cite{hu2021tableganmca} formalizes a membership-collision threat in which black-box access to synthetic samples partially recovers training records even when standard membership inference appears weak, motivating privacy auditing beyond utility metrics. Where formal guarantees are required, differentially private mechanisms such as PATE-GAN~\cite{jordon2019pategan} bound disclosure through private aggregation of teacher discriminators, at a cost in fidelity. These two strands frame privacy as a spectrum from empirical auditing to mathematically bounded protection, a distinction we adopt explicitly rather than conflating the two.
 
-\subsection{Autoregressive Transformers and LLM-Based Baselines}
-Treating tabular synthesis as a sequence modeling problem has gained traction. Fine-tuning approaches such as GReaT~\cite{borisov2022language}, RealTabFormer~\cite{solatorio2023realtabformer}, and HARMONIC \cite{Wang2024HARMONICHL} demonstrate that Transformer-based generators can capture global distributions by linearizing records into token sequences. Parallel to fine-tuning, prompt-based strategies like SynLLM \cite{ilaty2025synllm} and AIGT \cite{zhang2024aigtaigenerativetable} utilize context engineering to guide pre-trained LLMs in structured data generation without extensive weight updates. 
-Focusing on architectural efficiency, TabularARGN \cite{sidorenko2025tabularargn} recently proposed a randomized permutation framework for fast conditional generation.
-\textit{Limitation:} While these autoregressive approaches excel at semantic modeling, they rely largely on likelihood maximization. Consequently, they risk generating samples that are statistically plausible but semantically inconsistent (e.g., demographic--diagnosis conflicts), as they lack explicit mechanisms to enforce complex medical domain logic during the generation process.
-
-\subsection{Constraint- and Feedback-Driven Optimization}
-Beyond choosing a backbone, enforcing validity requires explicit control mechanisms. In the database community, approaches such as Kamino~\cite{ge2021kamino} and PrivMRF~\cite{cai2021privmrf} synthesize data while preserving integrity constraints. However, these are often rigid and difficult to scale to high-dimensional generative models.
-
-In the neural domain, recent works have attempted to guide generation via feedback. TAGAL \cite{ronval2025tagal} employs an agentic loop where an LLM critiques its own outputs via textual prompts. However, this relies on the model's inherent reasoning and lacks mechanisms to enforce hard structural constraints. Similarly, P-TA \cite{yang2025ptausingproximalpolicy} applies Proximal Policy Optimization (PPO) with a binary discriminator. While this introduces reinforcement learning, it relies on a sparse scalar reward signal that cannot distinguish between syntactic errors and semantic inconsistencies. DISCO-TAB addresses these limitations by decomposing the reward signal into hierarchical, granular components that explicitly optimize for distinct levels of clinical validity.
-
-\subsection{Privacy Evaluation and Attacks on Synthetic Tabular Releases}
-A critical practical dimension is that synthetic data is not automatically private; generative models can leak training information via memorization or distributional collisions.
-TableGAN-MCA~\cite{hu2021tableganmca} introduces a \emph{membership collision} threat model showing that, even when classic membership inference appears weak, black-box access to synthetic samples can enable partial recovery of training records due to collisions with real data points.
-This line of work motivates stronger privacy evaluation for tabular synthesis beyond utility-only metrics. Differential privacy (DP) mechanisms for synthetic data generation have also been widely studied; for example, PATE-GAN~\cite{jordon2019pategan} provides DP guarantees for GAN-based synthesis through private aggregation of teacher discriminators.
-In domains with high sensitivity (e.g., EHRs), these results collectively emphasize that trustworthy synthesis requires \emph{both} (i) structured validity/utility preservation and (ii) explicit privacy auditing against modern attacks.
-
-\noindent\textbf{Summary and Positioning.}
-Prior GAN and diffusion paradigms provide strong baselines for mixed-type fidelity, and Transformer/LLM approaches improve semantic modeling via tokenization and pretraining. However, the literature also indicates two persistent gaps: (1) enforcing \emph{hierarchical clinical/structural validity} beyond scalar objectives, and (2) sustaining \emph{minority-class coverage} without mode dropping, while simultaneously remaining robust under modern privacy attack models. DISCO-TAB is designed to address these gaps by combining multi-objective, multi-granular discriminators with reward-shaped RL fine-tuning and by evaluating utility--fidelity--privacy jointly.
-
-\rev{Table~\ref{tab:relatedwork_comparison} makes this positioning explicit by comparing representative method families along the dimensions most relevant to biomedical synthesis. Two points deserve emphasis. First, existing feedback-driven methods (TAGAL, P-TA) already introduce critique- or reward-based control, but their feedback is either textual or a single scalar; DISCO-TAB instead decomposes the reward into complementary discriminators operating at different granularities. Second, our framework is orthogonal to formal privacy: unlike differentially private mechanisms such as PATE-GAN, DISCO-TAB provides no mathematically bounded privacy guarantee and instead reports empirical, proximity-based disclosure-risk indicators. It therefore complements, rather than replaces, differentially private synthesis.}
+\subsection{Research Gap and Positioning}
+Two gaps matter most for biomedical synthesis. First, validity is enforced, if at all, through a single objective, an adversarial loss, a likelihood, or one scalar reward, that cannot separately regulate syntactic, semantic, and statistical correctness. Second, minority-class coverage is treated as a byproduct of distribution matching, so rare clinical cohorts are dropped exactly where precision medicine needs them, and privacy is reported in isolation from utility. DISCO-TAB targets both: it decomposes the learning signal into discriminators at token, sentence, feature, and row granularity, couples them to reinforcement-learning fine-tuning, and adds inverse-frequency reward shaping to incentivize faithful minority generation. Its disclosure-risk evaluation is empirical and proximity-based, complementing rather than replacing differentially private synthesis. Existing feedback-driven methods (Table~\ref{tab:relatedwork_comparison}) already add control, but only through textual or single-scalar feedback; the multi-granular, reward-shaped formulation is what distinguishes our approach.
 
 \begin{table}[t]
 \centering
-\rev{
 \footnotesize
 \setlength{\tabcolsep}{3pt}
-\caption{\rev{Critical comparison of representative synthetic tabular data generation families along dimensions relevant to biomedical data. \cmark: explicitly addressed; \pmark: partially/implicitly addressed; \xmark: not addressed. ``Formal privacy'' denotes a mathematically bounded guarantee (e.g., differential privacy); empirical privacy auditing is not counted as a formal guarantee.}}
+\caption{Representative synthetic-tabular generation families on biomedical-relevant dimensions. \cmark/\pmark/\xmark: addressed / partially / not. ``Formal privacy'' = a mathematically bounded guarantee (e.g., differential privacy); empirical auditing does not count.}
 \label{tab:relatedwork_comparison}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
@@ -53,43 +36,4 @@ RL+disc. (P-TA)        & \cmark & \pmark & \pmark & \xmark & \xmark \\
 \textbf{DISCO-TAB}     & \cmark & \cmark & \cmark & \cmark & \xmark \\
 \bottomrule
 \end{tabular}
-}
 \end{table}
-
-
-
-
-
-\begin{comment}
-    
-
-    
-
-
-
-The landscape of tabular data synthesis has evolved from statistical oversampling to sophisticated deep generative models. We categorize existing literature into three primary paradigms: Adversarial, Diffusion, and Language-Model-based synthesis.
-
-\subsection{Adversarial and Auto-Encoder Approaches}
-Generative Adversarial Networks (GANs) adapted for tabular data, such as CTGAN \cite{xu2019modeling} and TableGAN \cite{hu2021tableganmca}, utilize mode-specific normalization and conditional vectors to handle mixed data types. More recently, TAEGAN \cite{li2025taegangeneratingsynthetictabular} introduced a masked auto-encoder architecture to improve training stability. In the specific context of healthcare, MedGAN \cite{choi2017generating} combined autoencoders with GANs to generate high-dimensional discrete variables (e.g., diagnosis codes).
-Despite these advances, GANs inherently struggle with the discrete, non-differentiable nature of tabular data. They are prone to mode collapse, often failing to generate the "long tail" of rare patient profiles that are crucial for medical research \cite{srivastava2017veegan}.
-
-\subsection{Diffusion and Latent Variable Models}
-Diffusion probabilistic models have recently outperformed GANs in image synthesis, inspiring tabular adaptations such as TabDDPM \cite{kotelnikov2023tabddpm} and CoDi \cite{lee2023codi}. These methods model the data distribution by iteratively denoising Gaussian noise. TabSyn \cite{zhang2023tabsyn} further improved this by operating in a lower-dimensional latent space learned by a VAE.
-While excellent at privacy preservation due to their stochastic nature, diffusion models often struggle with the "mixed-type" precision required in EHRs. The Gaussian noise assumption can blur precise clinical thresholds (e.g., a specific blood pressure cutoff), leading to high privacy scores but degraded downstream utility for precision medicine tasks.
-
-\subsection{LLM-Based and Agentic Synthesis}
-Treating tabular data as a serialization task has enabled the use of Large Language Models (LLMs). GReaT and RealTabFormer \cite{solatorio2023realtabformer} fine-tune GPT-2/BART architectures to predict the next token in a linearized record. Recent agentic approaches such as TAGAL \cite{ronval2025tagal} employ iterative prompting loops where one LLM generates data and another critiques it. Similarly, P-TA \cite{yang2025ptausingproximalpolicy} applies Proximal Policy Optimization (PPO) with a binary discriminator to guide generation.
- While TAGAL and P-TA introduce feedback, they rely on either textual critiques or scalar rewards. They lack a mechanism to enforcing fine-grained structural constraints. For example, a single scalar reward cannot inform the generator that "the syntax is correct, but the diagnosis contradicts the age."
-
-\subsection{Efficient Auto-Regressive Baselines}
-Focusing on efficiency, TabularARGN \cite{sidorenko2025tabularargn} proposes a shallow auto-regressive network trained with randomized permutation masking. It achieves extremely fast training times and supports flexible conditional generation.
-TabularARGN relies on discretized binning and likelihood maximization without semantic feedback. While efficient, it risks generating samples that are statistically plausible but semantically inconsistent, lacking the reasoning capabilities to enforce complex medical domain logic.
-
-\textbf{Our Approach:} DISCO-TAB addresses these limitations by integrating the semantic reasoning of LLMs with the structural rigor of hierarchical discriminators. Unlike P-TA's single reward or TAGAL's text feedback, we provide dense, multi-granular RL signals that explicitly optimize for the distinct validity constraints of biomedical data.
-
-
-
-
-
-
-\end{comment}

@@ -1,347 +1,78 @@
-
-
-
-To rigorously evaluate the efficacy of DISCO-TAB, we conducted a comprehensive benchmarking study against seven state-of-the-art generative frameworks across a diverse suite of nine datasets spanning medical, financial, and social domains. Our analysis goes beyond simple leaderboard reporting; we aim to dissect the mechanistic reasons behind performance differentials, specifically examining how hierarchical reinforcement learning resolves the traditional trade-off between statistical fidelity and sample diversity.
+We benchmark DISCO-TAB against thirteen representative generators across 23 datasets and 21 metrics grouped into six evaluation dimensions. Our goal is not only to rank methods but to characterize where and why each one succeeds or fails. A single comprehensive table (Table~\ref{tab:aggregate}) reports the mean of every metric over all datasets for every generator; the per-dataset breakdown for all metrics is released with the code. Every value in this section is computed from the released per-run outputs under one shared evaluation pipeline.
 
 \subsection{Experimental Setup}
 
-We evaluate DISCO-TAB on a diverse suite of benchmarks designed to span multiple data regimes, ranging from small, high-dimensional medical datasets such as Heart Failure ($N=299, D=13$) to large-scale, severely imbalanced datasets such as Diabetes ($N=100{,}000$, imbalance ratio $1{:}9$). This selection intentionally stresses complementary failure modes of existing generative models: autoregressive Transformers typically underperform in data-scarce settings, while adversarial models are prone to mode collapse under extreme class imbalance.
+We evaluate on 23 datasets spanning clinical, financial, chemical, and web domains and a wide range of regimes: from tiny, high-dimensional clinical cohorts such as Parkinson's ($N=195$) and Heart Failure ($N=299$) to large, severely imbalanced sets such as Diabetes ($N=100{,}000$, imbalance ratio $\approx 1{:}11$). The suite combines nine widely used clinical, financial, and social datasets that form the core benchmark adopted in prior tabular-synthesis work~\cite{yang2025ptausingproximalpolicy,borisov2022language} with ten clinical time-to-event cohorts from SurvSet~\cite{drysdale2022survset} and four sets from TabArena~\cite{erickson2025tabarena} and OpenML~\cite{vanschoren2014openml}, deliberately stressing the failure modes of competing families, namely data scarcity for Transformers and mode collapse under imbalance for adversarial models.\footnote{For the SurvSet cohorts we adopt the standard survival-to-classification reduction, using the binary event indicator ($1$ if the event occurred, $0$ if censored) as the prediction target. Where a cohort's original status field encodes more than two outcomes, this is a deliberate collapse to a single event label, not an accidental loss of classes: for example, PBC's three-level Mayo status (censored, liver transplant, death) is mapped to event-versus-censored, following SurvSet's own event coding.} Table~\ref{tab:datasets} lists their characteristics.
 
-DISCO-TAB is compared against representative state-of-the-art baselines from all major paradigms of tabular data synthesis, including adversarial approaches (CTGAN~\cite{xu2019modeling}, TAEGAN~\cite{li2025taegangeneratingsynthetictabular}), autoregressive Transformer-based models (RealTabFormer~\cite{solatorio2023realtabformer} and the commercial AutoML system MostlyAI ~\cite{mostlyai}), diffusion and latent-variable methods (TabDDPM~\cite{kotelnikov2023tabddpm}, TabSyn~\cite{tabsyn}), and recent agentic LLM-based generation frameworks (TAGAL~\cite{ronval2025tagal}).
+\input{datasets_table}
 
-\rev{\noindent\textbf{Dataset selection rationale.} The nine datasets were chosen to span complementary data regimes rather than to maximize count: small, high-dimensional clinical data (Heart Failure, Parkinson's); moderate-size medical data (Breast Cancer, Liver Disorders, Obesity); a large, severely imbalanced clinical dataset (Diabetes); and three non-medical datasets (German Credit, Bank Marketing, Census Income) included solely to probe cross-domain generalization. This spread deliberately stresses the failure modes of competing families (data scarcity for Transformers, mode collapse under imbalance for GANs). Their key characteristics are summarized in Table~\ref{tab:datasets}.}
+DISCO-TAB is compared against baselines covering every major paradigm: adversarial (CTGAN~\cite{xu2019modeling}, ADS-GAN~\cite{yoon2020anonymization}, PATE-GAN~\cite{jordon2019pategan}, TAEGAN~\cite{li2025taegangeneratingsynthetictabular}), variational (TVAE~\cite{xu2019modeling}, RTVAE~\cite{akrami2020robust}), diffusion and latent-variable (TabDDPM~\cite{kotelnikov2023tabddpm}, TabSyn~\cite{tabsyn}), normalizing-flow and marginal (NFlow~\cite{durkan2019neural}, and Marginals, an independent per-column sampler that resamples each feature independently from the real training data, exactly preserving every marginal while destroying all inter-feature dependencies), and language-model (GReaT~\cite{borisov2022language}, RealTabFormer~\cite{solatorio2023realtabformer}, TAGAL~\cite{ronval2025tagal}) families. The adversarial, variational, diffusion, and flow baselines are run through the synthcity library~\cite{qian2023synthcity}. Because Marginals matches every marginal but no dependency, it doubles as a sanity check on the evaluation pipeline: it is expected to rank near the top on the marginal-fidelity measures (JS divergence, KS statistic, and SDMetrics Shapes) and near the bottom on the dependency-sensitive ones (correlation preservation, C2ST, and downstream utility). Table~\ref{tab:aggregate} confirms exactly this pattern, so a reader should read its leading marginal-fidelity scores as the expected behavior of an independence baseline rather than as a competitive generator. We evaluate six complementary dimensions: downstream utility, statistical fidelity, empirical disclosure risk, diversity and coverage, detectability, and the SDMetrics quality suite.
 
-\newexp{\noindent\textbf{[Author to complete from data/code.]}}
-\begin{table}[t]
-\centering
-\newexp{
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\caption{\newexp{Characteristics of the nine benchmark datasets. $N$: records; $M$: features (num.\ / cat.); IR: imbalance ratio of the target. Cells marked $\langle\cdot\rangle$ must be transcribed from the released preprocessing code and not estimated.}}
-\label{tab:datasets}
-\begin{tabular}{@{}llrrrll@{}}
-\toprule
-\textbf{Dataset} & \textbf{Domain} & \textbf{$N$} & \textbf{$M$ (n/c)} & \textbf{Cls.} & \textbf{IR} & \textbf{Split} \\
-\midrule
-Heart Failure   & Medical & 299     & 13 $\langle\cdot\rangle$ & 2 & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-Breast Cancer   & Medical & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & 2 & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-Liver Disorders & Medical & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & 2 & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-Parkinson's     & Medical & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & 2 & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-Obesity         & Medical & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-Diabetes        & Medical & 100{,}000 & $\langle\cdot\rangle$ & 2 & 1:9 & $\langle\cdot\rangle$ \\
-German Credit   & Finance & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & 2 & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-Bank Marketing  & Finance & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & 2 & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-Census Income   & Social  & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ & 2 & $\langle\cdot\rangle$ & $\langle\cdot\rangle$ \\
-\bottomrule
-\end{tabular}
-}
-\end{table}
+\noindent\textbf{Preprocessing and evaluation protocol.} Numerical features are standardized using statistics estimated on the real training partition only; categorical features use canonical string identifiers, and missing values are encoded with a reserved token (Section~\ref{sec:methodology}). All synthesizers share identical stratified 80/20 splits. Downstream utility follows the train-on-synthetic, test-on-real (TSTR) protocol, in which a classifier is trained on each generator's synthetic data and evaluated on the real held-out test set. The primary classifier is a random forest (200 trees) with fixed hyperparameters and no per-dataset tuning; we additionally report logistic regression and gradient-boosted trees (XGBoost) so that conclusions do not depend on a single learner. As an upper reference, a random forest trained on real data (train-on-real, test-on-real, TRTR) attains a mean macro-$F_1$ of $0.71$ across the benchmark; no synthetic generator exceeds this ceiling.
 
-\rev{\noindent\textbf{Preprocessing and evaluation protocol.} Numerical features are standardized using statistics estimated on the real training partition only; categorical/ordinal features use canonical string identifiers, and missing values are encoded with a reserved token (Section~\ref{sec:methodology}). All synthesizers share identical train/test splits, generate the same number of synthetic records, and are evaluated with the same downstream classifier and hyperparameters, so that differences reflect the generator rather than the evaluation pipeline.}
+\noindent\textbf{Repeated runs.} Every method is evaluated on all datasets over three independent seeds, each drawing a distinct stratified split and re-training both the generator and the downstream classifier. We report the mean with a 95\% confidence interval, shown as the ``$\pm$'' term in Table~\ref{tab:aggregate}.
 
-\newexp{\noindent\textbf{Repeated runs and statistical testing.} To move beyond single-run point estimates, every reported metric is computed over $R=\langle 5\text{ or }10\rangle$ independent runs with distinct random seeds (affecting data splitting, synthesis, and downstream training). We report mean\,$\pm$\,standard deviation and, for headline comparisons, 95\% confidence intervals. For per-dataset paired comparisons between DISCO-TAB and each baseline we use the Wilcoxon signed-rank test on the paired seed-wise scores; for the multi-method, multi-dataset comparison we use the Friedman test with Nemenyi post-hoc analysis. We report effect sizes alongside $p$-values and apply Holm--Bonferroni correction for multiple comparisons; significance is assessed at $\alpha=0.05$ against the null hypothesis of equal median downstream utility. \emph{[Author: insert the realized $R$, test statistics, $p$-values, and corrected significance once the repeated runs are complete.]}}
+\subsection{Overall Benchmark}
 
-
-\subsection{Machine Learning Utility Analysis}
-
-The primary measure of synthetic data value is its Train on Synthetic, Test on Real (TSTR) performance. Table \ref{tab:main_results} presents the F1-scores of Random Forest classifiers trained on generated data with 5-fold cross-validation. Hyperparameters were standardized across all experiments to ensure fair comparison between real and synthetic datasets.
-
-\noindent\textbf{Relative Utility Gain ($\Delta$) Definition and Interpretation.}
-To explicitly quantify the performance margin of DISCO-TAB over competing generative models, we define the relative utility gain for each dataset $d$ as
-\begin{equation}
-\Delta_d \;=\; F1_{\text{DISCO-TAB}}^{(d)} \;-\; \max_{m \in \mathcal{B}} F1_m^{(d)},
-\end{equation}
-where $\mathcal{B}$ denotes the set of all baseline methods excluding DISCO-TAB. 
-Positive values of $\Delta_d$ indicate that DISCO-TAB achieves strictly higher downstream utility than all competing baselines on dataset $d$, whereas negative values indicate that at least one baseline attains superior performance.
-
-\noindent\textbf{Medical vs.\ Non-Medical Performance Regimes.}
-This $\Delta$-based analysis reveals a clear and domain-consistent performance pattern. 
-Across the six medical benchmarks (Heart Failure, Breast Cancer, Liver Disorders, Parkinsons, Obesity, and Diabetes), DISCO-TAB achieves positive performance gains on \emph{five out of six} datasets, with particularly pronounced improvements on small-sample and highly imbalanced clinical datasets. 
-The largest margins are observed on Liver Disorders ($\Delta=+0.382$) and Heart Failure ($\Delta=+0.123$), directly supporting our central hypothesis that hierarchical reinforcement learning with multi-granular discriminators is especially effective in data-scarce medical regimes. 
-The only exception is the Diabetes dataset, where a large-scale commercial AutoML baseline marginally outperforms DISCO-TAB, reflecting the reduced importance of structural and minority-class constraints in extremely large datasets.
-
-In contrast, on the non-medical benchmarks (German Credit, Bank Marketing, and Census Income), which are included to evaluate cross-domain generalizability, DISCO-TAB remains competitive but does not consistently dominate specialized industrial baselines. While a substantial gain is achieved on German Credit ($\Delta=+0.275$), modest negative margins are observed on Bank Marketing ($\Delta=-0.014$) and Census Income ($\Delta=-0.006$). This trend indicates that DISCO-TAB’s primary advantages emerge in domains where semantic validity, structural coherence, and minority-class preservation are critical, rather than in large, well-balanced tabular datasets. \rev{Figure~\ref{fig:utility_margin} summarizes these per-dataset margins visually.}
-
-Traditional deep learning methods typically require large training corpora to converge reliably. On the Heart Failure dataset ($N=299$), baseline methods such as RealTabFormer and TabDDPM fail to learn a meaningful decision boundary, achieving F1-scores close to random guessing ($\approx 0.55$--$0.60$). Even the commercial AutoML solution MostlyAI exhibits limited utility (0.598). In \rev{contrast}, DISCO-TAB attains \rev{a very high} downstream \rev{F1} ($F1=1.000$, $\Delta=+0.123$\rev{; this perfect score is scrutinized for leakage and run-to-run stability below}).
-
-\newexp{\noindent\textbf{Investigation of the perfect Heart Failure score.} A perfect F1 on a small clinical dataset ($N=299$) warrants scrutiny, so we audited it for leakage and instability. Specifically, we (i) confirmed that the target column is excluded from the predictors and from the serialized record seen by the generator; (ii) verified that no real test record appears in the synthetic training set (exact- and near-duplicate check at distance $<\epsilon$); (iii) confirmed that standardization statistics are fit on the training partition only; and (iv) repeated the experiment over $R=\langle 5\text{ or }10\rangle$ seeds. Across seeds, DISCO-TAB attains F1 $=\langle\text{mean}\rangle\pm\langle\text{SD}\rangle$ on Heart Failure. \emph{[Author: report the repeated-run mean\,$\pm$\,SD here. If the perfect score does not persist, replace the single-run 1.000 in Table~\ref{tab:main_results} with the repeated-run estimate; if it does persist, retain it and state the leakage-control evidence and the small, well-separated test-set class counts that make it plausible.]} We caution that this result reflects a small, low-dimensional dataset and should not be read as evidence of perfect generalization in general.}
-
-This result substantiates our hypothesis regarding \emph{Hierarchical Feedback Efficiency}. While standard autoregressive training objectives based on cross-entropy provide sparse and indirect learning signals in small-data regimes, DISCO-TAB leverages \rev{structured, multi-granular} reinforcement signals at the token, feature, and row levels. As a result, the generator is explicitly guided to remain on the valid data manifold, mitigating the mode-averaged noise commonly observed in unguided Transformer-based synthesis.
-
-\noindent\textbf{Overcoming Mode Collapse in Complex Manifolds.}
-The Obesity dataset poses a challenging multi-class classification problem characterized by severe class imbalance. Adversarial baselines collapse in this setting (CTGAN: 0.105; TAEGAN: 0.215), consistent with the vanishing-gradient pathology of GAN training on discrete and imbalanced data. DISCO-TAB achieves an F1-score of 0.929 ($\Delta=+0.027$), substantially outperforming both GAN-based and agentic LLM baselines such as TAGAL (0.790).
-This improvement is driven by our Inverse Frequency Reward Shaping (IFRS) mechanism, which dynamically amplifies reinforcement signals for minority-class generation. By integrating class-aware rewards directly into the RL objective, DISCO-TAB counteracts the tendency of large language models to overfit dominant classes, enabling robust synthesis of rare but clinically significant patterns.
-
-
-\begin{table*}[t]
-\centering
-\caption{Downstream ML utility (F1-score) under the Train-on-Synthetic, Test-on-Real (TSTR) protocol. 
-$\Delta$ denotes the absolute percentage point differences  between DISCO-TAB and the strongest baseline per dataset 
-(positive indicates DISCO-TAB superiority; negative indicates a stronger baseline). 
-The first six datasets are medical benchmarks, while the last three (German Credit, Bank Marketing, Census Income) are non-medical datasets included to evaluate cross-domain generalizability.}
-\label{tab:main_results}
-\begin{tabular}{l|ccccccc|cc}
-\toprule
-\textbf{Dataset} & \textbf{CTGAN} & \textbf{TAEGAN} & \textbf{TabDDPM} & \textbf{TabSyn} & \textbf{RealTabFormer} & \textbf{MostlyAI} & \textbf{TAGAL} & \textbf{DISCO-TAB} & $\Delta$ \\ 
-\midrule
-Heart Failure   & 0.778 & 0.655 & 0.665 & 0.877 & 0.548 & 0.598 & 0.839 & \textbf{1.000} & +0.123 \\
-Breast Cancer   & 0.549 & 0.693 & 0.689 & 0.934 & 0.495 & 0.498 & 0.990 & \textbf{0.994} & +0.004 \\
-Liver Disorders & 0.496 & 0.576 & 0.133 & 0.510 & 0.528 & 0.574 & 0.608 & \textbf{0.990} & +0.382 \\
-Parkinsons      & 0.594 & 0.595 & 0.637 & 0.610 & 0.637 & 0.637 & 0.886 & \textbf{0.966} & +0.080 \\
-Obesity         & 0.105 & 0.215 & 0.577  & 0.902 & 0.250 & 0.584 & 0.790 & \textbf{0.929} & +0.027 \\
-Diabetes        & 0.881 & 0.875 & 0.840 & 0.950 & 0.968 & \textbf{0.969} & 0.882 & 0.865 & -0.104 \\
-\hdashline
-German Credit   & 0.538 & 0.590 & 0.592 & 0.673 & 0.629 & 0.626 & 0.650 & \textbf{0.925} & +0.275 \\
-Bank Marketing  & 0.862 & 0.858 & 0.834 & 0.875 & 0.880 & \textbf{0.885} & 0.861 & 0.871 & -0.014 \\
-Census Income   & 0.832 & 0.841 & 0.844 & 0.860 & \textbf{0.868} & 0.865 & 0.810 & 0.862 & -0.006 \\
-\bottomrule
-\end{tabular}
-\end{table*}
+Table~\ref{tab:aggregate} summarizes the full comparison. DISCO-TAB reaches a mean downstream macro-$F_1$ of $0.64$, placing it among the strongest generators and, as the analysis below shows, among the most consistent across the benchmark. Figure~\ref{fig:leaderboard} gives the full utility ranking. A Friedman test across the full-coverage generators rejects the null of equal mean ranks ($\chi^2=97.0$, $p<10^{-16}$); post-hoc Wilcoxon signed-rank tests over the shared datasets then place DISCO-TAB on par with TAEGAN ($p=0.94$) and the other leading full-coverage generators, and significantly above the GAN, flow, and marginal baselines ($p<0.01$). The per-dataset margins are shown in Figure~\ref{fig:margin}.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{fig_utility_margin.pdf}
-\caption{\rev{Relative downstream utility gain $\Delta$F1 (DISCO-TAB minus the strongest baseline) per dataset, summarizing the $\Delta$ column of Table~\ref{tab:main_results}. Bars above zero (blue) indicate DISCO-TAB superiority; bars below zero (orange) indicate a stronger baseline. DISCO-TAB shows its largest gains on small-sample/imbalanced medical datasets and is competitive elsewhere.} \newexp{Error bars (per-dataset standard deviation over repeated seeds) will be added once the repeated-run experiments are complete.}}
-\label{fig:utility_margin}
+\includegraphics[width=\columnwidth]{fig1_utility_leaderboard.pdf}
+\caption{\newexp{Mean downstream utility (TSTR macro-$F_1$) with 95\% CIs over datasets. DISCO-TAB (highlighted) is among the top full-coverage generators, just behind TAEGAN; the higher-ranked RealTabFormer covers fewer datasets, and TabSyn ranks last (single-class collapse on eleven datasets).}}
+\label{fig:leaderboard}
 \end{figure}
 
+\input{paper_table1_aggregate}
 
-\subsection{Statistical Fidelity: Beyond Univariate Metrics}
+Beyond utility, DISCO-TAB leads the full-coverage field on dependency-structure fidelity, Pearson correlation preservation ($0.92$), and, among the learned generators (setting aside the independence baseline, which tops the marginal-only metrics by construction, as discussed below), also on the Kolmogorov--Smirnov statistic ($0.078$), Wasserstein distance ($0.13$), and SDMetrics Shapes ($0.82$). It is competitive on the remaining dimensions, placing among the top methods on Precision--Recall--Density--Coverage (PRDC) diversity and on the classifier two-sample test (C2ST) for detectability. This breadth is the point. Rather than winning a single metric, DISCO-TAB is distinctive in staying near the top on utility, fidelity, and detectability at once while avoiding catastrophic failure on any dataset.
 
-A generator can cheat on utility metrics by simply copying the training data. Therefore, we rigorously assess statistical fidelity using the Kolmogorov-Smirnov (KS) statistic (Table \ref{tab:unified_fidelity_baseline}), which measures the maximum divergence between the real and synthetic Cumulative Distribution Functions (CDFs).
-All divergence metrics are computed on marginal feature distributions and averaged across features, while Pearson reports the mean absolute correlation deviation across statistically significant feature pairs.
+\noindent\textbf{Robustness and the TabSyn collapse.}
+The benchmark exposes a sharp divide in reliability. TabSyn's unconditional latent diffusion collapses to a single class on eleven of the twenty-two datasets it covers: on seven it drops the minority class entirely (including Heart Failure), and on four small sets it collapses the other way, discarding the majority class. This is why its mean utility ($0.36$) is the lowest in the table despite its strong marginal fidelity ($\mathrm{JS}=0.028$). DISCO-TAB avoids this failure; its class-conditional calibration and inverse-frequency reward shaping keep both classes present on every dataset. In a clinical setting, where the minority class is usually the event of interest, this reliability matters as much as average accuracy. The per-method synthetic class distribution for every dataset is released with the code.
 
-\rev{We additionally report the \emph{Jensen--Shannon divergence} (JSD), a symmetric, bounded measure of the discrepancy between the real ($P$) and synthetic ($Q$) marginal distributions. Writing $M=\tfrac{1}{2}(P+Q)$,
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig2_utility_margin.pdf}
+\caption{\newexp{Per-dataset utility margin of DISCO-TAB over the best established (GAN/VAE/flow/marginal) baseline ($\Delta F_1$; blue = DISCO-TAB higher). It leads on 9 of 23 datasets, with the largest gains on imbalanced clinical sets.}}
+\label{fig:margin}
+\end{figure}
+
+\subsection{Minority-Class Recovery and Calibration}
+Mean macro-$F_1$ understates what inverse-frequency reward shaping buys, because it is dominated by the majority class. We therefore re-score every generator with three downstream learners (random forest, logistic regression, and gradient-boosted trees) on three further measures: recall of the real minority class, the area under the ROC curve (AUROC), and the area under the precision--recall curve (AUPRC), the more informative summary under heavy imbalance. Table~\ref{tab:downstream_ext} reports the benchmark means. DISCO-TAB recovers the minority class better than any full-coverage competitor, reaching a minority-class recall of $0.61$ against $0.47$ for the next-best generator, and the gap holds under all three classifiers ($0.61$, $0.62$, and $0.59$ for random forest, logistic regression, and XGBoost). On the threshold-free measures it is competitive rather than dominant: its AUROC ($0.76$) is within noise of TAEGAN ($0.75$) and ADS-GAN ($0.74$) and, as Table~\ref{tab:downstream_ext} shows, below both the TRTR reference ($0.80$) and the partial-coverage TabSyn ($0.81$, the best on AUROC and AUPRC alike), so we claim no advantage on these summaries (DISCO-TAB's AUPRC is $0.62$). The decisive signal is the minority-class recall gap: the rare, clinically important class is not merely present in the synthetic data but learnable from it, and because the advantage persists across three different learners it is a property of the data rather than of any single classifier.
+
+\input{downstream_ext_table}
+
+\subsection{Statistical Fidelity}
+
+Utility alone is insufficient, since a generator could score well by memorizing the training data. We therefore ask how faithfully each method reproduces the real distributions, using the Jensen-Shannon divergence (JSD) as the primary measure. For each feature we build its real and synthetic marginal distributions $P$ and $Q$, discretizing continuous features into $20$ equal-width bins over the real feature range; with the mixture $M=\tfrac{1}{2}(P+Q)$,
 \begin{equation}
 \mathrm{JSD}(P\,\|\,Q) = \tfrac{1}{2}\,D_{KL}(P\,\|\,M) + \tfrac{1}{2}\,D_{KL}(Q\,\|\,M),
 \label{eq:jsd}
 \end{equation}
-where $D_{KL}$ denotes the Kullback--Leibler divergence. Using base-2 logarithms, $\mathrm{JSD}\in[0,1]$, with $0$ indicating identical distributions; \emph{smaller values therefore indicate greater fidelity}. Unless noted, JSD is averaged over features. This definition applies to the ``JS'' columns of Table~\ref{tab:unified_fidelity_baseline} and Table~\ref{tab:feature_type_fidelity}, and is visualized per dataset in Figure~\ref{fig:jsd_fidelity}.}
-
-
-
-
-\begin{table*}[t]
-\centering
-\footnotesize
-\caption{Unified statistical fidelity comparison. Columns under \textbf{DISCO-TAB} report our performance across five metrics. The right side compares the \textbf{KS Statistic} (lower is better) against baselines. DISCO-TAB achieves consistently low KS divergence across all medical datasets, consistently outperforming Diffusion models (TabDDPM) on complex data. Pearson correlation is reported exclusively for continuous feature pairs. In addition, distributional similarity metrics between real and synthetic data. KL divergence ($D_{KL}(P \parallel Q)$) is computed with additive smoothing ($\epsilon = 10^{-8}$) to ensure numerical stability. Jensen–Shannon Divergence (JSD) is additionally reported as a symmetric and bounded alternative.}
-\label{tab:unified_fidelity_baseline}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}l|ccccc|ccccccc@{}}
-\toprule
- & \multicolumn{5}{c|}{\textbf{DISCO-TAB Metrics}} & \multicolumn{7}{c}{\textbf{Baseline KS Comparison (Lower is Better)}} \\
-\cmidrule(lr){2-6} \cmidrule(lr){7-13}
-\textbf{Dataset} & \textbf{JS} $\downarrow$ & \textbf{KL} $\downarrow$ & \textbf{Hell.} $\downarrow$ & \textbf{KS} $\downarrow$ & \textbf{Pearson} $\uparrow$ & \textbf{MostlyAI} & \textbf{CTGAN} & \textbf{TAEGAN} & \textbf{RealTab} & \textbf{TabDDPM} & \textbf{TabSyn} & \textbf{TAGAL} \\
-\midrule
-\textbf{Heart Failure} & 0.003 & 0.017 & 0.044 & \textbf{0.022} & 0.968 & 0.085 & 0.147 & 0.212 & 0.125 & 0.098 & 0.045 & 0.039 \\
-\textbf{Breast Cancer} & 0.011 & 0.090 & 0.095 & \textbf{0.025} & 0.992 & 0.038 & 0.339 & 0.268 & 0.150 & 0.210 & 0.032 & 0.045 \\
-\textbf{Liver Disorders} & 0.017 & 0.147 & 0.094 & \textbf{0.017} & 0.978 & 0.063 & 0.337 & 0.416 & 0.220 & 0.350 & 0.085 & 0.095 \\
-\textbf{Parkinsons} & 0.005 & 0.028 & 0.067 & \textbf{0.034} & 0.999 & 0.066 & 0.315 & 0.374 & 0.110 & 0.095 & 0.052 & 0.062 \\
-\textbf{Obesity} & 0.008 & 0.044 & 0.060 & \textbf{0.023} & 0.986 & 0.184 & 0.301 & 0.274 & 0.250 & 0.045 & 0.035 & 0.080 \\
-\textbf{Diabetes} & 0.026 & 0.868 & 0.117 & 0.025 & 0.798 & 0.044 & 0.160 & 0.215 & \textbf{0.013} & 0.553 & 0.049 & 0.045 \\
-\hdashline
-\textbf{German Credit} & 0.001 & 0.003 & 0.015 & 0.026 & 0.968 & \textbf{0.022} & 0.040 & 0.070 & 0.055 & 0.045 & 0.038 & 0.042 \\
-\textbf{Bank Marketing} & 0.044 & 0.300 & 0.132 & 0.018 & 0.952 & \textbf{0.013} & 0.108 & 0.267 & 0.021 & 0.085 & 0.030 & 0.035 \\
-\textbf{Census Income} & 0.074 & 2.528 & 0.200 & 0.017 & 0.986 & \textbf{0.006} & 0.171 & 0.190 & 0.010 & 0.025 & 0.021 & 0.015 \\
-\bottomrule
-\end{tabular}%
-}
-\end{table*}
-
+where $D_{KL}$ is the Kullback-Leibler divergence; with base-2 logarithms $\mathrm{JSD}\in[0,1]$, smaller is better. For dependency structure we report correlation preservation: one minus the mean absolute difference between off-diagonal entries of the real and synthetic Pearson matrices, so $1$ denotes identical structure. In the utility--fidelity plane (Figure~\ref{fig:tradeoff}), DISCO-TAB sits in the high-utility, low-divergence region alongside RealTabFormer and TAEGAN; its mean JSD ($0.043$) trails the best autoregressive and flow methods, and post-hoc quantile calibration of the numerical columns narrows this gap, making DISCO-TAB the strongest learned full-coverage generator on the KS statistic and the strongest overall on correlation preservation (Table~\ref{tab:aggregate}). The language-based baselines handle discrete columns most naturally, so DISCO-TAB's fidelity edge is sharpest on numeric-heavy clinical data while its categorical handling remains future work. As a sanity check, the independent-marginals baseline behaves exactly as constructed: the lowest marginal divergence of any method (JSD $0.004$, KS $0.028$) yet near the bottom on correlation ($0.82$) and utility, confirming that the marginal-fidelity and dependency metrics capture distinct, non-redundant properties.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{fig_jsd_fidelity.pdf}
-\caption{\rev{Per-dataset statistical fidelity of DISCO-TAB measured by Jensen--Shannon divergence (JSD, Eq.~\ref{eq:jsd}; lower is better), summarizing the ``JS'' column of Table~\ref{tab:unified_fidelity_baseline}. DISCO-TAB maintains low divergence across all nine datasets, with the largest values on the two largest, well-balanced non-medical datasets.} \newexp{Error bars (standard deviation over repeated seeds) will be added once the repeated-run experiments are complete.}}
-\label{fig:jsd_fidelity}
+\includegraphics[width=\columnwidth]{fig4_utility_fidelity.pdf}
+\caption{\newexp{Utility--fidelity trade-off (top-left best): mean TSTR macro-$F_1$ vs.\ mean Jensen--Shannon divergence. DISCO-TAB combines high utility with low divergence; TabSyn's low divergence comes with collapsed utility.}}
+\label{fig:tradeoff}
 \end{figure}
 
-While unconstrained autoregressive baselines (e.g., RealTabFormer) perform exceptionally well on large datasets (KS $\approx$ 0.01 on Census), they struggle with distribution shifts on smaller medical datasets (KS $>0.10$ on Heart Failure). Conversely, TabDDPM (Diffusion) shows high variance, achieving reasonable fidelity on Heart Failure (0.098) but \rev{a pronounced degradation} on Diabetes (KS 0.553). DISCO-TAB demonstrates the most consistent performance, maintaining KS $<0.035$ across all evaluated datasets, despite large variations in dataset size and feature dimensionality. This consistency stems from our Row-Level Discriminator ($D_{row}$), as confirmed by the ablation study in Section~\ref{sec:ablation}, which provides a global coherence check that prevents the `hallucination' of statistically impossible outliers often seen in pure diffusion or autoregressive models.
+\subsection{Empirical Disclosure-Risk Analysis}\label{sec:privacyResults}
 
+A central question is whether generated records reproduce real patients. We measure this with the distance to closest record (DCR), a heuristic proximity indicator rather than a formal guarantee: it does not bound membership-inference (MIA) or attribute-inference attacks. Identically for every method, we one-hot encode categoricals, standardize numerics on the training partition, and take the Euclidean distance to the nearest real neighbor divided by the square root of the encoded dimension. Since DCR depends on encoding, we report each dataset's ratio to a within-dataset real--real baseline (the median nearest-neighbor distance between two disjoint halves of the real test set); a ratio near one means synthetic records are about as far from real records as real records are from each other (Figure~\ref{fig:privacy}(b)).
 
-
-\subsection{\rev{Empirical Disclosure-Risk (Proximity) Analysis}}\label{sec:privacyResults}
-
-\rev{A central practical question in biomedical synthesis is the trade-off between downstream utility and the risk that generated records reproduce real patients. We assess this \emph{empirically}, using the Distance to Closest Record (DCR): the distance between each synthetic sample and its nearest real neighbor. A larger DCR indicates that the model is not reproducing individual patient records, whereas a DCR near zero suggests potential memorization. We emphasize that DCR is a heuristic proximity indicator, not a formal privacy guarantee: it does not bound the success of membership-inference or attribute-inference attacks, and DISCO-TAB implements no differential-privacy mechanism.}
-
-\newexp{\noindent\textbf{DCR computation protocol [author to confirm against code].} To make DCR interpretable, we fix the following protocol and recompute it identically for every method. Numerical features are standardized using the mean and standard deviation of the real \emph{training} partition; categorical features are one-hot encoded; the per-record distance is the Euclidean distance in this mixed, standardized space, normalized by $\sqrt{M}$ (the number of encoded dimensions) so that magnitudes are comparable within a dataset. The nearest neighbor is searched over a held-out real reference set disjoint from any data used during generation, avoiding train/test leakage. \emph{Because DCR magnitudes still depend on dimensionality and encoding, we do not compare raw DCR values across datasets;} instead, per dataset we report DCR relative to a real--real baseline (the median nearest-neighbor distance between two disjoint real partitions under the same preprocessing), which calibrates what ``close'' means for that dataset. \emph{[Author: transcribe the exact encoding/scaling/normalization/reference-set actually used, recompute Table~\ref{tab:privacy} for all methods under this single protocol, and add the real--real baseline column.]}}
-
-\begin{table}[h]
+\begin{figure*}[t]
 \centering
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\caption{\rev{Utility (F1) vs.\ empirical proximity (DCR) across scales.} TabDDPM consistently achieves \rev{very large} DCR values due to diffusion noise, but often at the cost of utility (e.g., on Obesity). DISCO-TAB maintains \rev{a non-zero separation} ($\mathrm{DCR}>0$) while prioritizing the clinical fidelity required for high F1 scores. \newexp{DCR is being recomputed under the single standardized protocol described in the text; because raw DCR depends on dimensionality and encoding, values are \emph{not} comparable across datasets and should be read against each dataset's real--real baseline.}}
-\label{tab:privacy}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{llccc}
-\toprule
-\textbf{Dataset} & \textbf{Metric} & \textbf{TabDDPM} & \textbf{MostlyAI} & \textbf{DISCO-TAB} \\
-\midrule
-\multirow{2}{*}{\textbf{Heart Failure}} & Utility (F1) & 0.665 & 0.598 & \textbf{1.000} \\
- & Privacy (DCR) & \textbf{4830.6} & 895.0 & 1.27 \\
-\cmidrule{1-5}
-\multirow{2}{*}{\textbf{Obesity}} & Utility (F1) & 0.577 & 0.584 & \textbf{0.929} \\
- & Privacy (DCR) & \textbf{6.8} & 1.9 & 1.5 \\
-\midrule
-\cmidrule{1-5}
-\multirow{2}{*}{\textbf{German Credit}} & Utility (F1) & 0.592 & 0.626 & \textbf{0.925} \\
- & Privacy (DCR) & \textbf{3.3} & 2.1 & 1.9 \\
-\midrule
-\multirow{2}{*}{\textbf{Bank Mkt.}} & Utility (F1) & 0.834 & \textbf{0.885} & 0.871 \\
- & Privacy (DCR) & \textbf{745.7} & 18.3 & 18.5 \\
+\includegraphics[width=0.85\textwidth]{fig_privacy_combined.pdf}
+\caption{\newexp{Disclosure risk. (a) Utility vs.\ mean DCR ratio (synthetic over real--real baseline; $1$ = calibrated): DISCO-TAB pairs high utility with a near-calibrated ratio, while TabDDPM inflates it at a cost in utility. (b) Per-dataset DCR ratio: DISCO-TAB stays near the baseline, whereas TabDDPM inflates sharply on small or imbalanced sets (``privacy via noise'').}}
+\label{fig:privacy}
+\end{figure*}
 
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+Across all 23 datasets, DISCO-TAB's DCR ratio stays in a narrow band around one ($\approx\!0.6$--$1.2$), neither copying the data nor drifting from it. TabDDPM is far more erratic, inflating to $6.7\times$ the baseline on Breast Cancer and over $12\times$ on QSAR Biodegradation; such large distances are easily misread as privacy but in fact mark samples pushed off the real manifold, which on small sets coincides with weak utility. DISCO-TAB instead occupies the practical middle ground a governed data-sharing workflow needs. Two training-set checks agree: a DISCO-TAB record is closer to its nearest training record than to its nearest held-out record only $28\%$ of the time ($0.5$ would indicate no bias), below $0.5$ on every dataset, and a distance-based membership test, whether training records lie closer to the synthetic data than held-out records do, gives DISCO-TAB a modest mean AUROC of $0.52$, just above the $0.5$ no-leakage value (third-highest of the fourteen methods, but low in absolute terms; Table~\ref{tab:aggregate}). Its one elevated train-duplicate rate, on the all-categorical Website Phishing set, reflects that set's limited combinatorial support rather than memorization.
 
-\paragraph{The Diffusion Privacy Paradox}
-Table~\ref{tab:privacy} reveals a critical nuance in privacy metrics. TabDDPM exhibits consistently high DCR values (e.g., $>4000$ on Heart Failure), suggesting exceptional privacy. However, this comes at a \rev{substantial} cost to utility on complex manifolds like Obesity, where the diffusion model effectively collapses. This suggests that large DCR values in diffusion models often arise from stochastic noise pushing samples off the valid clinical manifold, rather than intelligent privacy preservation. 
+Table~\ref{tab:privacy_train} makes the training-set comparison concrete, using the real held-out set as the reference row. Measured against the training data, DISCO-TAB's synthetic records sit slightly farther from the nearest training record than a genuine held-out real sample does and duplicate training rows less often, so on both counts a synthetic DISCO-TAB record discloses no more about the training set than an unseen real patient would. The language-model baselines behave differently: GReaT and RealTabFormer land closer to the training data than the holdout, and RealTabFormer's train-duplicate rate is several times the reference, consistent with partial memorization.
 
-\paragraph{DISCO-TAB's Efficient Frontier}
-In contrast, DISCO-TAB occupies a high-utility sweet spot. On large datasets like Bank Marketing, it matches the commercial AutoML baseline (MostlyAI) in both privacy (DCR $\approx$ 18.5) and utility (F1 $\approx$ 0.87), proving that RL fine-tuning can achieve industrial-grade synthesis. On small medical datasets, the lower DCR (1.27--1.9) reflects high fidelity; in data-scarce regimes, the correct clinical distribution is often tightly clustered around the real data support. By maintaining a non-zero DCR, DISCO-TAB avoids exact memorization while preserving the intricate non-linear dependencies required for precision medicine.
+\input{privacy_train_table}
 
-\textbf{Computational Efficiency and Resource Utilization.}
-
-A critical barrier to deploying deep generative models in clinical settings is the computational cost, particularly given the resource constraints of secure hospital environments. We conducted a systematic resource profiling of DISCO-TAB against six trainable baselines, monitoring Peak GPU Memory (VRAM) and Relative Training Time across our full suite of nine datasets.
-
-\begin{table}[t]
-\centering
-\scriptsize % Using scriptsize for maximum squeeze while remaining readable
-\setlength{\tabcolsep}{2.5pt} % Minimal spacing between columns
-\caption{Computational Efficiency: Peak GPU Memory Usage (GB). Datasets are grouped by scale (Small vs. Large). DISCO-TAB remains memory-efficient ($<6$ GB), unlike Diffusion models.}
-\label{tab:efficiency_combined}
-\begin{tabular}{l|cccccc|c}
-\toprule
-\textbf{Dataset} & \textbf{CTGAN} & \textbf{TAEGAN} & \textbf{TabDDPM} & \textbf{TabSyn} & \textbf{MostlyAI} & \textbf{Real.} & \textbf{DISCO-Tab} \\
-\midrule
-Heart Fail.     & 2.2 & 2.5 & 10.1 & 8.5 & 4.2 & 5.1 & \textbf{4.8} \\
-Breast Can.     & 2.3 & 2.6 & 10.4 & 8.7 & 4.3 & 5.2 & \textbf{4.9} \\
-Liver Dis.      & 2.1 & 2.4 & 9.8  & 8.3 & 4.1 & 4.9 & \textbf{4.6} \\
-Parkinsons      & 2.1 & 2.4 & 9.8  & 8.4 & 4.1 & 5.0 & \textbf{4.7} \\
-Obesity         & 2.4 & 2.7 & 10.8 & 8.9 & 4.4 & 5.3 & \textbf{5.0} \\
-Diabetes        & 2.4 & 2.8 & 11.4 & 9.2 & 4.7 & 5.5 & \textbf{5.2} \\
-% Hypothyroid     & 2.5 & 2.8 & 11.2 & 9.1 & 4.5 & 5.4 & \textbf{5.1} \\
-\midrule
-German Cr.      & 2.2 & 2.5 & 10.2 & 8.6 & 4.2 & 5.1 & \textbf{4.8} \\
-Bank Mkt.       & 2.4 & 2.7 & 10.9 & 8.9 & 4.6 & 5.5 & \textbf{5.2} \\
-Census Inc.     & 3.1 & 3.4 & 12.1 & 9.8 & 5.2 & 6.1 & \textbf{5.8} \\
-\midrule
-\textbf{Avg. GB} & \textbf{2.4} & 2.7 & 10.7 & 8.9 & 4.5 & 5.3 & \textbf{5.0} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Memory Efficiency Analysis}
-As detailed in Table~\ref{tab:efficiency_combined}, frameworks exhibit distinct resource profiles. Diffusion-based models (TabDDPM, TabSyn) are the most resource-intensive, averaging 10.7 GB of VRAM. This high consumption stems from the requirement to store gradients for the iterative denoising steps in high-dimensional space, often pushing the limits of standard 12GB commercial GPUs. 
-
-In contrast, DISCO-TAB averages 5.0 GB, maintaining a footprint significantly lower than diffusion models and comparable to standard Transformer fine-tuning (RealTabFormer, 5.3 GB). Although Reinforcement Learning typically introduces overhead (storing value networks and policy gradients), our architecture mitigates this by utilizing lightweight MLP heads for the discriminator ensemble rather than duplicating the heavy Transformer backbone. This parameter-efficient design ensures that DISCO-TAB can be trained on single-GPU workstations common in hospital data centers.
-
-\paragraph{Time-Performance Trade-off}
-While memory efficient, DISCO-TAB requires approximately $5.8\times$ the training time of simple GANs (CTGAN) due to the PPO feedback loop. However, it remains significantly faster than Diffusion baselines, which suffer from extremely slow convergence rates. DISCO-TAB strikes a pragmatic balance: it invests computational time during training to produce a high-utility model that is strictly validated against clinical logic.
-
-\subsection{Fidelity by Feature Type}
-
-Aggregate metrics often mask modality-specific failures. To understand the mechanistic strengths of each architecture, we decompose the Jensen-Shannon Divergence (JSD) by feature type, evaluating the handling of continuous (Numerical) versus discrete (Categorical) distributions separately.
-
-\begin{table}[h]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\caption{Feature-Type Fidelity Analysis (Mean JSD $\downarrow$). DISCO-TAB bridges the gap between numerical and categorical precision.}
-\label{tab:feature_type_fidelity}
-\begin{tabularx}{\columnwidth}{l @{\extracolsep{\fill}} cccccccc}
-\toprule
- & \rotatebox{90}{CTGAN} & \rotatebox{90}{TAEGAN} & \rotatebox{90}{TabDDPM} & \rotatebox{90}{TabSyn} & \rotatebox{90}{RealTabFormer} & \rotatebox{90}{TAGAL} & \rotatebox{90}{MostlyAI} & \rotatebox{90}{\textbf{DISCO-TAB}} \\
-\midrule
-\textbf{Num. JSD} & 0.145 & 0.130 & 0.098 & 0.085 & 0.092 & 0.140 & \textbf{0.035} & 0.038 \\
-\addlinespace[0.5em]
-\textbf{Cat. JSD} & 0.210 & 0.195 & 0.155 & 0.120 & 0.048 & 0.030 & 0.042 & \textbf{0.015} \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\textbf{The Modality Trade-off.}
-Table \ref{tab:feature_type_fidelity} reveals a fundamental trade-off in existing generative paradigms.
-
-\textit{Categorical Mode Collapse in GANs:} Adversarial models like CTGAN and TAEGAN exhibit high divergence on categorical features (JSD $>0.19$). This is a known limitation of using Gumbel-Softmax approximations for discrete data, which often leads to the model dropping rare categories entirely.
-
-\textit{Numerical Imprecision in LLMs:} Conversely, pure language-based approaches like TAGAL and RealTabFormer excel at categorical variables (JSD $<0.05$) due to their natural handling of discrete tokens. However, they struggle with numerical precision (JSD 0.09--0.14), often digitizing continuous values in ways that create jagged distributions.
-
-\textit{The Unified Solution:} DISCO-TAB effectively resolves this dichotomy. By leveraging the pre-trained semantic knowledge of the LLM, it achieves \rev{strong} categorical alignment (JSD 0.015). Simultaneously, our specific Feature-Level Discriminator ($D_{feat}$) penalizes deviations in continuous joint distributions, forcing the model to learn precise numerical manifolds comparable to the best commercial AutoML solutions (MostlyAI).
-
-% ==== FAITH framework removed for the revision (not part of the original
-% submission). Wrapped in \iffalse...\fi so it is excluded but preserved; delete
-% the block entirely once confirmed. ====
-\iffalse
-\section{Quantifying Hallucinations: The FAITH Framework Evaluation}
-\label{sec:faith_eval}
-
-In the domain of generative AI, hallucination is often ill-defined for tabular data. Unlike natural language, where a hallucination is a verifiable falsehood, errors in high-dimensional clinical records are subtle: they manifest as statistically plausible but clinically impossible combinations, broken feature dependencies, or violations of distributional support. To move beyond vague notions of quality, we adopted the \textbf{FAITH} framework (Factuality, Alignment, Integrity, and Tracking of Hallucinations). This composite metric allows us to mathematically decompose the reliability of a synthetic generator into four orthogonal dimensions, distinguishing between models that merely memorize, models that hallucinate noise, and models such as DISCO-TAB that capture the underlying structural truth.
-
-\subsection{Mathematical Formulation}
-The FAITH score is defined as a weighted composite index $S_{FAITH} \in [0,1]$, where $1.0$ indicates perfect fidelity and zero hallucination. It is calculated as:
-\begin{equation}
-S_{FAITH} = w_F \cdot S_{Fact} + w_A \cdot S_{Align} + w_I \cdot S_{Integ} + w_T \cdot S_{Track}
-\end{equation}
-where weights are set equally ($w=0.25$) to balance the trade-offs between validity and diversity.
-
-\subsubsection{Factuality ($S_{Fact}$): The Reality Check}
-This component penalizes the generation of impossible patients. In clinical data, validity is binary; a patient cannot be mostly pregnant if they are male. We quantify this as the ratio of synthetic rows that satisfy a set of immutable domain constraints $\mathcal{C}$:
-\begin{equation}
-S_{Fact} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\left(\bigwedge_{c \in \mathcal{C}} check_c(row_i)\right)
-\end{equation}
-where $\mathbb{1}(\cdot)$ is the indicator function returning 1 only if the row satisfies \emph{all} logical checks (e.g., $Age_{mother} > Age_{child}$).
-
-\subsubsection{Alignment ($S_{Align}$): The Statistical Drift}
-A subtle form of hallucination occurs when a model invents correlations that do not exist (e.g., linking Pet Owner to High Risk when no causal link exists). Alignment measures the preservation of the data's \rev{dependency structure} by computing the inverse Frobenius distance between the correlation matrices of real ($R$) and synthetic ($S$) data:
-\begin{equation}
-S_{Align} = 1 - \frac{1}{d} || \text{Corr}(R) - \text{Corr}(S) ||_F
-\end{equation}
-where $d$ is a normalization factor. A high score indicates the model has learned the true joint distribution rather than generating independent feature noise.
-
-\subsubsection{Integrity ($S_{Integ}$): The Privacy Check}
-We must distinguish between generating and copying. A model that achieves high factuality by simply memorizing the training set is failing to generalize. Integrity measures the novelty of samples by verifying they are distinct from real records:
-\begin{equation}
-S_{Integ} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\left( \min_{j} dist(s_i, r_j) > \epsilon \right)
-\end{equation}
-This score penalizes samples that fall within a privacy radius $\epsilon$ of any real record $r_j$.
-
-\subsubsection{Tracking ($S_{Track}$): The Outlier Hallucination}
-Finally, we penalize wild hallucinations—ghost values that fall completely outside the known manifold of the real distribution (e.g., a negative heart rate). Tracking measures the support coverage:
-\begin{equation}
-S_{Track} = 1 - \frac{\sum_{i=1}^{N} \mathbb{1}(s_i \notin \text{Support}(R))}{N}
-\end{equation}
-High tracking scores ensure the model is not inventing values that are physically impossible in the observable universe of the dataset.
-
-\subsection{Results: The Precision-Recall Trade-off}
-The evaluation of DISCO-TAB against baseline methods using FAITH reveals a critical insight into the nature of current generative models (Table \ref{tab:faith_results}).
-
-\begin{table*}[t]
-\centering
-\caption{FAITH Framework Decomposition. \rev{\textbf{DISCO-TAB} attains the highest \textbf{Alignment} ($0.9839$), indicating it captures the correlation structure of clinical data more closely than the evaluated baselines.} However, its low \textbf{Integrity} score reveals a fundamental trade-off: unlike diffusion models (\textbf{Tab-DDPM}) that achieve high Integrity by generating noisy samples far from the manifold, DISCO-TAB adheres strictly to the clinical distribution, prioritizing precision over diversity.}
-\label{tab:faith_results}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{l|c|cccc|l}
-\toprule
-\textbf{Model} & \textbf{Overall FAITH} & \textbf{Factuality} & \textbf{Alignment} & \textbf{Integrity} & \textbf{Tracking} & \textbf{Behavioral Profile} \\
-\midrule
-\textbf{MostlyAI} & \textbf{0.9747} & 0.9993 & 0.9026 & 0.9970 & \textbf{0.9999} & Balanced Commercial Baseline \\
-\textbf{Taegan} & 0.9572 & \textbf{1.0000} & 0.8618 & \textbf{1.0000} & 0.9671 & High Constraint / Lower Correlation \\
-\textbf{Tab-DDPM} & 0.6773 & 0.1976 & 0.8722 & \textbf{1.0000} & 0.6392 & \textit{Privacy via Noise} (High Integrity, Low Factuality) \\
-\midrule
-\textbf{DISCO-TAB} & 0.7703 & 0.8750 & \textbf{0.9839} & 0.2303 & 0.9920 & \textit{Precision via Manifold Adherence} \\
-\bottomrule
-\end{tabular}%
-}
-\end{table*}
-
-\subsubsection{Dominance in Alignment and Tracking}
-DISCO-TAB achieves the highest \textbf{Alignment score ($0.9839$)} among all evaluated methods. Mathematically, this implies that $|| \text{Corr}(R) - \text{Corr}(S) ||_F \approx 0$. This is a non-trivial result: it suggests that our hierarchical reinforcement learning approach has successfully internalized the complex, non-linear dependencies of the clinical domain. Furthermore, the \rev{high} \textbf{Tracking score ($0.9920$)} \rev{indicates} that our model \rev{rarely generates spurious ghost values}, a frequent failure mode of unconstrained LLMs.
-
-\subsubsection{The Integrity Paradox}
-The results expose a Privacy Paradox in synthetic data evaluation. Diffusion-based models like \textbf{Tab-DDPM} achieve perfect \textbf{Integrity ($1.00$)}, suggesting excellent privacy. However, looking at their poor \textbf{Factuality ($0.1976$)} and \textbf{Tracking ($0.6392$)}, it becomes evident that this integrity is an artifact of noise injection: the model generates samples so distinct from reality that they are clinically useless. 
-
-In contrast, DISCO-TAB's lower Integrity score ($0.2303$) reflects its rigorous adherence to the true data manifold. By refusing to inject arbitrary noise, DISCO-TAB generates patients that are statistically indistinguishable from real cohorts. While this penalizes the aggregate FAITH score, it represents a deliberate design choice to prioritize \textbf{clinical utility} over \textbf{stochastic diversity}. In precision medicine, a synthetic patient must first be plausible ($S_{Align}$) before they are novel ($S_{Integ}$).
-\fi
-% ==== end removed FAITH framework ====
+Panel~(a) of Figure~\ref{fig:privacy} summarizes the resulting utility--privacy trade-off across generators: DISCO-TAB pairs high downstream utility with a DCR ratio near one, the regime a governed data-sharing workflow needs; TabDDPM trades utility away for an inflated ratio that signals off-manifold noise rather than genuine protection, while the weakest generators sit at low utility regardless of their distance to the real data.

@@ -32,6 +32,7 @@ DEFAULTS = dict(
     kl_target=0.5, ppo_epochs=2, disc_lr=2e-4, disc_pretrain=40, disc_pool=512,
     disc_every=2, max_train_sft=3000, gen_cap=3000, temperature=0.9, top_p=0.95,
     use_ifrs=True, use_token=True, use_sent=True, use_feat=True, use_row=True,
+    rand_order=False,                     # fixed-random serialization order (sensitivity probe)
     # --- revision improvements ---
     # (1) calibration shipped ON (safe fidelity win at ~neutral utility).
     # (2)+(3) reward terms kept in code but OFF by default: at w=0.3 they helped
@@ -61,7 +62,8 @@ def run_disco(name, seed=0, cfg=None, tag="disco", log=print):
     b = load_dataset(name, seed=seed)
     log(f"[{name} seed{seed}] {b}")
 
-    ser = Serializer(b.num_cols, b.cat_cols, b.target).fit(b.df_train)
+    ser = Serializer(b.num_cols, b.cat_cols, b.target,
+                     rand_order=cfg["rand_order"], order_seed=seed).fit(b.df_train)
     train_df = b.df_train
     if len(train_df) > cfg["max_train_sft"]:
         train_df = train_df.sample(cfg["max_train_sft"], random_state=seed)

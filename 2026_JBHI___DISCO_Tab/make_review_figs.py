@@ -1,72 +1,91 @@
 #!/usr/bin/env python3
-"""Generate the two summary figures requested by Reviewer 1 (JBHI-00758-2026).
+"""Results-section figure: empirical disclosure-risk (DCR) ratio across the whole
+benchmark, computed from the committed per-run JSONs in ../disco/results.
 
-Values are taken verbatim from Table I (relative utility gain, Delta F1) and
-Table II (per-dataset Jensen-Shannon divergence for DISCO-TAB). No values are
-fabricated: these are the point estimates already reported in the manuscript.
-Once repeated-run data are available, replace `yerr=None` with the per-dataset
-standard deviations to obtain error bars.
+fig_privacy.pdf -- for every dataset, the median distance to the closest real
+record divided by the within-dataset real-real baseline, for DISCO-TAB and
+TabDDPM. A ratio near 1 (dashed line) means synthetic records sit about as far
+from real records as real records sit from each other. DISCO-TAB stays near 1
+everywhere; TabDDPM inflates sharply on several small/imbalanced datasets,
+the ``privacy via noise'' artifact.
 """
+import os, json, glob
+import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+RES = os.path.join(HERE, "..", "disco", "results")
 plt.rcParams.update({
-    "font.size": 8,
-    "font.family": "serif",
-    "axes.linewidth": 0.6,
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-    "figure.dpi": 300,
+    "font.size": 8, "font.family": "serif", "axes.linewidth": 0.6,
+    "axes.edgecolor": "#5a5a5a", "axes.spines.top": False,
+    "axes.spines.right": False, "xtick.color": "#5a5a5a",
+    "ytick.color": "#5a5a5a", "figure.dpi": 300, "savefig.bbox": "tight",
+    "savefig.pad_inches": 0.02,
 })
+BLUE, ORANGE, GRID, INK, MUTED = "#0072B2", "#D55E00", "#E6E6E6", "#222222", "#8a8a8a"
 
-# Colorblind-safe (Okabe-Ito) accents; print-friendly.
-BLUE = "#0072B2"
-ORANGE = "#D55E00"
-GRAY = "#999999"
+DS = {"heart_failure": "Heart Failure", "breast_cancer": "Breast Cancer",
+      "liver_disorders": "Liver Disorders", "parkinsons": "Parkinson's",
+      "obesity": "Obesity", "diabetes": "Diabetes", "german_credit": "German Credit",
+      "bank_marketing": "Bank Marketing", "census_income": "Census Income",
+      "surv_melanoma": "Melanoma", "surv_pbc": "PBC", "surv_pbc3": "PBC3",
+      "surv_retinopathy": "Retinopathy", "surv_whas500": "WHAS500",
+      "surv_gbsg2": "GBSG2", "surv_colon": "Colon", "surv_grace": "GRACE",
+      "surv_trace": "TRACE", "surv_framingham": "Framingham",
+      "tab_blood_transfusion": "Blood Transf.", "tab_qsar_biodeg": "QSAR Biodeg",
+      "tab_maternal_risk": "Maternal Risk", "tab_website_phishing": "Website Phish."}
 
-datasets = ["Heart\nFailure", "Breast\nCancer", "Liver\nDisorders", "Parkinson's",
-            "Obesity", "Diabetes", "German\nCredit", "Bank\nMkt.", "Census\nInc."]
 
-# --- Figure 1: Relative utility gain (Delta F1) over strongest baseline ---
-delta = [0.123, 0.004, 0.382, 0.080, 0.027, -0.104, 0.275, -0.014, -0.006]
-# std_delta = [...]  # <-- insert per-dataset SD from repeated runs, then set yerr
+def mean(ds, tag, key):
+    xs = []
+    for f in sorted(glob.glob(os.path.join(RES, f"{ds}__{tag}__seed*.json"))):
+        try:
+            v = json.load(open(f)).get(key)
+            if v is not None and not (isinstance(v, float) and np.isnan(v)):
+                xs.append(float(v))
+        except Exception:
+            pass
+    return float(np.mean(xs)) if xs else None
 
-fig, ax = plt.subplots(figsize=(3.4, 2.1))
-colors = [BLUE if v >= 0 else ORANGE for v in delta]
-bars = ax.bar(range(len(datasets)), delta, color=colors, width=0.68,
-              edgecolor="black", linewidth=0.4)  # yerr=std_delta, capsize=2
-ax.axhline(0, color="black", linewidth=0.6)
-ax.set_xticks(range(len(datasets)))
-ax.set_xticklabels(datasets, fontsize=6.2)
-ax.set_ylabel(r"$\Delta$F1 vs. best baseline")
-ax.axvline(5.5, color=GRAY, linestyle=":", linewidth=0.7)
-ax.text(1.0, 0.47, "Medical", ha="center", fontsize=6.5, color=GRAY)
-ax.text(7.0, 0.47, "Non-medical", ha="center", fontsize=6.5, color=GRAY)
-for i, v in enumerate(delta):
-    ax.text(i, v + (0.012 if v >= 0 else -0.028), f"{v:+.3f}",
-            ha="center", fontsize=5.3)
-ax.set_ylim(-0.18, 0.52)
-fig.tight_layout(pad=0.3)
-fig.savefig("fig_utility_margin.pdf", bbox_inches="tight")
+
+rows = []
+for ds in DS:
+    base = mean(ds, "disco", "dcr_realreal_median")
+    d = mean(ds, "disco", "dcr_median")
+    t = mean(ds, "tabddpm", "dcr_median")
+    if base and d and t:
+        rows.append((DS[ds], d / base, t / base))
+rows.sort(key=lambda r: r[2])                       # by TabDDPM ratio
+labels = [r[0] for r in rows]
+disco = np.array([r[1] for r in rows])
+tabddpm = np.array([r[2] for r in rows])
+y = np.arange(len(rows))
+XMAX = 3.0
+
+fig, ax = plt.subplots(figsize=(3.5, 5.0))
+ax.xaxis.grid(True, color=GRID, linewidth=0.6)
+ax.axvline(1.0, color=MUTED, linestyle=(0, (3, 2)), linewidth=0.9)
+ax.text(1.0, len(rows) - 0.2, "real-real\nbaseline", ha="center", va="bottom",
+        fontsize=5.6, color=MUTED)
+ax.scatter(np.clip(tabddpm, 0, XMAX), y, s=22, marker="D", color=ORANGE,
+           label="TabDDPM", zorder=4)
+ax.scatter(np.clip(disco, 0, XMAX), y, s=22, marker="o", color=BLUE,
+           label="DISCO-TAB", zorder=5)
+for i, v in enumerate(tabddpm):                      # annotate off-scale inflation
+    if v > XMAX:
+        ax.annotate(f"{v:.1f}$\\times$", (XMAX, i), xytext=(XMAX - 0.02, i),
+                    ha="right", va="center", fontsize=5.6, color=ORANGE,
+                    arrowprops=dict(arrowstyle="->", color=ORANGE, lw=0.6))
+ax.set_yticks(y)
+ax.set_yticklabels(labels, fontsize=6.0)
+ax.set_xlim(0.3, XMAX + 0.05)
+ax.set_ylim(-0.6, len(rows) + 0.4)
+ax.set_xlabel("DCR ratio to real-real baseline", fontsize=8)
+ax.legend(fontsize=7, frameon=False, loc="lower right")
+ax.tick_params(length=0)
+fig.tight_layout(pad=0.25)
+fig.savefig("fig_privacy.pdf")
 plt.close(fig)
-
-# --- Figure 2: Per-dataset statistical fidelity (JSD, lower is better) ---
-jsd = [0.003, 0.011, 0.017, 0.005, 0.008, 0.026, 0.001, 0.044, 0.074]
-# std_jsd = [...]  # <-- insert per-dataset SD from repeated runs, then set yerr
-
-fig, ax = plt.subplots(figsize=(3.4, 2.1))
-bars = ax.bar(range(len(datasets)), jsd, color=BLUE, width=0.68,
-              edgecolor="black", linewidth=0.4)  # yerr=std_jsd, capsize=2
-ax.set_xticks(range(len(datasets)))
-ax.set_xticklabels(datasets, fontsize=6.2)
-ax.set_ylabel(r"Jensen--Shannon div. (JSD) $\downarrow$")
-ax.axvline(5.5, color=GRAY, linestyle=":", linewidth=0.7)
-for i, v in enumerate(jsd):
-    ax.text(i, v + 0.001, f"{v:.3f}", ha="center", fontsize=5.3)
-ax.set_ylim(0, 0.085)
-fig.tight_layout(pad=0.3)
-fig.savefig("fig_jsd_fidelity.pdf", bbox_inches="tight")
-plt.close(fig)
-
-print("Wrote fig_utility_margin.pdf and fig_jsd_fidelity.pdf")
+print("Wrote fig_privacy.pdf")

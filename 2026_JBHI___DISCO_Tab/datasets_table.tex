@@ -1,30 +1,30 @@
-\begin{table}[t]\centering\small
-\setlength{\tabcolsep}{5pt}\renewcommand{\arraystretch}{1.05}
-\caption{Benchmark datasets (23 total: 9 from the original study plus 10 clinical time-to-event cohorts from SurvSet and 4 from TabArena). Time-to-event cohorts use the event indicator as a binary target.}
+\begin{table}[t]\centering\scriptsize
+\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.05}
+\caption{The 23 benchmark datasets: nine widely used clinical/financial/social sets, 10 SurvSet time-to-event cohorts, and 4 from TabArena/OpenML. $N$: instances; Feat.: features; Cls.: classes; IR: imbalance ratio. Time-to-event cohorts use the event indicator as the target; all use a stratified 80/20 split.}
 \label{tab:datasets}
-\begin{tabular}{@{}llrrrl@{}}\toprule
-\textbf{Dataset} & \textbf{Domain} & \textbf{\#Inst.} & \textbf{\#Feat.} & \textbf{\#Cls.} & \textbf{Source} \\ \midrule
-Heart Failure & Clinical & 299 & 12 & 2 & \cite{chicco2020ml} \\
-Breast Cancer & Clinical & 569 & 30 & 2 & \cite{uci} \\
-Liver Disorders & Clinical & 345 & 5 & 2 & \cite{uci} \\
-Parkinsons & Clinical & 195 & 22 & 2 & \cite{little2007exploiting} \\
-Obesity & Clinical & 2111 & 16 & 7 & \cite{palechor2019dataset} \\
-Diabetes & Clinical & 100000 & 8 & 2 & \cite{kaggle_diabetes} \\
-German Credit & Finance & 1000 & 20 & 2 & \cite{uci} \\
-Bank Marketing & Finance & 45211 & 16 & 2 & \cite{moro2014data} \\
-Census Income & Finance & 48842 & 14 & 2 & \cite{kohavi1996scaling} \\
-Melanoma & Clinical & 205 & 5 & 2 & \cite{drysdale2022survset} \\
-PBC & Clinical & 312 & 6 & 2 & \cite{drysdale2022survset} \\
-PBC3 & Clinical & 349 & 12 & 2 & \cite{drysdale2022survset} \\
-Retinopathy & Clinical & 368 & 7 & 2 & \cite{drysdale2022survset} \\
-WHAS500 & Clinical & 461 & 16 & 2 & \cite{drysdale2022survset} \\
-GBSG2 & Clinical & 686 & 8 & 2 & \cite{drysdale2022survset} \\
-Colon & Clinical & 885 & 9 & 2 & \cite{drysdale2022survset} \\
-GRACE & Clinical & 998 & 5 & 2 & \cite{drysdale2022survset} \\
-TRACE & Clinical & 1878 & 6 & 2 & \cite{drysdale2022survset} \\
-Framingham & Clinical & 4699 & 7 & 2 & \cite{drysdale2022survset} \\
-Blood Transfusion & Clinical & 533 & 4 & 2 & \cite{erickson2025tabarena} \\
-QSAR Biodeg & Chemistry & 1052 & 41 & 2 & \cite{erickson2025tabarena} \\
-Maternal Risk & Clinical & 452 & 6 & 3 & \cite{erickson2025tabarena} \\
-Website Phishing & Security & 724 & 9 & 3 & \cite{erickson2025tabarena} \\
+\begin{tabular}{@{}llrrrrl@{}}\toprule
+\textbf{Dataset} & \textbf{Domain} & \textbf{$N$} & \textbf{Feat.} & \textbf{Cls.} & \textbf{IR} & \textbf{Source} \\ \midrule
+Heart Failure & Clinical & 299 & 12 & 2 & 2.1 & \cite{chicco2020ml} \\
+Breast Cancer & Clinical & 569 & 30 & 2 & 1.7 & \cite{wdbc_17} \\
+Liver Disorders & Clinical & 345 & 5 & 2 & 1.0 & \cite{liver_disorders_60} \\
+Parkinson's & Clinical & 195 & 22 & 2 & 3.1 & \cite{little2007exploiting} \\
+Obesity & Clinical & 2111 & 16 & 7 & 1.3 & \cite{palechor2019dataset} \\
+Diabetes & Clinical & 100000 & 8 & 2 & 10.8 & \cite{kaggle_diabetes} \\
+German Credit & Finance & 1000 & 20 & 2 & 2.3 & \cite{german_credit} \\
+Bank Marketing & Finance & 45211 & 16 & 2 & 7.6 & \cite{moro2014data} \\
+Census Income & Finance & 48842 & 14 & 2 & 3.2 & \cite{kohavi1996scaling} \\
+Melanoma & Clinical & 205 & 5 & 2 & 2.6 & \cite{drysdale2022survset} \\
+PBC & Clinical & 312 & 6 & 2 & 1.5 & \cite{drysdale2022survset} \\
+PBC3 & Clinical & 349 & 12 & 2 & 4.7 & \cite{drysdale2022survset} \\
+Retinopathy & Clinical & 368 & 7 & 2 & 1.5 & \cite{drysdale2022survset} \\
+WHAS500 & Clinical & 461 & 16 & 2 & 1.6 & \cite{drysdale2022survset} \\
+GBSG2 & Clinical & 686 & 8 & 2 & 1.3 & \cite{drysdale2022survset} \\
+Colon & Clinical & 885 & 9 & 2 & 1.0 & \cite{drysdale2022survset} \\
+GRACE & Clinical & 998 & 5 & 2 & 2.1 & \cite{drysdale2022survset} \\
+TRACE & Clinical & 1878 & 6 & 2 & 1.0 & \cite{drysdale2022survset} \\
+Framingham & Clinical & 4699 & 7 & 2 & 2.2 & \cite{drysdale2022survset} \\
+Blood Transfusion & Clinical & 533 & 4 & 2 & 2.6 & \cite{erickson2025tabarena,vanschoren2014openml} \\
+QSAR Biodeg & Chemistry & 1052 & 41 & 2 & 2.0 & \cite{erickson2025tabarena,vanschoren2014openml} \\
+Maternal Risk & Clinical & 452 & 6 & 3 & 2.2 & \cite{erickson2025tabarena,vanschoren2014openml} \\
+Website Phishing & Security & 724 & 9 & 3 & 5.8 & \cite{erickson2025tabarena,vanschoren2014openml} \\
 \bottomrule\end{tabular}\end{table}

@@ -208,4 +208,17 @@ hierarchical_discriminators_*.pth
 # Keep important files
 !README.md
 !requirements.txt
-!environment.yml
+!environment.ymlexternal/
+DISCO-TAB-public/
+
+# Large data / temp / caches (session cleanup)
+disco/synthetic/
+disco/logs/
+disco/workspace/
+disco/.hf_cache/
+disco/.watchdog_state
+external/
+2026_JBHI___DISCO_Tab/overleaf_sync/
+2026_JBHI___DISCO_Tab/new_version/
+2026_JBHI___DISCO_Tab/IEEEtran.bst
+*.bak

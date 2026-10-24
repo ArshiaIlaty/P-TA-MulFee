@@ -19,7 +19,8 @@ MISSING = "[MISSING]"
 
 
 class Serializer:
-    def __init__(self, num_cols, cat_cols, target="target", num_decimals=2):
+    def __init__(self, num_cols, cat_cols, target="target", num_decimals=2,
+                 rand_order=False, order_seed=0):
         self.num_cols = list(num_cols)
         self.cat_cols = list(cat_cols)
         self.target = target
@@ -27,7 +28,12 @@ class Serializer:
         # then the TARGET, then the remaining features. Emitting the target early
         # guarantees it is captured even if the LM later degenerates/loops on a
         # high-dimensional schema, and makes feature generation class-conditional.
+        # With rand_order=True the feature order is a fixed random permutation
+        # (seeded), used to probe sensitivity to serialization order.
         feats = self.num_cols + self.cat_cols
+        if rand_order and feats:
+            import numpy as _np
+            feats = list(_np.random.RandomState(order_seed).permutation(feats))
         self.order = ([feats[0], self.target] + feats[1:]) if feats else [self.target]
         self.num_decimals = num_decimals
 

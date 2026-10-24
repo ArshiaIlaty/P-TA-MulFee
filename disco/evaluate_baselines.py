@@ -25,6 +25,14 @@ def evaluate_csv(path, log=print):
         log(f"skip (bad name): {path}")
         return None
     ds, method, seed = m["ds"], m["method"], int(m["seed"])
+    out = os.path.join(HERE, "results", f"{ds}__{method}__seed{seed}.json")
+    # Resumable: skip if already scored (unless DISCO_FORCE_RESCORE set).
+    if not os.environ.get("DISCO_FORCE_RESCORE") and os.path.exists(out):
+        try:
+            if json.load(open(out)).get("tstr_f1_macro") is not None:
+                return None
+        except Exception:
+            pass
     try:
         b = load_dataset(ds, seed=seed)
     except Exception as e:

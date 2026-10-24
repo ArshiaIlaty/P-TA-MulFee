@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2026.5.31)  22 OCT 2026 16:36
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2026.5.31)  23 OCT 2026 16:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -253,11 +253,11 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 Here is how much of TeX's memory you used:
  2586 strings out of 480806
  34830 string characters out of 5905151
- 482327 words of memory out of 6000000
+ 476791 words of memory out of 6000000
  19967 multiletter control sequences out of 15000+600000
  411812 words of font info for 48 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 55i,10n,62p,465b,212s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,10n,62p,461b,212s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/font
 s/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texlive/texmf-dist/fonts/type1
 /public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
@@ -268,7 +268,7 @@ sy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbx0500.pfb
 share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/public/cm-super/sfrm0500.pfb></usr/share/texlive/
 texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb>
-Output written on benchmark_tables.pdf (11 pages, 260954 bytes).
+Output written on benchmark_tables.pdf (11 pages, 261067 bytes).
 PDF statistics:
  77 PDF objects out of 1000 (max. 8388607)
  54 compressed objects within 1 object stream

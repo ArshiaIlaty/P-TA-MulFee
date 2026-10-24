@@ -29,20 +29,20 @@ OUT = os.path.join(C, "paper")
 PAPER = "/home/ec2-user/P-TA-MulFee/2026_JBHI___DISCO_Tab"
 os.makedirs(OUT, exist_ok=True)
 
-# Column grouping by model family (DISCO-TAB = ours, shown first). FULLCOV =
-# the models with full dataset coverage; only these are eligible for the
-# "best per row" bolding (subset models TAEGAN/GReaT/RTF/TAGAL are not).
+# Column grouping by model family (DISCO-TAB = ours, shown first). The set of
+# full-coverage models eligible for "best per row" bolding is computed
+# dynamically (fullcov_models): the models whose dataset coverage equals the
+# maximum over all models (the full 23-dataset benchmark). Partial-coverage
+# models (TabSyn, GReaT, RTF, TAGAL) are therefore excluded automatically.
 FAMILIES = [
     ("Ours", ["disco"]),
     ("GAN", ["ctgan", "adsgan", "pategan", "taegan"]),
     ("VAE", ["tvae", "rtvae"]),
-    ("Diff.", ["tabddpm"]),  # tabsyn added here once its runs land
-    ("Stat./Flow", ["gaussian_copula", "nflow", "marginal"]),
+    ("Diff.", ["tabddpm", "tabsyn"]),
+    ("Stat./Flow", ["nflow", "marginal"]),
     ("LLM", ["great", "realtabformer", "tagal"]),
 ]
 MODELS = [m for _, ms in FAMILIES for m in ms]
-FULLCOV = ["disco", "ctgan", "adsgan", "pategan", "tvae", "rtvae", "tabddpm",
-           "gaussian_copula", "nflow", "marginal"]
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow",
@@ -103,31 +103,56 @@ def agg(df, metric):
     return out
 
 
-def best_among(sbm, direction, pool):
-    cand = {m: v[0] for m, v in sbm.items() if m in pool}
-    if not cand:
-        return None
+def _key(direction):
+    # returns a sort key where the smallest value is the BEST for that metric
     if direction == "up":
-        return max(cand, key=cand.get)
+        return lambda v: -v
     if direction == "down":
-        return min(cand, key=cand.get)
-    return min(cand, key=lambda m: abs(cand[m] - 0.5))
+        return lambda v: v
+    return lambda v: abs(v - 0.5)   # "half": 0.5 is ideal (MIA AUROC, C2ST)
 
 
-def fmt(mean, ci, bold=False):
+def rank_models(sbm, direction, pool=None):
+    """Models ordered best-first for this metric (across `pool`, or all)."""
+    cand = {m: v[0] for m, v in sbm.items()
+            if (pool is None or m in pool) and not np.isnan(v[0])}
+    return sorted(cand, key=lambda m: _key(direction)(cand[m]))
+
+
+def best_among(sbm, direction, pool):
+    order = rank_models(sbm, direction, pool)
+    return order[0] if order else None
+
+
+def fmt(mean, ci, rank=0):
     # value and CI on the SAME line; CI in a smaller font, 2 dp w/o leading 0
     # so the 14-column table fits the IEEE two-column width.
+    # rank: 1 = best (bold+underline), 2 = second (bold), 3 = third (underline).
     s = f"{mean:.3f}"
     if ci is None or np.isnan(ci):
         cell = s
     else:
         c = (f"{ci:.2f}".lstrip("0")) or ".00"
         cell = f"{s}\\,{{\\tiny$\\pm${c}}}"
-    return f"\\textbf{{{cell}}}" if bold else cell
+    if rank == 1:
+        return f"\\textbf{{\\underline{{{cell}}}}}"
+    if rank == 2:
+        return f"\\textbf{{{cell}}}"
+    if rank == 3:
+        return f"\\underline{{{cell}}}"
+    return cell
 
 
 def coverage(df):
     return {m: int(df[df.model == m]["dataset"].nunique()) for m in MODELS}
+
+
+def fullcov_models(df):
+    """Models with full benchmark coverage (dataset count == the max observed).
+    Only these are eligible for the per-row 'best' bolding."""
+    cov = coverage(df)
+    mx = max(cov.values()) if cov else 0
+    return [m for m in MODELS if cov.get(m, 0) >= mx]
 
 
 def table1(df):
@@ -142,15 +167,13 @@ def table1(df):
     L = [
         r"\begin{table*}[t]\centering\scriptsize",
         r"\setlength{\tabcolsep}{1.1pt}\renewcommand{\arraystretch}{1.15}",
-        r"\caption{Benchmark summary: mean over all datasets with 95\% CI (same "
-        r"cell, smaller font) for each metric and generator, grouped by model "
-        r"family. \textbf{Bold} = best per row among the full-coverage models. "
-        r"Arrows give the preferred direction. \emph{Ranges:} all scores lie in "
-        r"$[0,1]$ except DCR, MMD and Wasserstein, which are unbounded "
-        r"($\geq 0$, scale depends on the dataset), and PRDC density, which may "
-        r"exceed $1$; MIA AUROC and C2ST are AUROCs for which $0.5$ is ideal "
-        r"(synthetic indistinguishable from real). The \#datasets row gives "
-        r"per-model coverage; `--' marks a metric not evaluated for that model.}",
+        r"\caption{\newexp{Benchmark summary: mean over datasets with 95\% CI (smaller "
+        r"font) per metric and generator, grouped by family. Per row across all "
+        r"generators, \textbf{\underline{bold+underline}}/\textbf{bold}/"
+        r"\underline{underline} = best/second/third; means use each generator's covered "
+        r"datasets (see the \#datasets row). Arrows give the preferred direction; all "
+        r"scores lie in $[0,1]$ except DCR/MMD/Wasserstein (unbounded) and PRDC density "
+        r"($>\!1$ possible); MIA and C2ST are AUROCs with $0.5$ ideal.}}",
         r"\label{tab:aggregate}",
         r"\begin{tabular}{@{}cl *{%d}{c}@{}}" % N,
         r"\toprule",
@@ -164,14 +187,15 @@ def table1(df):
         n = len(metrics)
         for j, (metric, direction, lab) in enumerate(metrics):
             sbm = agg(df, metric)
-            bi = best_among(sbm, direction, FULLCOV)
+            order = rank_models(sbm, direction)       # global best-first, all models
+            rank_of = {m: i + 1 for i, m in enumerate(order[:3])}  # 1,2,3
             cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{\shortstack{%s}}}" % (n, dim)
                      if j == 0 else "")
             row = [cell0, lab]
             for m in MODELS:
                 if m in sbm:
                     mean, ci, _ = sbm[m]
-                    row.append(fmt(mean, ci, bold=(m == bi)))
+                    row.append(fmt(mean, ci, rank=rank_of.get(m, 0)))
                 else:
                     row.append("--")
             L.append(" & ".join(row) + r" \\")
@@ -180,6 +204,7 @@ def table1(df):
 
 
 def table2(df):
+    fc = fullcov_models(df)
     L = [
         r"\begin{table}[t]\centering\small",
         r"\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.1}",
@@ -200,7 +225,7 @@ def table2(df):
             if "disco" not in sbm:
                 continue
             dmean, dci, _ = sbm["disco"]
-            pool = [m for m in FULLCOV if m != "disco"]
+            pool = [m for m in fc if m != "disco"]
             bi = best_among(sbm, direction, pool)
             cell0 = (r"\multirow{%d}{*}{\rotatebox[origin=c]{90}{\shortstack{%s}}}" % (n, dim)
                      if j == 0 else "")
@@ -215,8 +240,8 @@ def table2(df):
             else:
                 dwin = abs(dmean - 0.5) <= abs(bmean - 0.5)
             name = (r"\textbf{%s}" if not dwin else r"%s") % MLAB[bi]
-            L.append(" & ".join([cell0, lab, fmt(dmean, dci, dwin),
-                                 fmt(bmean, bci, not dwin), name]) + r" \\")
+            L.append(" & ".join([cell0, lab, fmt(dmean, dci, 2 if dwin else 0),
+                                 fmt(bmean, bci, 2 if not dwin else 0), name]) + r" \\")
     L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
     return "\n".join(L)
 

@@ -16,11 +16,11 @@ os.makedirs(OUT, exist_ok=True)
 
 # ARF and the Bayesian network dropped from the analysis (authors' choice for the
 # revision). FAITH dropped too (not part of the original submission).
-GEN_MODELS = ["disco", "ctgan", "tvae", "gaussian_copula", "tabddpm",
+GEN_MODELS = ["disco", "ctgan", "tvae", "tabddpm",
               "adsgan", "pategan", "rtvae", "nflow", "marginal",
               "great", "realtabformer", "taegan", "tagal", "tabsyn"]
 MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
-        "gaussian_copula": "GaussCop", "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
+        "tabddpm": "TabDDPM", "adsgan": "ADS-GAN",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow",
         "marginal": "Marginals",
         "great": "GReaT", "realtabformer": "RealTabF", "tabsyn": "TabSyn",

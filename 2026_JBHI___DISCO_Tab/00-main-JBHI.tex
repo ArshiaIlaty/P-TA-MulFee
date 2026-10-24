@@ -25,27 +25,29 @@
 \usepackage{hyperref}
 \hypersetup{hidelinks=true}
 \usepackage{textcomp}
-\usepackage{arydshln}
-\usepackage{ntheorem}
+% arydshln/ntheorem unused after the revision (no dashed rules or theorem envs)
 \usepackage{longtable}
 \usepackage[figuresleft]{rotating}
 % \usepackage{rotating}   % for \rotatebox
 \usepackage{array}
-\usepackage{pdflscape} 
-\usepackage{siunitx}
-\usepackage{makecell}
-\usepackage{comment}
-\usepackage{tcolorbox}
+\usepackage{pdflscape}
+% siunitx/makecell/tcolorbox/comment unused after the revision
 \usepackage{ragged2e}
 \usepackage{xcolor}
-% --- Revision highlighting (JBHI-00758-2026 major revision) ---
-% \rev{}    : blue  -> text revisions in response to reviewers
-% \newexp{} : red   -> new experiments / newly reported results
-\newcommand{\rev}[1]{{\color{blue}#1}}
-\newcommand{\newexp}[1]{{\color{red}#1}}
+% --- Revision macros (JBHI-00758-2026 major revision) ---
+% The revised manuscript reads as a single coherent document, so revision text
+% is typeset normally. To produce a change-marked copy for the reviewers,
+% redefine these to {\color{blue}#1} and {\color{red}#1} respectively.
+\newcommand{\rev}[1]{#1}
+\newcommand{\newexp}[1]{#1}
 \newcommand{\cmark}{\ensuremath{\checkmark}}
 \newcommand{\pmark}{\ensuremath{\sim}}
 \newcommand{\xmark}{\ensuremath{\times}}
+% Compact display-equation spacing to conserve vertical space (26 equations).
+\setlength{\abovedisplayskip}{3pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{3pt plus 1pt minus 1pt}
+\setlength{\abovedisplayshortskip}{1pt plus 1pt}
+\setlength{\belowdisplayshortskip}{2pt plus 1pt}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -108,44 +110,13 @@ Biomedical Informatics, Synthetic Data Generation, Reinforcement Learning, Gener
 \appendix
 \subsection{Code and Data Availability}
 \label{sec:code}
-The full pipeline, benchmark, and all synthetic-data evaluation code are publicly available at \url{https://github.com/ArshiaIlaty/DISCO-TAB} to support reproducibility and reuse.
+The full pipeline, all synthetic-data evaluation code, and the complete per-dataset benchmark for every generator and metric are publicly available at \url{https://github.com/ArshiaIlaty/DISCO-TAB} to support reproducibility and reuse.
 
 \subsection{Implementation and Computational Resources}
 \label{sec:implementation}
+All experiments ran on a single node with one NVIDIA T4 GPU (16~GB); DISCO-TAB's GPT-2 backbone and lightweight discriminator heads keep it within this budget, reflecting the modest hardware common in clinical computing environments. The framework is implemented in Python with PyTorch, using the Hugging Face \texttt{transformers} library for the GPT-2 backbone and a customized Proximal Policy Optimization loop; baselines use their authors' released implementations under the shared evaluation protocol. The complete hyperparameter configuration is given in Section~\ref{sec:methodology}, and exact library versions are pinned in the released environment files.
 
-To ensure reproducibility and rigorous benchmarking, all experiments were conducted in a unified hardware and software environment.
-
-\subsubsection{Hardware Configuration}
-All model training and evaluation were performed on a single node equipped with \rev{an NVIDIA A100 Tensor Core GPU (80GB VRAM)}. While our ablation studies (Section~\rev{\ref{sec:ablation}}) demonstrate that DISCO-TAB can be effectively trained on consumer-grade hardware (e.g., NVIDIA RTX 3090 with 24GB VRAM) due to our parameter-efficient design, we utilized high-memory infrastructure to facilitate concurrent baseline evaluations.
-
-\subsubsection{Software and Libraries}
-The framework was implemented in \textbf{Python 3.9} using \textbf{PyTorch 2.1.0} as the primary deep learning backend.
-
-\textbf{Generative Backbone:} We utilized the \texttt{transformers} library (v4.35.0) by Hugging Face to initialize the GPT-2 architecture.
-
-\textbf{Reinforcement Learning:} The PPO optimization loop was implemented using the \texttt{trl} (Transformer Reinforcement Learning) library, customized to support our hierarchical multi-objective reward function.
-
-\textbf{Baselines:} Adversarial baselines (CTGAN, TAEGAN) were implemented using the \texttt{SDV} (Synthetic Data Vault) library (v1.4.0). Diffusion baselines (TabDDPM) were reproduced using the official implementations provided by their respective authors to ensure fair comparison.
-
-\textbf{Metrics:} Statistical distance metrics (JSD, Wasserstein) were computed using \texttt{scipy.stats}, and machine learning utility scores were calculated using \texttt{scikit-learn} (v1.3.0).
-
-\subsubsection{Hyperparameter Configuration}
-For the DISCO-TAB generator, we employed the AdamW optimizer with a learning rate of $2 \times 10^{-5}$ and a linear decay schedule. The PPO phase utilized a distinct learning rate of $1.4 \times 10^{-5}$ for the value network, with a clip range $\epsilon = 0.2$ and a mini-batch size of 64. To manage the stability of the adversarial discriminators, we used a lower learning rate of $1 \times 10^{-4}$ with spectral normalization. All models were trained for a maximum of 100 epochs with early stopping based on the validation set perplexity (patience $= 10$ epochs).
-
-\subsection{Use of AI-Based Writing Assistance}
-In accordance with best practice for academic transparency, the authors acknowledge the use of Gemini (Google) in the preparation of this manuscript to assist with writing polish and structural organization. Specifically, the tool was utilized to refine the text in the Abstract, Introduction, Related Work, and Discussion sections to improve readability, ensure a formal academic tone, and correct typographical issues. The prompts used for these revisions generally instructed the model to ``revise this text for clarity and flow,'' ``restructure this section to meet the standards of a biomedical informatics journal,'' and ``evaluate and critique the methodological narrative.'' No AI-based tools were used to generate the core scientific claims, experimental data, analytical results, or novel architectural designs presented in this work.
-
-\subsection{Comprehensive Benchmark Tables}
-\label{sec:appendix-benchmark}
-For full transparency and colleague/reviewer inspection, we report the complete
-benchmark below. Table~\ref{tab:aggregate} gives the per-metric mean (with 95\%
-CI) across all datasets for every generator, grouped by model family;
-Table~\ref{tab:vsbest} contrasts DISCO-TAB against the single best competing
-generator on each metric. (These are placed here for review and can be moved
-into the main text as space permits.)
-\input{paper_table1_aggregate}
-\input{paper_table2_vs_best}
-
-\input{biography}
+% Author biographies are omitted from the current revision; uncomment to restore.
+% \input{biography}
 
 \end{document}

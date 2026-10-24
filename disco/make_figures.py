@@ -31,11 +31,12 @@ MLAB = {"disco": "DISCO-TAB", "ctgan": "CTGAN", "tvae": "TVAE",
         "pategan": "PATE-GAN", "rtvae": "RTVAE", "nflow": "NFlow", "arf": "ARF",
         "bayesian_network": "BayesNet", "marginal": "Marginals",
         "great": "GReaT", "realtabformer": "RealTabFormer",
-        "taegan": "TAEGAN", "tagal": "TAGAL"}
+        "taegan": "TAEGAN", "tagal": "TAGAL", "tabsyn": "TabSyn"}
 DLAB = lambda d: d.replace("surv_", "").replace("tab_", "").replace("_", " ").title()
-# ARF + Bayesian network dropped from the analysis (authors' revision choice).
-DROP = {"arf", "bayesian_network"}
-CLASSIC = ["ctgan", "tvae", "gaussian_copula", "adsgan", "pategan", "rtvae",
+# ARF + Bayesian network + GaussianCopula dropped from the analysis
+# (authors' revision choice).
+DROP = {"arf", "bayesian_network", "gaussian_copula"}
+CLASSIC = ["ctgan", "tvae", "adsgan", "pategan", "rtvae",
            "nflow", "marginal"]
 MEDICAL = {"heart_failure", "breast_cancer", "liver_disorders", "parkinsons",
            "obesity", "diabetes", "surv_melanoma", "surv_pbc", "surv_pbc3",
@@ -50,7 +51,8 @@ ORDER = ["heart_failure", "breast_cancer", "liver_disorders", "parkinsons", "obe
 
 
 def mean_df(metric):
-    return pd.read_csv(os.path.join(C, f"{metric}__datasets_x_models.csv"), index_col=0)
+    d = pd.read_csv(os.path.join(C, f"{metric}__datasets_x_models.csv"), index_col=0)
+    return d.drop(index="tab_credit_g", errors="ignore")  # duplicate of German Credit
 
 
 def save(fig, name):
@@ -211,11 +213,42 @@ def fig_tradeoff():
     save(fig, "fig4_utility_fidelity")
 
 
+# ---- Fig 6: utility vs privacy trade-off (scatter) ----
+def fig_privacy_tradeoff():
+    u = mean_df("tstr_f1_macro")
+    dm = mean_df("dcr_median"); rr = mean_df("dcr_realreal_median")
+    models = [m for m in u.columns if m in dm.columns and m in rr.columns
+              and u[m].notna().sum() >= 8 and m not in DROP]
+    fig, ax = plt.subplots(figsize=(5.0, 4.0))
+    ax.axvline(1.0, color="#888888", linestyle=(0, (3, 2)), linewidth=0.9)
+    ax.annotate("calibrated\n(DCR $\\approx$ real--real)", (1.0, 0.30), fontsize=6.3,
+                color="#888888", ha="center")
+    for m in models:
+        ratio = (dm[m] / rr[m]).replace([float("inf"), float("-inf")], pd.NA).dropna().mean()
+        y = u[m].mean()
+        if ratio is None or pd.isna(ratio):
+            continue
+        if m == "disco":
+            ax.scatter(ratio, y, s=150, marker="*", color=ACCENT, edgecolor=EDGE,
+                       lw=0.6, zorder=5)
+            ax.annotate("DISCO-TAB", (ratio, y), fontsize=8.5, fontweight="bold",
+                        color=ACCENT, xytext=(6, 4), textcoords="offset points")
+        else:
+            ax.scatter(ratio, y, s=34, color=NEUTRAL, edgecolor=EDGE, lw=0.4, zorder=3)
+            ax.annotate(MLAB[m], (ratio, y), fontsize=6.3, color="#666",
+                        xytext=(4, -6), textcoords="offset points")
+    ax.set_xlabel("Mean DCR ratio (synthetic / real--real; 1 = calibrated)", fontsize=8.5)
+    ax.set_ylabel("Mean TSTR F1-macro (utility, ↑ better)", fontsize=8.5)
+    ax.set_title("Utility–privacy trade-off", fontsize=9.5, color=INK)
+    save(fig, "fig6_utility_privacy")
+
+
 if __name__ == "__main__":
     s = fig_leaderboard()
     fig_margin()
     fig_llm()
     fig_tradeoff()
+    fig_privacy_tradeoff()
     fig_winrate()
     print("wrote figures to", FIG)
     print(os.listdir(FIG))
