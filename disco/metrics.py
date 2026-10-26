@@ -113,11 +113,17 @@ def tstr_f1(b, df_syn, clf="rf", n_estimators=200, seed=0):
     Xtr, ytr = Xtr[keep], ytr[keep]
     Xte, yte = b.pp.xy(b.df_test)
     n_used = int(keep.sum())
-    if n_used == 0 or len(np.unique(ytr)) < 2:
+    if n_used == 0:
         return {"f1_macro": 0.0, "f1_weighted": 0.0, "accuracy": 0.0,
-                "n_train_used": n_used}
-    m = _fit_clf(Xtr, ytr, clf, n_estimators, seed)
-    pred = m.predict(Xte)
+                "n_train_used": 0}
+    if len(np.unique(ytr)) < 2:
+        # Single-class synthetic data trains only a constant predictor; report
+        # its real TSTR scores (majority-class accuracy, low macro-F1) rather
+        # than a fabricated 0.0, which previously misrepresented collapsed runs.
+        pred = np.full(len(yte), ytr[0])
+    else:
+        m = _fit_clf(Xtr, ytr, clf, n_estimators, seed)
+        pred = m.predict(Xte)
     return {
         "f1_macro": float(f1_score(yte, pred, average="macro", zero_division=0)),
         "f1_weighted": float(f1_score(yte, pred, average="weighted", zero_division=0)),

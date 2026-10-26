@@ -1,132 +1,116 @@
-# P-TA: Privacy-Preserving Tabular Data Augmentation with LLMs
+# DISCO-TAB: Discriminator-Guided Control for Clinically Constrained Tabular Synthesis
 
-P-TA leverages large language models (LLMs) and hierarchical discriminators to generate high-quality, privacy-preserving synthetic tabular data. The project supports advanced pipelines for datasets like HELOC, with multi-level feedback, PPO-based reinforcement learning, and adversarial training.
+DISCO-TAB fine-tunes a GPT-2 generator with a **hierarchy of discriminators**
+(token / sentence / feature / row) coupled to reward-shaped PPO, plus
+**inverse-frequency reward shaping (IFRS)** and post-hoc calibration, to generate
+high-fidelity, utility-preserving synthetic tabular data for data-scarce,
+imbalanced clinical settings. It builds on the P-TA framework (original P-TA/HELOC
+code retained under version history).
+
+This repository accompanies the IEEE JBHI submission *"DISCO-TAB: A Hierarchical
+Reinforcement Learning Framework for Clinically Constrained Tabular Data
+Synthesis."* The manuscript sources live in [`2026_JBHI___DISCO_Tab/`](2026_JBHI___DISCO_Tab);
+the experiment code lives in [`disco/`](disco).
 
 ---
 
-## 🚀 Project Workflow Overview
+## 📊 Headline results
 
-```mermaid
-graph TD
-    A[Start: Prepare Real Data] --> B[Format Data as Prompts]
-    B --> C[Train Model (GREAT or PPO)]
-    C --> D[Generate Synthetic Data]
-    D --> E[Parse & Clean Synthetic Data]
-    E --> F[Evaluate Synthetic Data]
-    F --> G[Compare with Baseline]
-    G --> H[Iterate: Tune, Retrain, Regenerate]
+Benchmark: **14 generators × 23 datasets × 21 metrics**, three seeds, one shared
+evaluation pipeline (clinical, financial, chemical, and web domains; SurvSet,
+TabArena, and OpenML sources). Baselines span GAN (CTGAN, ADS-GAN, PATE-GAN,
+TAEGAN), VAE (TVAE, RTVAE), diffusion/latent (TabDDPM, TabSyn), flow/marginal
+(NFlow, Marginals), and language-model (GReaT, RealTabFormer, TAGAL) families.
+
+| Dimension | Metric | DISCO-TAB | Notes |
+|---|---|---|---|
+| Downstream utility | TSTR macro-F1 | **0.64** | top-tier; statistically on par with the strongest baseline (TAEGAN) |
+| Minority recovery | minority-class recall | **0.61** | best full-coverage generator (next best ≈ 0.50); holds across RF / LogReg / XGBoost |
+| Statistical fidelity | correlation preservation | **0.92** | leads the full-coverage field |
+| Statistical fidelity | Kolmogorov–Smirnov | **0.078** | strongest learned full-coverage generator |
+| Disclosure risk | DCR ratio (syn / real–real) | **≈ 1.0** | near-calibrated; neither copying nor off-manifold |
+| Disclosure risk | membership-inference AUROC | **0.52** | just above the 0.5 no-leakage value |
+
+DISCO-TAB's distinction is **breadth and robustness**: it stays near the top on
+utility, fidelity, and detectability at once, generates the minority class at
+≈1.45× its real frequency (IFRS), and never collapses to a single class.
+
+### Statistical testing
+
+- **Friedman test** over the full-coverage generators rejects equal mean ranks.
+- **Pairwise Wilcoxon signed-rank** tests, pairing unit = one per-dataset mean
+  TSTR macro-F1 per dataset, with **Holm–Bonferroni** correction across the
+  family. DISCO-TAB is statistically on par with the strongest baselines and
+  significantly above the weaker GAN / VAE / flow / marginal ones.
+- A **critical-difference (Nemenyi) diagram** summarizes the ranking, generated
+  per metric.
+
+Visualizations (generated into `disco/tables/comprehensive/figures/` and
+`.../nemenyi/`):
+
+| Figure | Script |
+|---|---|
+| Wilcoxon vs. each generator (Holm-corrected, IQR whiskers) | `disco/fig_wilcoxon.py` → `fig_wilcoxon_holm.pdf` |
+| Pairwise tournament heatmap (median ΔF1, Holm-marked) | `disco/fig_stats_heatmap.py` → `fig_stats_heatmap.pdf` |
+| Critical-difference diagrams, one per metric (21) | `disco/fig_nemenyi.py` → `nemenyi/` |
+| Utility leaderboard / per-dataset margin / utility–fidelity / privacy | `disco/make_figures.py` |
+
+---
+
+## 📂 Repository layout
+
+```
+disco/                     DISCO-TAB experiment code (training, baselines, scoring, figures)
+  run_experiment.py        DISCO-TAB: SFT + hierarchical-discriminator PPO + IFRS
+  baselines_synthcity.py   synthcity baselines (CTGAN/ADS-GAN/PATE-GAN/TVAE/RTVAE/NFlow/TabDDPM)
+  baselines_llm.py         GReaT / RealTabFormer      run_tabsyn.py  TabSyn
+  run_taegan.py  run_tagal.py                         gen_marginal.py  independent-marginals sampler
+  metrics.py  evaluate_baselines.py  evaluate_ext.py  eval_downstream.py   scoring pipeline
+  make_comprehensive.py    aggregate per-run JSON → long.csv + per-metric tables
+  make_paper_tables.py  make_downstream_ext_table.py  make_privacy_train_table.py
+  make_wilcoxon.py  fig_nemenyi.py  fig_wilcoxon.py  fig_stats_heatmap.py   statistics
+  tables/comprehensive/    long.csv, per-metric CSVs, figures/, nemenyi/
+2026_JBHI___DISCO_Tab/     LaTeX manuscript (IEEE JBHI)
 ```
 
----
+### Conda environments
 
-## 🛠️ Step-by-Step Process
-
-### 1. **Prepare Environment & Data**
-- Clone the repo and install dependencies:
-  ```bash
-  git clone <repo-url>
-  cd P-TA
-  pip install torch==2.3.0 tokenizers==0.19.1 transformers==4.40.1 pandas==2.2.2 scikit-learn numpy trl
-  ```
-- Place your real dataset (e.g., `heloc.csv`) in the project root.
-
-### 2. **Format Data as Prompts**
-- Use the provided `format_row` utility to convert each row to a text prompt.
-
-### 3. **Model Training**
-- **Supervised (GREAT):**
-  - Use `great_heloc.py` or `great.py` to fine-tune GPT-2 on your tabular data.
-- **Reinforcement Learning (PPO):**
-  - Use `ppo_hierarchical_heloc.py` to train with PPO and hierarchical discriminator feedback.
-  - Example (on GPU 3):
-    ```bash
-    CUDA_VISIBLE_DEVICES=3 python ppo_hierarchical_heloc.py --total_steps 1000 --batch_size 2 --learning_rate 1e-5
-    ```
-  - The script will save the model to `gpt2_ppo_hierarchical_heloc/` and logs to `ppo_training_logs/`.
-
-### 4. **Generate Synthetic Data**
-- Use `generate_ppo_heloc.py` to generate synthetic data from your PPO-finetuned model:
-  ```bash
-  CUDA_VISIBLE_DEVICES=3 python generate_ppo_heloc.py
-  ```
-- The script uses only the first 3 features as prompt for diversity and saves results to `output_ppo_heloc.csv`.
-
-### 5. **Parse & Clean Synthetic Data**
-- Parse each generated row into structured columns (see parsing script suggestion below).
-- Remove incomplete or malformed rows.
-
-### 6. **Evaluate Synthetic Data**
-- Use your evaluation script (e.g., `evaluate_heloc.py`) to assess utility, privacy, and diversity:
-  ```bash
-  python evaluate_heloc.py --synthetic_csv output_ppo_heloc_parsed.csv
-  ```
-- Compare results to baseline and previous models.
-
-### 7. **Iterate & Tune**
-- Adjust PPO training steps, batch size, learning rate, or prompt length for better results.
-- Retrain and regenerate as needed.
+| Env | Used for |
+|---|---|
+| `base` | DISCO-TAB training (`run_experiment.py`) |
+| `discobase` | SDV/SDMetrics, TabSyn, TAEGAN, `evaluate_ext.py`, figures |
+| `discodiff` | synthcity baselines, XGBoost, `evaluate_baselines.py`, `eval_downstream.py` |
+| `discollm` | GReaT, TAGAL |
+| `discoRTF` | RealTabFormer |
 
 ---
 
-## 📂 Major Scripts & Their Purpose
+## 🔁 Reproduce
 
-| Script                        | Purpose                                                      |
-|-------------------------------|--------------------------------------------------------------|
-| `great_heloc.py` / `great.py` | Supervised fine-tuning (GREAT) of GPT-2 on tabular data      |
-| `ppo_hierarchical_heloc.py`   | PPO-based RL training with hierarchical discriminator reward  |
-| `generate_ppo_heloc.py`       | Generate synthetic data from PPO-finetuned model             |
-| `evaluate_heloc.py`           | Evaluate synthetic data utility, privacy, and diversity      |
-| `utils.py`                    | Data formatting and helper functions                         |
+```bash
+# 1. DISCO-TAB on one dataset
+conda run -n base python disco/run_experiment.py --dataset heart_failure --seed 0
 
----
+# 2. Baselines (example: synthcity zoo on all datasets, three seeds)
+conda run -n discodiff python disco/baselines_synthcity.py --seeds 0 1 2
 
-## ⚡ Best Practices
-- **GPU Selection:** Use `CUDA_VISIBLE_DEVICES=<gpu_id>` to run on a specific GPU.
-- **Batch Size:** Start with 1–2 for PPO; increase if memory allows.
-- **Prompt Length:** Use partial prompts (first 3–5 features) for more diverse generation.
-- **Training Steps:** More steps = better generation. Start with 1000+ for PPO.
-- **Monitoring:** Use `nvidia-smi` to monitor GPU usage. Check logs for OOM or instability.
-- **Parsing:** Always parse and clean generated data before evaluation.
-- **Evaluation:** Use the same metrics and scripts for all models for fair comparison.
+# 3. Score everything + aggregate
+conda run -n discodiff python disco/evaluate_baselines.py --glob "disco/synthetic/baselines/*.csv"
+conda run -n discobase python disco/make_comprehensive.py
 
----
-
-## 🧩 Example: Parsing Synthetic Data
-```python
-import pandas as pd
-
-def parse_generated_text_to_dict(text):
-    fields = text.split(", ")
-    data_dict = {}
-    for field in fields:
-        if " is " in field:
-            key, value = field.split(" is ", 1)
-            data_dict[key.strip()] = value.strip()
-    return data_dict
-
-df = pd.read_csv("output_ppo_heloc.csv")
-parsed = [parse_generated_text_to_dict(row['synthetic_text']) for _, row in df.iterrows()]
-df_parsed = pd.DataFrame(parsed)
-df_parsed.to_csv("output_ppo_heloc_parsed.csv", index=False)
-print("Saved parsed synthetic data to output_ppo_heloc_parsed.csv")
+# 4. Tables, figures, and statistics for the paper
+conda run -n discobase python disco/make_figures.py
+conda run -n discobase python disco/fig_nemenyi.py
+python disco/make_wilcoxon.py
 ```
 
----
-
-## 🌟 Project Highlights
-- **Supports both supervised (GREAT) and RL (PPO) synthetic data generation**
-- **Hierarchical discriminators for quality feedback**
-- **Robust logging, checkpointing, and GPU support**
-- **Flexible prompt and generation strategies**
-- **Comprehensive evaluation pipeline**
+Per-run outputs are written to `disco/results/*.json` and
+`disco/synthetic/`; everything in the paper is computed from the released
+`disco/tables/comprehensive/long.csv` under one shared pipeline.
 
 ---
 
-## 📈 Iterative Improvement
-- Train longer, use more diverse prompts, and tune hyperparameters for best results.
-- Always parse, clean, and evaluate synthetic data before use.
-- Compare against real data and previous models for continuous improvement.
+## 📄 Citation
 
----
-
-For any questions or to contribute, please open an issue or pull request!
+If you use this code, please cite the DISCO-TAB paper (IEEE JBHI, under review).
+See [`2026_JBHI___DISCO_Tab/`](2026_JBHI___DISCO_Tab) for the manuscript.

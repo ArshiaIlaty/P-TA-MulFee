@@ -55,10 +55,20 @@ def mean_df(metric):
     return d.drop(index="tab_credit_g", errors="ignore")  # duplicate of German Credit
 
 
+PAPER = "/home/ec2-user/P-TA-MulFee/2026_JBHI___DISCO_Tab"
+# figures the manuscript \includegraphics -- keep the paper-dir copies in sync so a
+# regeneration actually reaches the compiled PDF (they live in separate folders).
+PAPER_FIGS = {"fig1_utility_leaderboard", "fig2_utility_margin", "fig4_utility_fidelity"}
+
+
 def save(fig, name):
-    fig.savefig(os.path.join(FIG, name + ".pdf"))
+    import shutil
+    pdf = os.path.join(FIG, name + ".pdf")
+    fig.savefig(pdf)
     fig.savefig(os.path.join(FIG, name + ".png"))
     plt.close(fig)
+    if name in PAPER_FIGS and os.path.isdir(PAPER):
+        shutil.copy(pdf, os.path.join(PAPER, name + ".pdf"))
 
 
 # ---- Fig 1: utility leaderboard (mean TSTR F1 across datasets, DISCO highlighted) ----
@@ -88,7 +98,10 @@ def fig_leaderboard():
 # ---- Fig 2: per-dataset margin DISCO - best established baseline (diverging) ----
 def fig_margin():
     d = mean_df("tstr_f1_macro")
-    base = [m for m in CLASSIC if m in d.columns]
+    # margin vs. the best of ALL competing generators (every benchmarked model
+    # except DISCO itself and the dropped ARF/BayesNet/GaussianCopula), not just
+    # the classic GAN/VAE/flow/marginal subset.
+    base = [m for m in d.columns if m != "disco" and m not in DROP]
     rows = []
     for ds in [x for x in ORDER if x in d.index]:
         if pd.isna(d.loc[ds, "disco"]):
@@ -96,7 +109,7 @@ def fig_margin():
         bb = d.loc[ds, base].dropna()
         if bb.empty:
             continue
-        rows.append((ds, d.loc[ds, "disco"] - bb.max()))
+        rows.append((ds, d.loc[ds, "disco"] - bb.mean()))
     # medical first, then others; within group by value
     rows.sort(key=lambda r: (r[0] not in MEDICAL, r[1]))
     labels = [DLAB(r[0]) for r in rows]
@@ -117,11 +130,11 @@ def fig_margin():
     for i, v in enumerate(vals):
         ax.text(v + (0.004 if v >= 0 else -0.004), i, f"{v:+.3f}", va="center",
                 ha="left" if v >= 0 else "right", fontsize=6.3, color=INK)
-    ax.set_xlabel("ΔF1 = DISCO-TAB − best established baseline", fontsize=8.5)
-    ax.set_title(f"Per-dataset utility margin vs. best-of-{len(base)} established baselines\n(blue = DISCO-TAB wins)",
+    ax.set_xlabel("ΔF1 = DISCO-TAB − mean competing generator", fontsize=8.5)
+    ax.set_title(f"Per-dataset utility margin vs. the mean of all {len(base)} competing generators\n(blue = DISCO-TAB above average)",
                  fontsize=9.5, color=INK)
     wins = sum(v > 0 for v in vals)
-    ax.text(0.98, 0.02, f"DISCO-TAB best on {wins}/{len(vals)} datasets",
+    ax.text(0.98, 0.02, f"DISCO-TAB above average on {wins}/{len(vals)} datasets",
             transform=ax.transAxes, ha="right", fontsize=7.5, color=ACCENT)
     save(fig, "fig2_utility_margin")
 

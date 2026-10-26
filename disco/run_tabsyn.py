@@ -29,15 +29,34 @@ DEF_DATASETS = ["heart_failure", "obesity", "diabetes", "surv_whas500", "surv_pb
                 "tab_qsar_biodeg", "tab_website_phishing"]
 
 
-def align(syn, real_cols, target_classes):
+def _canon(v):
+    """Canonical label string so TabSyn's numeric target decoding matches the
+    real string labels: an integer-valued float like '1.0' becomes '1'. Without
+    this, a binclass target decoded as 0.0/1.0 fails the string isin() check
+    against real labels {'0','1'} and every row gets remapped to one class,
+    manufacturing a false single-class 'collapse'."""
+    s = str(v).strip()
+    try:
+        f = float(s)
+        if f == int(f):
+            return str(int(f))
+    except (ValueError, TypeError):
+        pass
+    return s
+
+
+def align(syn, real_cols, real_target):
     syn = syn.copy()
     for c in real_cols:
         if c not in syn.columns:
             syn[c] = np.nan
     syn = syn[real_cols]
-    mode = pd.Series(list(target_classes)).mode()[0]
-    syn["target"] = syn["target"].astype(str)
-    syn.loc[~syn["target"].isin(target_classes), "target"] = mode
+    classes = set(real_target.map(_canon))
+    majority = real_target.map(_canon).value_counts().idxmax()
+    syn["target"] = syn["target"].map(_canon)
+    # only genuinely out-of-vocabulary values fall back -- now to the real
+    # majority class, not the lexicographically-first label.
+    syn.loc[~syn["target"].isin(classes), "target"] = majority
     return syn
 
 
@@ -56,7 +75,9 @@ def run_one(ds, seed=0, timeout=3600):
     syn = pd.read_csv(os.path.join(TABSYN, "synthetic", ds, "tabsyn.csv"))
     full = pd.read_csv(os.path.join(RAW, f"{ds}.csv"))
     full["target"] = full["target"].astype(str)
-    syn = align(syn, list(full.columns), set(full["target"]))
+    print(f"[raw target] {ds}: {syn['target'].astype(str).value_counts().head(8).to_dict()}", flush=True)
+    syn = align(syn, list(full.columns), full["target"])
+    print(f"[aligned target] {ds}: {syn['target'].value_counts().head(8).to_dict()}", flush=True)
     out = os.path.join(OUTDIR, f"{ds}__tabsyn__seed{seed}.csv")
     syn.to_csv(out, index=False)
     print(f"[OK] {ds} tabsyn seed{seed} -> {syn.shape}", flush=True)
